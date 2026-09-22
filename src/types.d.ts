@@ -9,6 +9,8 @@ interface GameTelemetry {
   pos: [number, number]; fps: number; speed: number; score: number; over: boolean;
   draws: number; tris: number; progress: number; drift: number; route: string;
   construction: number; modules: number; heading: number;
+  position?: number; aiProgress?: number[]; mode?: string;
+  assemblyProgress?: number;
 }
 
 interface Window {

@@ -6,3 +6,6 @@ _playtest/
 _gate/
 coverage/
 *.log
+*.tsbuildinfo
+
+.kite-passport/

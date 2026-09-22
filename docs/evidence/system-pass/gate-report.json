@@ -1,0 +1,124 @@
+{
+  "checks": {
+    "ready": true,
+    "buttonStart": true,
+    "desktopMoved": true,
+    "steering": true,
+    "drift": true,
+    "construction": true,
+    "runResult": true,
+    "touchMoved": true,
+    "touchSteered": true,
+    "championshipStarts": true,
+    "aiProgress": true,
+    "racePosition": true,
+    "nextRace": true,
+    "draws": true,
+    "tris": true,
+    "no404": true,
+    "noConsole": true
+  },
+  "desktop": {
+    "pos": [
+      -1.8370406346779014,
+      614.3388000000024
+    ],
+    "fps": 22.50140633789615,
+    "speed": 52,
+    "score": 2341.007362499993,
+    "over": false,
+    "draws": 21,
+    "tris": 10800,
+    "progress": 0.9141946428571464,
+    "drift": 0,
+    "route": "SAFE",
+    "construction": 21,
+    "modules": 21,
+    "heading": 0,
+    "position": 1,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "run"
+  },
+  "mobile": {
+    "pos": [
+      2.7451852265133745,
+      27.77233013999999
+    ],
+    "fps": 15.485869144405719,
+    "speed": 25.998599999999985,
+    "score": 23.772330139999994,
+    "over": false,
+    "draws": 149,
+    "tris": 93168,
+    "progress": 0.04132787223214284,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 5,
+    "modules": 21,
+    "heading": 0,
+    "position": 1,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "run"
+  },
+  "championship": {
+    "pos": [
+      0,
+      101.125
+    ],
+    "fps": 12.354394634662894,
+    "speed": 51.80000000000006,
+    "score": 97.12499999999997,
+    "over": false,
+    "draws": 148,
+    "tris": 86656,
+    "progress": 0.15048363095238096,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 10,
+    "modules": 21,
+    "heading": 0,
+    "position": 4,
+    "aiProgress": [
+      0.2767651603526552,
+      0.25682572226237876,
+      0.23043342539355352
+    ],
+    "mode": "championship"
+  },
+  "nextRace": {
+    "pos": [
+      0,
+      4
+    ],
+    "fps": 12.000685753471641,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 108,
+    "tris": 70912,
+    "progress": 0.005952380952380952,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 0,
+    "modules": 21,
+    "heading": 0,
+    "position": 4,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "championship"
+  },
+  "missing": [],
+  "errors": [],
+  "renderer": "SwiftShader/software; FPS is smoke data only"
+}

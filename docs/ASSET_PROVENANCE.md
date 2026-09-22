@@ -8,6 +8,7 @@ No production asset may be integrated without a completed row and its candidate 
 |---|---|---|---|---|---|---|---|
 | Hero coupe | Player vehicle and rival basis | `docs/evidence/references/hero-coupe.png`, generated isolated three-quarter reference | Three independent code readings: primitive assembly, extruded side profiles, vertex-shaped wedge assembly; official five-view verify at 560 px; visual selection | `hero_a.js`, `hero_b.js`, `hero_c.js` | `src/assets/hero_coupe.js` from C | Reference: OpenAI built-in image generation; geometry: Codex / GPT-5 | Reference is process-only; no external file ships |
 | Standard track module | Reusable straight and transformed branch road | `docs/evidence/references/road-module.png`, generated isolated aerial three-quarter reference | Three independent code readings: primitive plate/joint assembly, extruded cross-section, transverse plate assembly; official five-view verify at 560 px; visual selection | `track_a.js`, `track_b.js`, `track_c.js` | `src/assets/track_module.js` from A | Reference: OpenAI built-in image generation; geometry: Codex / GPT-5 | Reference is process-only; no external file ships |
+| Infrastructure pylon | Repeated authored silhouette for city, bridge, skyline and orbital bands | `docs/evidence/references/infrastructure-pylon.png`, generated isolated three-quarter reference | Three independent code readings: primitive buttress/joints, extruded elevation, segmented massing; official five-view verify at 560 px; visual selection | `pylon_a.js`, `pylon_b.js`, `pylon_c.js` | `src/assets/infrastructure_pylon.js` from C | Reference: OpenAI built-in image generation; geometry: Codex / GPT-5 | Reference is process-only; no external file ships |
 
 ## Decision record template
 
@@ -44,3 +45,11 @@ No production asset may be integrated without a completed row and its candidate 
 - Initial verifier failure: A/C connection faces flagged; B extrusion was rotated into a 48.79 m height. Front/back are legitimate flush module connections and were explicitly declared; B orientation was corrected. All three then verified clean.
 - Verified costs: A 3,568 triangles, B 240, C 2,764.
 - Choice: A. It preserves four visible longitudinal plates, circular end locks, underside ribs and barrier channels. B is too visually sparse; C reads well from above but loses the reference's connection hardware.
+- Integration adaptation: the chosen module's four visually matched lane plates use separate generated `ground` materials. This preserves independent plate objects through the official recipe baker so the shipped assembly animation can move each broad surface into place; no external geometry or mesh data was introduced.
+
+## Infrastructure pylon decision
+
+- Locked size: about 18 × 28 × 6 m.
+- Initial verifier failure: B was 4.345 m deep against 6 m; its extrusion and attached accents were corrected to 5.92 m. All candidates then verified clean.
+- Verified costs: A 1,744 triangles, B 244, C 1,296.
+- Choice: C. It best preserves the segmented buttress, circular locks, pale structural faces and open central silhouette from all driving angles. B is cost-effective but too flat/sparse; A's upper connection reads detached in perspective.

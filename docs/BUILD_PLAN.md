@@ -76,21 +76,21 @@ Acceptance:
 - [ ] Timing scales with speed but collision is always fair.
 - [ ] Pooling prevents object/memory growth; construction is obvious in moving captures.
 
-### Phase 6 — RUN mode `[ ]`
+### Phase 6 — RUN mode `[~]`
 
 Acceptance:
 
 - [ ] Continuous score/survival loop, difficulty escalation, fair crash/end, complete results and instant replay.
 - [ ] Score rewards distance, speed, drift, survival, and REDLINE without trivial farming.
 
-### Phase 7 — Four environments `[ ]`
+### Phase 7 — Four environments `[~]`
 
 Acceptance:
 
 - [ ] Neon District, Redline Canyon, Skyline, and Orbital read within about two seconds while sharing the style lock.
 - [ ] Continuous transitions stream/recycle world dressing without stalls or retained growth.
 
-### Phase 8 — REDLINE routes `[ ]`
+### Phase 8 — REDLINE routes `[~]`
 
 Acceptance:
 
@@ -98,14 +98,14 @@ Acceptance:
 - [ ] Choice is intentional, mechanically different, and REDLINE grants a meaningful reward.
 - [ ] First split occurs within the first 15 seconds.
 
-### Phase 9 — AI racing `[ ]`
+### Phase 9 — AI racing `[~]`
 
 Acceptance:
 
 - [ ] NOVA, VEX, and KAI follow route-aware centreline data with distinct tuning.
 - [ ] Split selection, turn speed, recovery, finish progress, and repeated full-track completion work.
 
-### Phase 10 — Championship `[ ]`
+### Phase 10 — Championship `[~]`
 
 Acceptance:
 

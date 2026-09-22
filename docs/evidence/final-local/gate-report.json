@@ -1,0 +1,130 @@
+{
+  "checks": {
+    "ready": true,
+    "buttonStart": true,
+    "desktopMoved": true,
+    "steering": true,
+    "drift": true,
+    "construction": true,
+    "assemblyCaptured": true,
+    "runResult": true,
+    "touchMoved": true,
+    "touchSteered": true,
+    "touchDrift": true,
+    "championshipStarts": true,
+    "aiProgress": true,
+    "racePosition": true,
+    "nextRace": true,
+    "draws": true,
+    "tris": true,
+    "no404": true,
+    "noConsole": true
+  },
+  "desktop": {
+    "pos": [
+      -3.1914130119279034,
+      615.2644000000029
+    ],
+    "fps": 12.352214575613184,
+    "speed": 52,
+    "score": 2296.2072174999894,
+    "over": false,
+    "draws": 27,
+    "tris": 10800,
+    "progress": 0.9155720238095281,
+    "drift": 0,
+    "route": "SAFE",
+    "construction": 20,
+    "modules": 21,
+    "heading": 0,
+    "position": 1,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "run",
+    "assemblyProgress": 0.13161000000007161
+  },
+  "mobile": {
+    "pos": [
+      2.566632894063096,
+      57.160000000000004
+    ],
+    "fps": 14.545454545454545,
+    "speed": 38.6,
+    "score": 53.15999999999999,
+    "over": false,
+    "draws": 202,
+    "tris": 89600,
+    "progress": 0.08505952380952382,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 3,
+    "modules": 21,
+    "heading": 0,
+    "position": 1,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "run",
+    "assemblyProgress": 0.5790000000000001
+  },
+  "championship": {
+    "pos": [
+      0,
+      101.125
+    ],
+    "fps": 11.248593925759327,
+    "speed": 51.80000000000006,
+    "score": 97.12499999999997,
+    "over": false,
+    "draws": 202,
+    "tris": 86656,
+    "progress": 0.15048363095238096,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 4,
+    "modules": 21,
+    "heading": 0,
+    "position": 4,
+    "aiProgress": [
+      0.2767651603526552,
+      0.25682572226237876,
+      0.23043342539355352
+    ],
+    "mode": "championship",
+    "assemblyProgress": 0.478125
+  },
+  "nextRace": {
+    "pos": [
+      0,
+      4
+    ],
+    "fps": 14.545454545454545,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 151,
+    "tris": 69616,
+    "progress": 0.005952380952380952,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 0,
+    "modules": 21,
+    "heading": 0,
+    "position": 4,
+    "aiProgress": [
+      -0.006060606060606061,
+      -0.013636363636363636,
+      -0.021212121212121213
+    ],
+    "mode": "championship",
+    "assemblyProgress": 0
+  },
+  "missing": [],
+  "errors": [],
+  "renderer": "SwiftShader/software; FPS is smoke data only"
+}

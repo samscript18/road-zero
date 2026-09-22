@@ -21,6 +21,7 @@ h1 { margin:.1em 0 0; font-size:clamp(46px,10vw,116px); line-height:.82; letter-
 .metric b { display:block; font-size:clamp(22px,4vw,44px); line-height:1; font-variant-numeric:tabular-nums; }
 .metric span { color:#aab9c1; font-size:10px; letter-spacing:.18em; }
 #route-call { position:absolute; top:18%; left:50%; translate:-50% 0; text-align:center; opacity:0; transition:opacity .2s; }
+#world { position:absolute; left:18px; bottom:18px; padding:8px 11px; background:rgba(5,7,11,.6); border-left:2px solid #24e5ff; }
 #route-call.show { opacity:1; }
 .route-grid { display:flex; gap:8vw; align-items:end; }
 .route { min-width:120px; padding:9px 14px; background:rgba(4,8,12,.76); border-bottom:3px solid; font-size:12px; font-weight:900; letter-spacing:.12em; }
