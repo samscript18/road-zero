@@ -1,0 +1,38 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background:#05070b; color:#eefcff; }
+* { box-sizing:border-box; }
+html,body,#app { width:100%; height:100%; margin:0; overflow:hidden; touch-action:none; background:#05070b; }
+button { font:inherit; }
+canvas { display:block; width:100%; height:100%; }
+.screen { position:fixed; inset:0; z-index:5; display:grid; align-content:center; padding:max(28px,env(safe-area-inset-top)) max(28px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(28px,env(safe-area-inset-left)); background:linear-gradient(90deg,rgba(5,7,11,.94) 0 34%,rgba(5,7,11,.42) 70%,rgba(5,7,11,.15)); }
+.screen.hidden,.hidden { display:none!important; }
+.eyebrow { color:#24e5ff; letter-spacing:.28em; font-size:11px; font-weight:800; text-transform:uppercase; }
+h1 { margin:.1em 0 0; font-size:clamp(46px,10vw,116px); line-height:.82; letter-spacing:-.07em; font-style:italic; }
+.slash { color:#24e5ff; }
+.tagline { margin:18px 0 34px; color:#b9c8ca; letter-spacing:.16em; font-size:clamp(12px,1.2vw,16px); }
+.menu { width:min(380px,90vw); display:grid; gap:10px; }
+.action { appearance:none; border:1px solid #41515f; color:#eafcff; background:linear-gradient(90deg,#17212a,#0a1017); min-height:54px; padding:0 20px; text-align:left; font-weight:850; letter-spacing:.14em; cursor:pointer; clip-path:polygon(0 0,calc(100% - 15px) 0,100% 15px,100% 100%,0 100%); }
+.action:hover,.action:focus-visible { border-color:#24e5ff; color:#24e5ff; outline:none; transform:translateX(4px); }
+.action.primary { background:linear-gradient(90deg,#15677a,#0d2630); border-color:#24e5ff; }
+.fine { margin-top:18px; color:#748795; font-size:11px; letter-spacing:.08em; }
+#hud { position:fixed; inset:0; z-index:3; pointer-events:none; padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left)); display:none; }
+#hud.live { display:block; }
+.hud-top { display:flex; justify-content:space-between; align-items:start; }
+.metric { border-left:2px solid #24e5ff; padding-left:10px; text-shadow:0 2px 8px #000; }
+.metric b { display:block; font-size:clamp(22px,4vw,44px); line-height:1; font-variant-numeric:tabular-nums; }
+.metric span { color:#aab9c1; font-size:10px; letter-spacing:.18em; }
+#route-call { position:absolute; top:18%; left:50%; translate:-50% 0; text-align:center; opacity:0; transition:opacity .2s; }
+#route-call.show { opacity:1; }
+.route-grid { display:flex; gap:8vw; align-items:end; }
+.route { min-width:120px; padding:9px 14px; background:rgba(4,8,12,.76); border-bottom:3px solid; font-size:12px; font-weight:900; letter-spacing:.12em; }
+.route.safe { border-color:#b9c8ca; }.route.red { border-color:#ff304c; color:#ff8a9b; clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); }
+#event { position:absolute; top:31%; left:50%; translate:-50% 0; font-weight:900; font-style:italic; letter-spacing:.18em; color:#24e5ff; text-shadow:0 0 18px #24e5ff; opacity:0; transition:opacity .18s; white-space:nowrap; }
+#event.show { opacity:1; }
+#touch { position:fixed; z-index:4; inset:auto 0 max(18px,env(safe-area-inset-bottom)) 0; height:124px; display:none; pointer-events:none; }
+.touchy #touch.live { display:block; }
+#stick { pointer-events:auto; position:absolute; left:max(22px,env(safe-area-inset-left)); bottom:0; width:118px; height:118px; border:1px solid #57707c; border-radius:50%; background:radial-gradient(circle,rgba(36,229,255,.17),rgba(9,15,20,.5)); }
+#knob { position:absolute; width:42px; height:42px; left:38px; top:38px; border-radius:50%; background:#b9c8ca; box-shadow:0 0 18px #24e5ff; }
+#drift { pointer-events:auto; position:absolute; right:max(22px,env(safe-area-inset-right)); bottom:8px; width:96px; height:96px; border-radius:50%; border:2px solid #ff304c; color:#fff; background:rgba(93,11,26,.62); font-weight:900; letter-spacing:.1em; }
+.panel { max-width:560px; padding:26px; background:rgba(7,12,17,.93); border-left:3px solid #24e5ff; }
+.panel h2 { margin:0 0 14px; font-size:30px; font-style:italic; }
+.panel p { color:#b9c8ca; line-height:1.55; }
+@media (max-width:700px){ .screen{align-content:end;background:linear-gradient(0deg,rgba(5,7,11,.97) 0 50%,rgba(5,7,11,.08));} h1{font-size:54px}.tagline{margin:12px 0 20px}.action{min-height:50px}.route{min-width:104px;padding:7px 8px}.fine{display:none} }

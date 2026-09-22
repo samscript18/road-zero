@@ -31,8 +31,8 @@ Acceptance:
 - [x] Confirm the game and recipe are separate repositories/directories.
 - [x] Run the official recipe self-test successfully and record environmental workaround.
 - [x] Inspect starting repository and initialize honest Git history.
-- [ ] Scaffold a standalone build and establish baseline telemetry.
-- [ ] Preserve six moving baseline frames under `docs/evidence/baseline/`.
+- [x] Scaffold a standalone build and establish baseline telemetry.
+- [x] Preserve six moving baseline frames under `docs/evidence/baseline/`.
 
 ### Phase 1 — Style lock and visual targets `[~]`
 
@@ -42,7 +42,7 @@ Acceptance:
 - [x] Failable motion-frame claims and target-frame briefs in `docs/VISUAL_TARGETS.md`.
 - [ ] Generate/collect local reference frames and record sources.
 
-### Phase 2 — Minimum playable driving floor `[ ]`
+### Phase 2 — Minimum playable driving floor `[~]`
 
 Acceptance:
 
@@ -51,7 +51,7 @@ Acceptance:
 - [ ] Real keyboard and touch controls both move the telemetry position.
 - [ ] Desktop and phone-sized manual/gate checks recorded.
 
-### Phase 3 — 404 asset library `[ ]`
+### Phase 3 — 404 asset library `[~]`
 
 Acceptance:
 

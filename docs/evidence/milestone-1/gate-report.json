@@ -1,0 +1,55 @@
+{
+  "checks": {
+    "ready": true,
+    "buttonStart": true,
+    "desktopMoved": true,
+    "steering": true,
+    "drift": true,
+    "construction": true,
+    "touchMoved": true,
+    "touchSteered": true,
+    "draws": true,
+    "tris": true,
+    "no404": true,
+    "noConsole": true
+  },
+  "desktop": {
+    "pos": [
+      -2.3381989388437963,
+      342.26434014000046
+    ],
+    "fps": 16.87605475342211,
+    "speed": 52,
+    "score": 423.3897186825002,
+    "over": false,
+    "draws": 41,
+    "tris": 33184,
+    "progress": 0.5093219347321435,
+    "drift": 0,
+    "route": "SAFE",
+    "construction": 17,
+    "modules": 21,
+    "heading": 0
+  },
+  "mobile": {
+    "pos": [
+      3.275869453209344,
+      30.457525039999986
+    ],
+    "fps": 19.3498452012384,
+    "speed": 27.38879999999999,
+    "score": 26.457525039999993,
+    "over": false,
+    "draws": 84,
+    "tris": 72096,
+    "progress": 0.04532369797619046,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 5,
+    "modules": 21,
+    "heading": 0
+  },
+  "missing": [],
+  "errors": [],
+  "renderer": "SwiftShader/software; FPS is smoke data only"
+}

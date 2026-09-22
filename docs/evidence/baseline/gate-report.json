@@ -1,0 +1,63 @@
+{
+  "checks": {
+    "ready": true,
+    "buttonStart": true,
+    "desktopMoved": true,
+    "steering": true,
+    "drift": true,
+    "construction": true,
+    "touchMoved": true,
+    "touchSteered": true,
+    "draws": true,
+    "tris": true,
+    "no404": false,
+    "noConsole": false
+  },
+  "desktop": {
+    "pos": [
+      3.1606154310578205,
+      337.93392009446154
+    ],
+    "fps": 32.90110315463514,
+    "speed": 52,
+    "score": 528.70810658565,
+    "over": false,
+    "draws": 41,
+    "tris": 33184,
+    "progress": 0.5028778572834249,
+    "drift": 0,
+    "route": "REDLINE",
+    "construction": 17,
+    "modules": 21,
+    "heading": 0
+  },
+  "mobile": {
+    "pos": [
+      7.347564005945472,
+      25.938393017904357
+    ],
+    "fps": 31.882970742685682,
+    "speed": 9.643745977200265,
+    "score": 21.40240085891698,
+    "over": false,
+    "draws": 85,
+    "tris": 72432,
+    "progress": 0.03859879913378624,
+    "drift": 0,
+    "route": "UNDECIDED",
+    "construction": 5,
+    "modules": 21,
+    "heading": 0
+  },
+  "missing": [
+    "/favicon.ico",
+    "/favicon.ico",
+    "/favicon.ico"
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "renderer": "SwiftShader/software; FPS is smoke data only"
+}
