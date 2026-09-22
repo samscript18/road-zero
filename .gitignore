@@ -7,5 +7,8 @@ _gate/
 coverage/
 *.log
 *.tsbuildinfo
+docs/evidence/championship-pass/
+docs/evidence/championship-pass-2/
+docs/evidence/championship-pass-3/
 
 .kite-passport/
