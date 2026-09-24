@@ -9,8 +9,8 @@
   "agent": "Codex",
   "models": ["GPT-5", "OpenAI built-in image generation (process-only reference images)"],
   "own_art": true,
-  "own_art_list": ["All shipped 3D geometry is original Three.js code produced through the 404 recipe; UI is original CSS; audio is runtime Web Audio synthesis."],
-  "what_i_found": "ROAD//ZERO turns track generation into the racing mechanic itself: the road physically assembles seconds ahead of the car. SAFE and REDLINE branches make the next piece of generated road a risk/reward decision rather than scenery. The same modular construction language escalates through four continuous worlds and competitive AI racing.",
+  "own_art_list": ["All shipped 3D geometry is original Three.js code produced through the 404 recipe; UI is original CSS; concept frames are process-only generated references and are not shipped as game textures."],
+  "what_i_found": "A compact championship racer built around three persistent rivals with readable driving personalities: the Charger attacks and overcommits, the Technician protects a clean optimal line, and the Defender covers position. Across Orchard, Quarry, and Summit races, the player learns who is nearby and adapts each overtake rather than racing three identical bots.",
   "wallet": "later",
   "contact": "REPLACE_WITH_EMAIL_OR_X_HANDLE"
 }

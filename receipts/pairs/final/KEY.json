@@ -1,0 +1,12 @@
+{
+ "pair_01.png": {
+  "build": "left",
+  "build_file": "desktop-racing.png",
+  "ref_file": "05-close-chase.png"
+ },
+ "pair_02.png": {
+  "build": "right",
+  "build_file": "mobile-racing.png",
+  "ref_file": "06-four-car-battle.png"
+ }
+}
