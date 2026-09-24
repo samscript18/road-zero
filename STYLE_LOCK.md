@@ -1,69 +1,119 @@
-# ROAD//ZERO — the locked style
+# ROAD//ZERO — style lock
 
-> Monumental near-future infrastructure formed from layered graphite, satin gunmetal and pale structural ceramic, cut by precise luminous guide channels and large readable mechanical joints; sleek, restrained and engineered rather than cluttered cyberpunk.
+## One sentence
 
-This sentence and every fixed decision below must be supplied unchanged for every generated reference and every 404 geometry candidate.
+> A warm analog hill-climb motorsport festival rendered as a premium stylized miniature world: rounded compact racing coupes, painted fiberglass and enamel bodywork, sun-faded plaster and timber architecture, dry grass, rock, cloth track furniture, dusty roadside detail, strong silhouettes and golden natural light, with believable proportions and absolutely no sci-fi, cyberpunk, robotic or neon visual language.
 
-| role | hex | where it belongs |
-|---|---:|---|
-| void | `0x05070B` | deepest sky, gaps, tunnel recesses |
-| graphite | `0x111820` | primary road and vehicle lower mass |
-| gunmetal | `0x27313B` | mechanical frames, barriers, joints |
-| ceramic | `0xDCE5E7` | sparse structural faces and readability accents |
-| lane white | `0xB9C8CA` | road markings and SAFE direction |
-| ion cyan | `0x24E5FF` | navigation, assembly pulse, Neon/Skyline accent |
-| redline | `0xFF304C` | dangerous route, brake/impact, Canyon accent |
-| amber | `0xFFB547` | warnings, countdown, Canyon secondary accent |
-| electric violet | `0x8D63FF` | Orbital secondary energy accent |
-| sky blue | `0x74B9E8` | atmospheric depth and Skyline distance |
+This exact document governs every reference, generated asset, environment placement, material, light, UI element and critic round in the rescue build.
 
-## Fixed dimensions
+## Non-negotiable exclusions
 
-- Metres. Base at `y = 0`, centred on `x` and `z`, front faces `+Z` for standalone asset modules.
-- Standard track module: 12 m wide × 48 m long; wide module 16 m; narrow/REDLINE module 7 m.
-- Lane: 4.2 m; centre gap/marking zone: 0.35 m; road slab: 0.55 m thick.
-- Barrier: 0.75 m high, 0.32 m thick, with a 0.09 m luminous guide inset.
-- Hero vehicle: 1.92 m wide × 4.35 m long × 1.18 m high; wheelbase 2.72 m; wheel diameter 0.68 m.
-- Rival vehicles share the hero envelope within ±4%, using silhouette and accent—not scale—for identity.
-- Assembly plate: 3.8–5.8 m wide × 12 m long × 0.48 m thick; four plates form a standard module.
-- Split signage: lower edge 3.6 m above road; icon field at least 1.3 m square; no small printed glyphs.
-- City structural bays: 12 m multiples; primary towers 45–120 m; Canyon pylons 18–35 m; Skyline structures 30–90 m; Orbital rings 60–180 m visible diameter.
+- No cyan/purple neon language, holograms, robots, orbital scenery, glowing vehicle outlines, metallic laboratory architecture, sci-fi hexagons or random mechanical greebles.
+- No real marques, logos, liveries, named circuits or recognisable production-car copies.
+- No text-dependent trackside advertising. Identity comes from colour blocks, cloth, silhouette and placement.
+- No downloaded meshes, GLB/GLTF, literal vertex dumps or binary 3D assets. Every 3D object follows the 404 recipe.
 
-## Shape language
+## Palette
 
-- Primary silhouettes use long wedges, chamfered slabs, split buttresses, exposed circular locks, and repeated three-part ribs.
-- Every object over 0.6 m carries at least two signatures: a recessed luminous channel, a pale structural face, or a visible circular/hexagonal connection joint.
-- Large forms first; small detail exists only where it survives chase-camera distance.
-- No random pipes, illegible micro-panels, ornamental clutter, spikes, skulls, graffiti, logos, or trademarked forms.
-- No literal printed text on 3D objects. SAFE uses an open arch/parallel-line icon; REDLINE uses a pointed split/chevron icon, reinforced by road width and barrier shape.
+| role | hex | use |
+|---|---|---|
+| warm cream | `#EFE1C6` | plaster, canvas, UI paper, sunlit highlights |
+| sun-faded orange | `#C86845` | festival furniture, flags, secondary car detail |
+| ochre | `#D5A23B` | hay, Charger body, timing accents |
+| forest green | `#53694C` | Defender body, deep foliage |
+| dusty sage | `#849077` | scrub, faded paint, ambient landscape |
+| faded blue | `#507D92` | Technician body, cool shade, distant terrain |
+| asphalt charcoal | `#343537` | road, tyres, primary dark UI |
+| warm stone | `#A88869` | rock, retaining walls, dust |
+| earth brown | `#79533F` | soil, timber shadow, wheel dirt |
+| deep shadow | `#353A3B` | controlled occlusion, never featureless black |
+| player red | `#D74B3F` | player body and one HUD accent only |
+
+Sunlit surfaces lean cream/orange; shade leans faded blue/sage. Saturation is concentrated on the four cars, flags and selected timing furniture.
+
+## Real-world scale in metres
+
+| object | locked size |
+|---|---|
+| player coupe | 1.72 W × 1.34 H × 3.92 L |
+| Charger coupe | 1.78 W × 1.31 H × 4.06 L |
+| Technician coupe | 1.69 W × 1.28 H × 3.86 L |
+| Defender coupe | 1.76 W × 1.39 H × 3.98 L |
+| tyre diameter / width | 0.58–0.63 / 0.20–0.25 |
+| usable road | 8.0 W typical; 7.0 minimum |
+| safety barrier | 0.90 H; 2.4–3.2 module length |
+| hay bale | 0.90 L × 0.46 H × 0.52 D |
+| marshal hut | 2.5 H × 2.4 W × 1.8 D |
+| spectator canopy | 2.7 H × 4.8 W × 3.2 D |
+| roadside tree | 5.5–8.5 H |
+| paddock bay | 3.1 H × 5.5 W × 4.0 D |
+| village module | 5–8 H, 4–7 W |
+| landmark timing tower | 7.5 H × 4.2 W |
+
+All assets sit at `y=0`, are centred on X/Z, face `+Z`, and have matching `.expect.json` dimensions.
+
+## Vehicle language
+
+- One racing category, four genuinely different silhouettes: rounded arches, coherent body volume, visible rubber, separate cabin glass, believable overhangs and stance.
+- Player: light fastback, red enamel, cream number roundel without glyphs, twin warm tail lamps.
+- Charger: ochre, broader shoulders, shorter high tail, aggressive planted stance.
+- Technician: faded blue, low teardrop cabin, clean narrow tail and precise proportions.
+- Defender: forest green, upright greenhouse, wider rear mass and stable stance.
+- Paint uses controlled gloss; tyres and interiors are high roughness; chrome is limited to small lamp bezels or exhaust tips.
+- Wheels remain articulated through `keepHierarchy`; front wheel pivots steer, all tyres rotate, and body response is separate from chassis motion.
+
+## Environment language
+
+- One warm mountain region across three events: orchard foothills, worked quarry, high summit.
+- Foreground: road wear, dirt shoulders, grass tufts, bales and timber barriers.
+- Midground: asymmetric prop clusters, canopies, marshal huts, parked paddock shapes, rocks and trees placed in response to corners.
+- Background: layered low-poly mountains and haze; never empty sky plus flat ground.
+- Repeated families receive 3–5 real variants plus restrained scale/rotation variation; no perfect grids.
+- Signature forms: scalloped tree crowns, battered cream/orange cloth, warm layered rock, whitewashed walls with timber shade structures.
 
 ## Materials
 
-- Use `MeshStandardMaterial` with explicit colours. Primary road: roughness 0.72, metalness 0.12. Structural ceramic: roughness 0.46, metalness 0.05. Gunmetal: roughness 0.38, metalness 0.72.
-- Vehicle paint may use `MeshPhysicalMaterial` in game integration; geometry candidates remain contract-safe standard materials. Paint is glossy but not mirror-like.
-- Emissive channels are narrow and controlled. Bloom may enlarge them no more than roughly 2× their source width in motion.
-- Contract surface names are exactly: `plaster`, `stone`, `timber`, `tile`, `metal`, `fabric`, `foliage`, `ground`. ROAD//ZERO primarily uses `metal`, `stone`, `tile`, and `ground`.
-- Flat colours in asset modules; recipe surfaces are applied at load time. No downloaded texture or mesh data.
+- Asphalt: charcoal, roughness 0.82–0.94, subtle procedural aggregate and wear variation, no mirror response.
+- Dirt/stone: warm and matte, roughness 0.88–1.0.
+- Timber: sun-faded brown, roughness 0.78–0.92.
+- Plaster/canvas: cream with warm/cool value variation, roughness 0.72–0.9.
+- Foliage: sage/forest family, roughness 0.9, opaque geometry preferred near camera.
+- Car enamel/fiberglass: roughness 0.24–0.38, metalness 0, restrained clearcoat; avoid saturated-sky magenta in shade.
+- Glass: dark cool grey-blue, restrained opacity/reflection; use single-pass where transparency is required.
+- Emissive is limited to subtle brake lamps and cannot light broad surfaces.
 
-## Lighting and camera principles
+## Lighting and atmosphere
 
-- Road exposure is protected first: the playable surface remains separated from the surrounding value by at least one strong edge/light cue.
-- Hero vehicle occupies about 28–38% of landscape frame height during ordinary driving and never becomes a black silhouette against the road.
-- One cool key/fill family plus one restrained warm or red counter-accent per world; black remains black and highlights do not clip broad surfaces.
-- Atmospheric depth is built with fog and silhouette layers, not dense particle blankets.
-- Camera horizon stays stable; bank response derives from track metadata, not wheel contact normals.
+- Golden late afternoon: warm direct sun from rear-side, cooler sky fill, readable 50–65% shade, contact shadows and aerial depth.
+- Use the official rig principles at approximately 16:30–17:00 with a desaturated upper sky and warm horizon.
+- Cars must remain readable in shade. Asphalt stays a mid-dark neutral rather than black.
+- No global cyan rim, purple fog, broad bloom or flat ambient wash.
 
-## Environment accent treatment
+## Camera and composition
 
-- Neon District: near-black city canyons, cyan navigation and sparse violet windows; wet-looking highlights without a generic rain/noise layer.
-- Redline Canyon: oxidized red stone/ceramic masses, amber work lights, red REDLINE hardware; the road remains cool graphite.
-- Skyline: pale cloud sea and blue atmosphere, dark road silhouette, cyan-white navigation; barriers gain stronger dark undersides for contrast.
-- Orbital: black-violet void, pale station ceramics, cyan primary energy and violet secondary arcs; stars remain subordinate to the road.
+- Chase camera target: hero occupies 30–38% of landscape frame height and remains centred away from touch controls.
+- Stable horizon; no road-normal roll. Spring lag preserves direction through slip and recovers smoothly.
+- Standard landscape FOV 52–62 degrees, widening subtly with speed; portrait receives a separate composition.
+- Every racing frame contains foreground, midground and background, plus at least one asymmetric landmark or spectator cluster.
 
-## UI principles
+## Track and race language
 
-- Condensed uppercase display typography for headings; neutral system sans for numbers/body to avoid font payload and licensing risk.
-- Oblique cuts, thin rule lines, generous empty space, compact labels. No glass-card dashboard clutter.
-- HUD anchors to safe-area edges and leaves the central 55% of the screen unobstructed.
-- Touch targets are at least 52 CSS px. Route choice is communicated through geometry/icon/width plus colour.
-- Motion is quick and mechanical: 120–220 ms UI transitions; no long unskippable presentation.
+- Painted cream edge line, dusty shoulder and physical timber/bale/stone boundary; direction should read without HUD text.
+- Orchard Sprint: flowing bends, timber, trees, cloth flags and spectator pockets.
+- Quarry Loop: rock cuts, dust, tight braking, orange barriers and marshal posts.
+- Summit Run: exposed vista, stone retaining walls, larger festival finish and cooler distant terrain.
+- Starting grids and finish lines use painted ground bands, flags, rope, timber timing furniture and crowds—not futuristic gates.
+
+## UI language
+
+- Vintage timing-card graphic design: warm cream paper plates, charcoal ink, red/orange position accents, tabular bold numerals and restrained shadows.
+- Championship is primary; Quick Race secondary; no slashes-as-cyberpunk motif, glass panels, neon brackets or holographic typography.
+- Race HUD: position, lap/checkpoint progress, speed and race identity only. Large phone-safe targets and safe-area padding.
+
+## Performance and geometry bands
+
+- Hero/rival cars: 2,000–18,000 triangles each; articulated nodes baked per joint where useful.
+- Landmark/building: 500–12,000 each.
+- Trees/rocks/canopies: 250–5,000 each; instance repeated static props safely.
+- Small furniture: 150–2,500 each.
+- Internal scene target: <700 draw calls and <1.2M triangles at peak; official ceilings remain 900 / 1.5M.
