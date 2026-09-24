@@ -1,0 +1,8 @@
+{
+  "width": 1.72,
+  "height": 1.34,
+  "depth": 3.92,
+  "tolerance": 0.12,
+  "minTriangles": 150,
+  "maxTriangles": 60000
+}

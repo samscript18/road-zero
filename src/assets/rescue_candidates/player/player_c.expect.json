@@ -1,0 +1,14 @@
+{
+  "name": "ROAD ZERO player car candidate C",
+  "dimensions": {
+    "width": 1.72,
+    "height": 1.34,
+    "depth": 3.92
+  },
+  "tolerance": 0.16,
+  "triangleRange": [2000, 18000],
+  "grounded": true,
+  "centeredXZ": true,
+  "front": "+Z",
+  "keepHierarchy": true
+}
