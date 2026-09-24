@@ -72,11 +72,12 @@ export default function createPlayerCandidateA(THREE) {
   }
 
   // Three overlapping masses create a continuous fastback rather than stacked boxes.
-  ellipsoid('lower-body', paint, [0, 0.58, 0], [0.84, 0.48, 1.56]);
+  ellipsoid('lower-body', paint, [0, 0.55, 0], [0.84, 0.43, 1.56]);
   ellipsoid('rounded-nose', paint, [0, 0.56, 1.48], [0.77, 0.39, 0.48]);
   ellipsoid('rounded-tail', paint, [0, 0.61, -1.49], [0.82, 0.43, 0.47]);
-  ellipsoid('fastback-glass', glass, [0, 0.98, -0.16], [0.65, 0.36, 1.02]);
-  ellipsoid('painted-roof-cap', paint, [0, 1.12, -0.2], [0.57, 0.22, 0.88]);
+  ellipsoid('fastback-glass', glass, [0, 0.91, -0.12], [0.64, 0.29, 0.98]);
+  ellipsoid('painted-roof-cap', paint, [0, 1.04, -0.22], [0.55, 0.17, 0.83]);
+  ellipsoid('rear-deck', paint, [0, 0.77, -1.12], [0.72, 0.17, 0.62]);
 
   // Sculpted shoulders and wheel brows make the body read over the wheels.
   const archGeometry = new THREE.TorusGeometry(0.36, 0.085, 8, 24);
@@ -85,7 +86,7 @@ export default function createPlayerCandidateA(THREE) {
     for (const side of [-1, 1]) {
       const arch = new THREE.Mesh(archGeometry, paint);
       arch.name = `${z > 0 ? 'front' : 'rear'}-${side < 0 ? 'left' : 'right'}-wheel-brow`;
-      arch.position.set(side * 0.76, 0.42, z);
+      arch.position.set(side * 0.76, 0.445, z);
       arch.rotation.y = Math.PI / 2;
       body.add(arch);
     }
@@ -138,10 +139,10 @@ export default function createPlayerCandidateA(THREE) {
   function createWheel(name, x, z, steerable) {
     const pivot = new THREE.Group();
     pivot.name = name;
-    pivot.position.set(x, 0.31, z);
+    pivot.position.set(x, 0.335, z);
     pivot.userData.steerable = steerable;
 
-    const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.22, 24, 1), rubber);
+    const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.24, 24, 1), rubber);
     tyre.name = `${name}-tyre`;
     tyre.rotation.z = Math.PI / 2;
     pivot.add(tyre);
@@ -159,10 +160,10 @@ export default function createPlayerCandidateA(THREE) {
     return pivot;
   }
 
-  const wheelFL = createWheel('wheelFL', -0.74, axleZ.front, true);
-  const wheelFR = createWheel('wheelFR', 0.74, axleZ.front, true);
-  const wheelRL = createWheel('wheelRL', -0.74, axleZ.rear, false);
-  const wheelRR = createWheel('wheelRR', 0.74, axleZ.rear, false);
+  const wheelFL = createWheel('wheelFL', -0.775, axleZ.front, true);
+  const wheelFR = createWheel('wheelFR', 0.775, axleZ.front, true);
+  const wheelRL = createWheel('wheelRL', -0.775, axleZ.rear, false);
+  const wheelRR = createWheel('wheelRR', 0.775, axleZ.rear, false);
 
   root.userData.parts = { body, wheelFL, wheelFR, wheelRL, wheelRR };
   root.userData.assetContract = {

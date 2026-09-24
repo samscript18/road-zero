@@ -1,0 +1,220 @@
+{
+  "checks": {
+    "ready": true,
+    "countdownLocks": true,
+    "keyboardMoves": true,
+    "keyboardSteers": true,
+    "handbrakeSlip": true,
+    "aiMoves": true,
+    "resetWorks": true,
+    "touchMoves": true,
+    "touchSteers": true,
+    "realFps": true,
+    "drawBudget": true,
+    "triangleBudget": true,
+    "no404": true,
+    "noConsoleErrors": true
+  },
+  "grid": {
+    "pos": [
+      2.5167021287700257,
+      -79.23499609406318
+    ],
+    "fps": 61.08634637609377,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 187,
+    "tris": 52776,
+    "progress": 0.005,
+    "drift": 0,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 1.4729542162860938,
+    "position": 1,
+    "aiProgress": [
+      0.994,
+      0.986,
+      0.978
+    ],
+    "mode": "championship"
+  },
+  "before": {
+    "pos": [
+      2.5167021287700257,
+      -79.23499609406318
+    ],
+    "fps": 59.99675693205766,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 147,
+    "tris": 44212,
+    "progress": 0.004545454545454545,
+    "drift": 0,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 1.4729542162860938,
+    "position": 2,
+    "aiProgress": [
+      0.010038113562108113,
+      0.0002682018015520704,
+      0.9891561856623787
+    ],
+    "mode": "championship"
+  },
+  "moved": {
+    "pos": [
+      19.074247453091136,
+      -77.6097814995225
+    ],
+    "fps": 59.99675693205774,
+    "speed": 19.062089863795087,
+    "score": 0,
+    "over": false,
+    "draws": 186,
+    "tris": 54384,
+    "progress": 0.03636363636363636,
+    "drift": 0,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 1.4729542162860938,
+    "position": 4,
+    "aiProgress": [
+      0.10113995032609495,
+      0.09300055225906369,
+      0.07705238097367477
+    ],
+    "mode": "championship"
+  },
+  "steered": {
+    "pos": [
+      42.436910511597446,
+      -61.74316669350842
+    ],
+    "fps": 60.006487187804055,
+    "speed": 28.862879255544012,
+    "score": 0,
+    "over": false,
+    "draws": 175,
+    "tris": 52716,
+    "progress": 0.09545454545454546,
+    "drift": 0.032105686064525664,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 0.7736887368445834,
+    "position": 4,
+    "aiProgress": [
+      0.18160189310489944,
+      0.17227563660669154,
+      0.15079093406898098
+    ],
+    "mode": "championship"
+  },
+  "slipping": {
+    "pos": [
+      50.468471989649316,
+      -48.13522258545354
+    ],
+    "fps": 59.99675693205774,
+    "speed": 27.791965146296068,
+    "score": 0,
+    "over": false,
+    "draws": 164,
+    "tris": 51080,
+    "progress": 0.1318181818181818,
+    "drift": 0.3270765876459977,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 0.49163491152528077,
+    "position": 4,
+    "aiProgress": [
+      0.21903290717019094,
+      0.2076087980753017,
+      0.18553715285868866
+    ],
+    "mode": "championship"
+  },
+  "reset": {
+    "pos": [
+      56.11519871889371,
+      -52.94087063231364
+    ],
+    "fps": 60.00648718780414,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 163,
+    "tris": 51024,
+    "progress": 0.1318181818181818,
+    "drift": 0,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 0.6486866669000494,
+    "position": 4,
+    "aiProgress": [
+      0.23346284735704953,
+      0.2210680202648229,
+      0.19735039523528192
+    ],
+    "mode": "championship"
+  },
+  "mobileMoved": {
+    "pos": [
+      15.171875421839676,
+      -77.99282088454544
+    ],
+    "fps": 59.99675693205774,
+    "speed": 16.9448743639464,
+    "score": 0,
+    "over": false,
+    "draws": 186,
+    "tris": 54384,
+    "progress": 0.031818181818181815,
+    "drift": 0,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 1.4729542162860938,
+    "position": 4,
+    "aiProgress": [
+      0.08951384663646585,
+      0.08148184623260986,
+      0.06583758044987455
+    ],
+    "mode": "quick"
+  },
+  "mobileSteered": {
+    "pos": [
+      32.503143552407316,
+      -80.52605851376319
+    ],
+    "fps": 60.006487187804055,
+    "speed": 20.835376240074574,
+    "score": 0,
+    "over": false,
+    "draws": 62,
+    "tris": 25816,
+    "progress": 0.06363636363636363,
+    "drift": 0.07746290395786436,
+    "route": "ORCHARD",
+    "construction": 0,
+    "modules": 1,
+    "heading": 1.8779995510694827,
+    "position": 4,
+    "aiProgress": [
+      0.14710052206154411,
+      0.1373848975635445,
+      0.1168174844976273
+    ],
+    "mode": "quick"
+  },
+  "missing": [],
+  "errors": []
+}
