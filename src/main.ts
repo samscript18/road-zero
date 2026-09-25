@@ -1128,7 +1128,7 @@ lobby.openInvite();
 
 standings = freshStandings();
 window.__READY__ = true;
-window.__START__ = resetRace;
+window.__START__ = startChampionship;
 window.__GAME__ = {
   pos: [0, 0],
   fps: 0,

@@ -16,17 +16,17 @@ export type RivalTuning = {
 
 export const RIVAL_TUNING: Record<RivalId, RivalTuning> = {
   CHARGER: {
-    topSpeed: 34.5, cornerGrip: .86, brakeLookahead: 20, overtakeThreshold: 8.5,
+    topSpeed: 44.5, cornerGrip: .86, brakeLookahead: 20, overtakeThreshold: 8.5,
     passOffset: 2.25, defensiveBias: 0, mistakeChance: .028, mistakeLoss: .25,
     lineSmoothing: 4.2, launch: 1.04,
   },
   TECHNICIAN: {
-    topSpeed: 32.8, cornerGrip: 1.04, brakeLookahead: 28, overtakeThreshold: 5.5,
+    topSpeed: 42.8, cornerGrip: 1.04, brakeLookahead: 28, overtakeThreshold: 5.5,
     passOffset: 1.4, defensiveBias: 0, mistakeChance: .004, mistakeLoss: .08,
     lineSmoothing: 6.8, launch: 1,
   },
   DEFENDER: {
-    topSpeed: 31.4, cornerGrip: .94, brakeLookahead: 24, overtakeThreshold: 4.5,
+    topSpeed: 40.8, cornerGrip: .94, brakeLookahead: 24, overtakeThreshold: 4.5,
     passOffset: 1.25, defensiveBias: 1.8, mistakeChance: .009, mistakeLoss: .1,
     lineSmoothing: 5.4, launch: .98,
   },
@@ -112,27 +112,32 @@ export function nearestTrackXZ(pos: { x: number; z: number }, samples: ReadonlyA
 }
 
 export const CAR_TUNE = {
-  accel: 12.5, brake: 26, reverseAccel: 11, maxForward: 32, maxReverse: 9,
+  accel: 15.5, brake: 28, reverseAccel: 11, maxForward: 43, maxReverse: 9,
   drag: .34, rolling: 1.1, lowSteer: 2.25, highSteer: .82,
   grip: 7.4, handbrakeGrip: 2.1, slipBuild: 3.8, offroadDrag: 3.2,
 };
 
-export function stepCar(s: CarState, input: CarInput, dt: number): CarState {
+export const MULTIPLAYER_CAR_TUNE = {
+  ...CAR_TUNE,
+  accel: 12.5, brake: 26, maxForward: 32,
+};
+
+export function stepCar(s: CarState, input: CarInput, dt: number, tune: typeof CAR_TUNE = CAR_TUNE): CarState {
   const d = Math.max(0, Math.min(.05, dt));
   const throttle = Math.max(0, Math.min(1, input.throttle));
   const brake = Math.max(0, Math.min(1, input.brake));
   let speed = s.speed;
-  if (throttle > 0) speed += (speed >= 0 ? CAR_TUNE.accel * (1 - Math.min(speed / CAR_TUNE.maxForward, 1) * .64) : CAR_TUNE.brake) * throttle * d;
-  if (brake > 0) speed -= (speed > .5 ? CAR_TUNE.brake : CAR_TUNE.reverseAccel) * brake * d;
-  speed -= Math.sign(speed) * Math.min(Math.abs(speed), (CAR_TUNE.rolling + Math.abs(speed) * CAR_TUNE.drag * .08 + (s.offroad ? CAR_TUNE.offroadDrag : 0)) * d);
-  speed = Math.max(-CAR_TUNE.maxReverse, Math.min(CAR_TUNE.maxForward, speed));
-  const speed01 = Math.min(Math.abs(speed) / CAR_TUNE.maxForward, 1);
-  const steerLimit = CAR_TUNE.lowSteer + (CAR_TUNE.highSteer - CAR_TUNE.lowSteer) * speed01;
+  if (throttle > 0) speed += (speed >= 0 ? tune.accel * (1 - Math.min(speed / tune.maxForward, 1) * .64) : tune.brake) * throttle * d;
+  if (brake > 0) speed -= (speed > .5 ? tune.brake : tune.reverseAccel) * brake * d;
+  speed -= Math.sign(speed) * Math.min(Math.abs(speed), (tune.rolling + Math.abs(speed) * tune.drag * .08 + (s.offroad ? tune.offroadDrag : 0)) * d);
+  speed = Math.max(-tune.maxReverse, Math.min(tune.maxForward, speed));
+  const speed01 = Math.min(Math.abs(speed) / tune.maxForward, 1);
+  const steerLimit = tune.lowSteer + (tune.highSteer - tune.lowSteer) * speed01;
   const steerAngle = damp(s.steerAngle, Math.max(-1, Math.min(1, input.steer)) * steerLimit, 10, d);
-  const grip = input.handbrake ? CAR_TUNE.handbrakeGrip : CAR_TUNE.grip;
+  const grip = input.handbrake ? tune.handbrakeGrip : tune.grip;
   const wantedSlip = input.handbrake && speed01 > .2 ? steerAngle * speed01 * .72 : steerAngle * speed01 * .14;
   const slip = damp(s.slip, wantedSlip, grip, d);
-  const heading = s.heading + (steerAngle - slip * .58) * (speed / CAR_TUNE.maxForward) * d;
+  const heading = s.heading + (steerAngle - slip * .58) * (speed / tune.maxForward) * d;
   const travel = heading + slip;
   return { ...s, speed, heading, slip, steerAngle, x: s.x + Math.sin(travel) * speed * d, z: s.z + Math.cos(travel) * speed * d };
 }

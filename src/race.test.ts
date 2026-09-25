@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { awardRace, createProgress, crossCheckpoint, mapAnalogControl, nearestTrackXZ, rankedStandings, resolveCarOverlap, RIVAL_TUNING, stepCar, type Standing } from './race';
+import { awardRace, CAR_TUNE, createProgress, crossCheckpoint, mapAnalogControl, MULTIPLAYER_CAR_TUNE, nearestTrackXZ, rankedStandings, resolveCarOverlap, RIVAL_TUNING, stepCar, type Standing } from './race';
 
 describe('ordered checkpoint and lap state', () => {
   it('rejects skipped and repeated checkpoints', () => {
@@ -50,16 +50,32 @@ describe('handling and personalities', () => {
   it('accelerates, brakes, reverses and limits high-speed steering', () => {
     let s={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
     for(let i=0;i<120;i++)s=stepCar(s,{throttle:1,brake:0,steer:0,handbrake:false},1/60);
-    expect(s.speed).toBeGreaterThan(15);expect(s.speed).toBeLessThan(22);const fast=s;
+    expect(s.speed).toBeGreaterThan(20);expect(s.speed).toBeLessThan(30);const fast=s;
     for(let i=0;i<45;i++)s=stepCar(s,{throttle:0,brake:1,steer:1,handbrake:true},1/60);
     expect(s.speed).toBeLessThan(fast.speed);expect(Math.abs(s.slip)).toBeGreaterThan(.01);
   });
-  it('reverses on a verge and keeps top speed below the previous tune', () => {
+  it('reverses on a verge without changing the approved single-player forward limit', () => {
     let s={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:true};
     for(let i=0;i<90;i++)s=stepCar(s,{throttle:0,brake:1,steer:0,handbrake:false},1/60);
     expect(s.speed).toBeLessThan(-3);
     expect(s.z).toBeLessThan(0);
     expect(s.speed).toBeGreaterThan(-10);
+    expect(CAR_TUNE.maxForward).toBe(43);
+    expect(RIVAL_TUNING.CHARGER.topSpeed).toBe(44.5);
+    expect(RIVAL_TUNING.TECHNICIAN.topSpeed).toBe(42.8);
+    expect(RIVAL_TUNING.DEFENDER.topSpeed).toBe(40.8);
+  });
+  it('keeps the lower multiplayer forward tune separate from single-player', () => {
+    expect(MULTIPLAYER_CAR_TUNE.maxForward).toBe(32);
+    const base={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
+    let solo=base, together=base;
+    const input={throttle:1,brake:0,steer:0,handbrake:false};
+    for(let i=0;i<600;i++) {
+      solo=stepCar(solo,input,1/60);
+      together=stepCar(together,input,1/60,MULTIPLAYER_CAR_TUNE);
+    }
+    expect(solo.speed).toBeGreaterThan(together.speed+5);
+    expect(together.speed).toBeLessThanOrEqual(32);
   });
   it('separates overlapping car footprints but leaves clear lanes alone', () => {
     const contact=resolveCarOverlap({x:0,z:1,heading:0},{x:0,z:0});

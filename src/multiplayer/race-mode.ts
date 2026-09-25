@@ -3,7 +3,7 @@ import createHeroCoupe from '../assets/hero_coupe.js';
 import createRivalCar from '../assets/rival_cars.js';
 import { createTrackRoute, trackIndex } from '../../shared/track-route.js';
 import { ClientEvent, ServerEvent, type RoomSnapshot } from '../../shared/multiplayer-protocol.js';
-import { resolveCarOverlap, stepCar, type CarInput, type CarState } from '../race';
+import { MULTIPLAYER_CAR_TUNE, resolveCarOverlap, stepCar, type CarInput, type CarState } from '../race';
 import type { RoadSystem } from '../road_system';
 import { avatarDataUrl } from './avatars';
 import { interpolatePose, type RacePose, type TimedPose } from './interpolation';
@@ -171,7 +171,7 @@ export class MultiplayerRace {
       if (road) {
         const before = this.trackRoute.nearest(this.local.x, this.local.z);
         this.local.offroad = before.distance > 4.3;
-        this.local = stepCar(this.local, input, dt);
+        this.local = stepCar(this.local, input, dt, MULTIPLAYER_CAR_TUNE);
         const after = this.trackRoute.nearest(this.local.x, this.local.z);
         if (after.distance > 5.2) {
           const point = this.trackRoute.curve.getPointAt(after.t);

@@ -105,7 +105,7 @@ async function run() {
   await waitText(smallGuest, '.lobby-counter', '2 / 2');
   await smallHost.close();
   await waitText(smallGuest, '.lobby-grid', 'HOST');
-  checks.hostMigration = await smallGuest.$eval('.lobby-driver:nth-child(2) .lobby-driver-detail small', el => el.textContent.includes('HOST'));
+  checks.hostMigration = await smallGuest.$eval('.lobby-driver:first-child .lobby-driver-detail small', el => el.textContent.includes('HOST'));
   checks.hostMigrationNotice = (await text(smallGuest, '.lobby-notice')).includes('is now the host');
   const resumedHost = await hostContext.newPage();
   resumedHost.on('pageerror', error => errors.push(error.message));

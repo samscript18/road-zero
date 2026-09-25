@@ -7,8 +7,12 @@ RUN npm run build
 
 FROM node:22-alpine
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
-COPY scripts/serve-dist.mjs ./scripts/serve-dist.mjs
+COPY server ./server
+COPY shared ./shared
 ENV NODE_ENV=production
+ENV SERVE_DIST=1
 EXPOSE 8080
-CMD ["node", "scripts/serve-dist.mjs"]
+CMD ["node", "server/index.mjs"]
