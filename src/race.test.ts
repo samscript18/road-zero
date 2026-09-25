@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { awardRace, createProgress, crossCheckpoint, rankedStandings, RIVAL_TUNING, stepCar, type Standing } from './race';
+import { awardRace, createProgress, crossCheckpoint, nearestTrackXZ, rankedStandings, RIVAL_TUNING, stepCar, type Standing } from './race';
 
 describe('ordered checkpoint and lap state', () => {
   it('rejects skipped and repeated checkpoints', () => {
@@ -27,6 +27,17 @@ describe('championship', () => {
 });
 
 describe('handling and personalities', () => {
+  it('keeps an elevated car on the racing surface instead of penalizing vertical height', () => {
+    const samples = [{ x: 10, y: 7, z: 20 }, { x: 20, y: 9, z: 20 }];
+    expect(nearestTrackXZ({ x: 10.5, z: 20 }, samples)).toEqual({ idx: 0, distance: 0.5 });
+  });
+  it('maps positive steering to the leftward yaw used by the camera and car model', () => {
+    const s={speed:24,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
+    const left=stepCar(s,{throttle:0,brake:0,steer:1,handbrake:false},1/30);
+    const right=stepCar(s,{throttle:0,brake:0,steer:-1,handbrake:false},1/30);
+    expect(left.heading).toBeGreaterThan(0);
+    expect(right.heading).toBeLessThan(0);
+  });
   it('accelerates, brakes, reverses and limits high-speed steering', () => {
     let s={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
     for(let i=0;i<120;i++)s=stepCar(s,{throttle:1,brake:0,steer:0,handbrake:false},1/60);

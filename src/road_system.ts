@@ -18,7 +18,7 @@ export interface RoadSystem {
  * - Tire rubber skid marks at heavy braking zones
  * - Warm dusty gravel shoulders
  */
-export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segments = 360): RoadSystem {
+export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segments = 360, theme = 0): RoadSystem {
   const group = new THREE.Group();
   group.name = 'road-system';
 
@@ -85,11 +85,12 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
   roadGeom.setAttribute('uv', new THREE.Float32BufferAttribute(roadUvs, 2));
   roadGeom.setIndex(roadIndices);
 
+  const roadColours = [0x353638, 0x303235, 0x38393a];
+  const shoulderColours = [0x9a855e, 0x75634f, 0x827a61];
   const roadMat = new THREE.MeshStandardMaterial({
-    color: 0x2e3032,
-    roughness: 0.86,
-    metalness: 0.05,
-    side: THREE.DoubleSide,
+    color: roadColours[theme] ?? roadColours[0],
+    roughness: 0.91,
+    metalness: 0.0,
   });
 
   const roadMesh = new THREE.Mesh(roadGeom, roadMat);
@@ -136,7 +137,6 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
       color: 0xefe1c6,
       roughness: 0.6,
       metalness: 0.0,
-      side: THREE.DoubleSide,
     });
 
     const edgeLine = new THREE.Mesh(lineGeom, lineMat);
@@ -144,12 +144,47 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
     group.add(edgeLine);
   }
 
+  // --- 2b. Painted Dashed Center Road Markings ---
+  const dashMat = new THREE.MeshStandardMaterial({
+    color: 0xefe1c6,
+    roughness: 0.65,
+    metalness: 0.0,
+    side: THREE.DoubleSide,
+  });
+  const dashWidth = 0.22;
+  const dashLength = (curve.getLength() / segments) * 1.8;
+  const dashBox = new THREE.BoxGeometry(dashWidth, 0.015, dashLength);
+
+  const dashCount = Math.ceil(segments / 4);
+  const dashes = new THREE.InstancedMesh(dashBox, dashMat, dashCount);
+  const dashDummy = new THREE.Object3D();
+  let dashIndex = 0;
+  for (let i = 0; i < segments; i += 4) {
+    const p = samples[i];
+    const norm = normals[i];
+    const tan = tangents[i];
+    dashDummy.position.copy(p).addScaledVector(norm, 0.012);
+    dashDummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tan);
+    dashDummy.scale.set(1, 1, 1);
+    dashDummy.updateMatrix();
+    dashes.setMatrixAt(dashIndex++, dashDummy.matrix);
+  }
+  dashes.count = dashIndex;
+  dashes.instanceMatrix.needsUpdate = true;
+  dashes.receiveShadow = true;
+  dashes.name = 'painted-centre-dashes';
+  group.add(dashes);
+
   // --- 3. Red & White Alternating Apex Kerbs (Rumble Strips) on Curves ---
   const kerbWidth = 0.65;
   const kerbHeight = 0.055;
   const redMat = new THREE.MeshStandardMaterial({ color: 0xd74b3f, roughness: 0.75 });
   const whiteMat = new THREE.MeshStandardMaterial({ color: 0xefe1c6, roughness: 0.75 });
 
+  const kerbGeometry = new THREE.BoxGeometry(kerbWidth, kerbHeight, (curve.getLength() / segments) * 1.05);
+  const kerbMeshes = [new THREE.InstancedMesh(kerbGeometry, redMat, segments), new THREE.InstancedMesh(kerbGeometry, whiteMat, segments)];
+  const kerbCounts = [0, 0];
+  const kerbDummy = new THREE.Object3D();
   // Detect sharp corners by measuring tangent change
   for (let i = 0; i < segments; i++) {
     const nextIdx = (i + 4) % segments;
@@ -162,21 +197,26 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
       // Curve apex detected! Place kerb on inside (and optionally outside)
       const insideSgn = crossY > 0 ? -1 : 1;
       const isRed = Math.floor(i / 2) % 2 === 0;
-      const kMat = isRed ? redMat : whiteMat;
-
       const p = samples[i];
       const side = binormals[i];
       const norm = normals[i];
       const tan = tangents[i];
 
-      const kerbBox = new THREE.BoxGeometry(kerbWidth, kerbHeight, (curve.getLength() / segments) * 1.05);
-      const km = new THREE.Mesh(kerbBox, kMat);
-      km.position.copy(p).addScaledVector(side, insideSgn * (halfW + kerbWidth * 0.42)).addScaledVector(norm, kerbHeight * 0.4);
-      km.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tan);
-      km.receiveShadow = true;
-      group.add(km);
+      const materialIndex = isRed ? 0 : 1;
+      kerbDummy.position.copy(p).addScaledVector(side, insideSgn * (halfW + kerbWidth * 0.42)).addScaledVector(norm, kerbHeight * 0.4);
+      kerbDummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tan);
+      kerbDummy.scale.set(1, 1, 1);
+      kerbDummy.updateMatrix();
+      kerbMeshes[materialIndex].setMatrixAt(kerbCounts[materialIndex]++, kerbDummy.matrix);
     }
   }
+  kerbMeshes.forEach((mesh, i) => {
+    mesh.count = kerbCounts[i];
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.receiveShadow = true;
+    mesh.name = i === 0 ? 'red-apex-kerbs' : 'cream-apex-kerbs';
+    group.add(mesh);
+  });
 
   // --- 4. Gravel / Dusty Verge Shoulders ---
   const shoulderWidth = 2.2;
@@ -218,7 +258,7 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
   shoulderGeom.setIndex(shoulderIndices);
 
   const shoulderMat = new THREE.MeshStandardMaterial({
-    color: 0x8a7a58,
+    color: shoulderColours[theme] ?? shoulderColours[0],
     roughness: 0.96,
     metalness: 0.0,
   });
@@ -236,6 +276,11 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
     opacity: 0.42,
   });
 
+  const skidGeometry = new THREE.PlaneGeometry(0.24, 7.5);
+  const skidCount = Math.ceil((segments - 12) / 28) * 2;
+  const skids = new THREE.InstancedMesh(skidGeometry, skidMat, skidCount);
+  const skidDummy = new THREE.Object3D();
+  let skidIndex = 0;
   for (let s = 12; s < segments; s += 28) {
     const p = samples[s];
     const side = binormals[s];
@@ -243,13 +288,18 @@ export function createRoadSystem(points: THREE.Vector3[], roadWidth = 8.4, segme
     const norm = normals[s];
 
     for (const lane of [-1.4, 1.4]) {
-      const sm = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 7.5), skidMat);
-      sm.position.copy(p).addScaledVector(side, lane).addScaledVector(norm, 0.012);
-      sm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), norm);
-      sm.rotateY(Math.atan2(tan.x, tan.z));
-      group.add(sm);
+      skidDummy.position.copy(p).addScaledVector(side, lane).addScaledVector(norm, 0.012);
+      skidDummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), norm);
+      skidDummy.rotateY(Math.atan2(tan.x, tan.z));
+      skidDummy.scale.set(1, 1, 1);
+      skidDummy.updateMatrix();
+      skids.setMatrixAt(skidIndex++, skidDummy.matrix);
     }
   }
+  skids.count = skidIndex;
+  skids.instanceMatrix.needsUpdate = true;
+  skids.name = 'braking-zone-rubber';
+  group.add(skids);
 
   return {
     group,

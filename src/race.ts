@@ -88,6 +88,21 @@ export function rankedStandings(standings: Standing[]): Standing[] {
 export type CarInput = { throttle: number; brake: number; steer: number; handbrake: boolean };
 export type CarState = { speed: number; heading: number; slip: number; steerAngle: number; x: number; z: number; offroad: boolean };
 
+export function nearestTrackXZ(pos: { x: number; z: number }, samples: ReadonlyArray<{ x: number; z: number }>) {
+  let best = Infinity;
+  let idx = 0;
+  for (let i = 0; i < samples.length; i++) {
+    const dx = pos.x - samples[i].x;
+    const dz = pos.z - samples[i].z;
+    const distanceSq = dx * dx + dz * dz;
+    if (distanceSq < best) {
+      best = distanceSq;
+      idx = i;
+    }
+  }
+  return { idx, distance: Math.sqrt(best) };
+}
+
 export const CAR_TUNE = {
   accel: 15.5, brake: 28, reverseAccel: 8, maxForward: 43, maxReverse: 8,
   drag: .34, rolling: 1.1, lowSteer: 2.25, highSteer: .82,

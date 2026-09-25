@@ -3,7 +3,10 @@ import createHeroCoupe from './assets/hero_coupe.js';
 import createRivalCar from './assets/rival_cars.js';
 import { createRoadSystem, type RoadSystem } from './road_system';
 import createFestivalEnvironment from './assets/festival_environment.js';
-import { awardRace, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
+import { ParticleEngine } from './particles';
+import { RaceAudio } from './audio';
+import { bakeStatic } from './assetlib.js';
+import { awardRace, nearestTrackXZ, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
 import './styles.css';
 
 const $ = <T extends Element>(q: string) => document.querySelector<T>(q)!;
@@ -12,16 +15,23 @@ const app = $<HTMLDivElement>('#app');
 app.innerHTML = `
 <main id="menu" class="screen">
   <section class="card hero">
-    <p class="kicker">THE CANTERA HILL-CLIMB · 1982</p>
-    <h1>ROAD<br><i>ZERO</i></h1>
-    <p class="lede">Three persistent rivals. Three mountain roads. Learn how they drive.</p>
-    <div class="actions">
-      <button id="championship" class="primary">START CHAMPIONSHIP</button>
-      <button id="quick">QUICK RACE</button>
-      <button id="how">HOW TO PLAY</button>
+    <div class="menu-masthead"><p class="kicker">THE CANTERA HILL-CLIMB · 1982</p><span>03 ROUNDS · 04 DRIVERS</span></div>
+    <h1><span>ROAD</span><i>ZERO</i></h1>
+    <p class="lede">Three mountain roads. Three rivals to read. One title to win.</p>
+    <div class="rival-strip" aria-label="Your three championship rivals">
+      <span class="rival-chip"><b class="rival-dot charger-dot"></b>CHARGER</span>
+      <span class="rival-chip"><b class="rival-dot technician-dot"></b>TECHNICIAN</span>
+      <span class="rival-chip"><b class="rival-dot defender-dot"></b>DEFENDER</span>
     </div>
-    <p class="keys">WASD / ARROWS TO DRIVE · SPACE TO SLIP · R TO RESET · ESC TO PAUSE</p>
+    <div class="actions">
+      <button id="championship" class="primary"><span>START CHAMPIONSHIP</span><span aria-hidden="true">↗</span></button>
+      <button id="quick"><span>QUICK RACE</span><span aria-hidden="true">→</span></button>
+      <button id="how"><span>HOW TO PLAY</span><span aria-hidden="true">→</span></button>
+    </div>
+    <p class="keys">WASD / ARROWS <em>DRIVE</em><span>·</span> SPACE <em>SLIP</em><span>·</span> R <em>RESET</em></p>
   </section>
+  <div class="menu-broadcast" aria-hidden="true"><span class="live-mark"></span><span>LIVE FROM THE HILLSIDE</span><b>01 / 03</b></div>
+  <div class="menu-scene-caption" aria-hidden="true"><span>ORCHARD SPRINT</span><i></i><span>THE GRID IS MOVING</span></div>
 </main>
 <section id="brief" class="screen hidden">
   <div class="card modal">
@@ -46,6 +56,12 @@ app.innerHTML = `
   <div class="plate right"><b id="speed">000</b><small>KM/H</small></div>
   <div id="raceLabel"></div>
   <div id="countdown"></div>
+  <div id="tacho">
+    <div class="needle" id="tachoNeedle"></div>
+    <div class="center-pin"></div>
+    <div class="rpm-num" id="tachoRpm">1</div>
+    <small>GEAR · RPM</small>
+  </div>
   <div id="notice"></div>
 </div>
 <div id="touch" class="hidden">
@@ -74,38 +90,35 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.18;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 app.prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xaf9f87);
-scene.fog = new THREE.Fog(0xc5b497, 110, 400);
+scene.background = new THREE.Color(0xb5a389);
+scene.fog = new THREE.Fog(0xc9b99e, 110, 420);
 
 const camera = new THREE.PerspectiveCamera(54, innerWidth / innerHeight, 0.1, 750);
 
-// --- Golden Hour Lighting Rig (Analog Hillside Festival) ---
-// Hemisphere sky/ground ambient fill
-const hemi = new THREE.HemisphereLight(0xa5c4cc, 0x826046, 1.8);
+// --- Golden Hour Lighting Rig ---
+const hemi = new THREE.HemisphereLight(0xaad0d8, 0x886348, 1.85);
 scene.add(hemi);
 
-// Warm low-angle golden sunlight
 const sun = new THREE.DirectionalLight(0xffd594, 3.8);
 sun.position.set(-65, 75, -45);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.near = 10;
 sun.shadow.camera.far = 350;
-sun.shadow.camera.left = -90;
-sun.shadow.camera.right = 90;
-sun.shadow.camera.top = 90;
-sun.shadow.camera.bottom = -90;
+sun.shadow.camera.left = -95;
+sun.shadow.camera.right = 95;
+sun.shadow.camera.top = 95;
+sun.shadow.camera.bottom = -95;
 sun.shadow.bias = -0.0003;
 scene.add(sun);
 
-// Subtle golden fill light for shadow softening
-const sunFill = new THREE.DirectionalLight(0xffe2b8, 0.9);
+const sunFill = new THREE.DirectionalLight(0xffe2b8, 0.95);
 sunFill.position.set(45, 30, 60);
 scene.add(sunFill);
 
@@ -117,17 +130,20 @@ for (let i = 0; i < posAttr.count; i++) {
   const gx = posAttr.getX(i);
   const gz = posAttr.getZ(i);
   const distFromCenter = Math.hypot(gx, gz);
-  const distFromTrack = Math.abs(distFromCenter - 75);
   let hillHeight = -0.18;
-  if (distFromTrack > 18) {
-    hillHeight = Math.sin(gx * 0.012) * 3.5 + Math.cos(gz * 0.015) * 3.5 + (distFromTrack > 35 ? (distFromTrack - 35) * 0.22 : 0);
+  // Keep a broad, guaranteed-clear terrain bowl beneath every track layout.
+  // The former radius-75 band allowed hills to cut through wide corners and
+  // occlude both the road and vehicle.
+  if (distFromCenter > 122) {
+    const outer = distFromCenter - 122;
+    hillHeight = -0.18 + Math.sin(gx * 0.012) * 2.4 + Math.cos(gz * 0.015) * 2.4 + outer * 0.12;
   }
   posAttr.setY(i, hillHeight);
 }
 groundGeom.computeVertexNormals();
 
 const groundMat = new THREE.MeshStandardMaterial({
-  color: 0x827756,
+  color: 0x847957,
   roughness: 0.98,
   metalness: 0.0,
 });
@@ -138,7 +154,7 @@ scene.add(ground);
 // Distant mountain ranges
 const mountainGroup = new THREE.Group();
 mountainGroup.name = 'mountain-backdrop';
-const mountainMat = new THREE.MeshStandardMaterial({ color: 0x5a6a6d, roughness: 0.98 });
+const mountainMat = new THREE.MeshStandardMaterial({ color: 0x56676a, roughness: 0.98 });
 for (let m = 0; m < 18; m++) {
   const angle = (m / 18) * Math.PI * 2;
   const radius = 220 + (m % 4) * 22;
@@ -164,7 +180,9 @@ function generateTrackPoints(index: number): THREE.Vector3[] {
   for (let i = 0; i < cfg.points; i++) {
     const a = (i / cfg.points) * Math.PI * 2 - Math.PI / 2;
     const r = cfg.radius + Math.sin(i * 1.6 + cfg.phase) * cfg.wave + Math.cos(i * 0.9 + index) * 4.5;
-    const y = 1.4 + Math.sin(i * 1.2 + index) * cfg.elevation;
+    // A positive datum keeps the complete asphalt ribbon above the shared
+    // terrain bowl, including Summit's lowest switchback.
+    const y = 7.0 + Math.sin(i * 1.2 + index) * cfg.elevation;
     pts.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
   }
   return pts;
@@ -173,6 +191,10 @@ function generateTrackPoints(index: number): THREE.Vector3[] {
 let roadSystem: RoadSystem | null = null;
 let sceneryGroup = new THREE.Group();
 scene.add(sceneryGroup);
+
+// Initialize Particle Engine
+const particleEngine = new ParticleEngine(scene);
+const raceAudio = new RaceAudio();
 
 function buildTrack(index: number) {
   if (roadSystem) {
@@ -183,7 +205,16 @@ function buildTrack(index: number) {
   scene.add(sceneryGroup);
 
   const points = generateTrackPoints(index);
-  roadSystem = createRoadSystem(points, 8.4, 380);
+  const atmospheres = [
+    { sky: 0xb8a88d, fog: 0xcbbda3, ground: 0x847957 },
+    { sky: 0xa99c8a, fog: 0xbbae96, ground: 0x75684f },
+    { sky: 0xaeb5b2, fog: 0xb8b8ad, ground: 0x79765d },
+  ];
+  const atmosphere = atmospheres[index];
+  scene.background = new THREE.Color(atmosphere.sky);
+  scene.fog = new THREE.Fog(atmosphere.fog, index === 2 ? 90 : 110, index === 2 ? 370 : 420);
+  (ground.material as THREE.MeshStandardMaterial).color.setHex(atmosphere.ground);
+  roadSystem = createRoadSystem(points, 8.4, 380, index);
   scene.add(roadSystem.group);
 
   buildFestivalScenery(index);
@@ -193,6 +224,7 @@ function buildFestivalScenery(index: number) {
   if (!roadSystem) return;
   const envKit = createFestivalEnvironment(THREE);
   const parts = envKit.userData.parts as Record<string, THREE.Group>;
+  const bakedParts = Object.fromEntries(Object.entries(parts).map(([name, part]) => [name, bakeStatic(part)])) as Record<string, THREE.Group>;
 
   const samples = roadSystem.samples;
   const tangents = roadSystem.tangents;
@@ -200,7 +232,7 @@ function buildFestivalScenery(index: number) {
   const total = samples.length;
 
   const placeProp = (propName: string, idx: number, sideDist: number, rotYOffset = 0, scale = 1.0) => {
-    const template = parts[propName];
+    const template = bakedParts[propName];
     if (!template) return;
     const clone = template.clone(true);
     const p = samples[idx % total];
@@ -213,54 +245,120 @@ function buildFestivalScenery(index: number) {
     sceneryGroup.add(clone);
   };
 
-  // 1. Starting grid & Finish landmark at start (idx ~0)
-  placeProp('marshalHut', 4, -7.5, 0);
-  placeProp('buntingLine', 2, 6.8, 0);
-  placeProp('spectatorCanopy', 8, 8.5, 0);
+  // Common event spine: start/finish reads strongly on every circuit.
+  placeProp('startGantry', 0, 0, 0);
+  placeProp('marshalHut', 4, -7.8, 0);
+  placeProp('buntingLine', 2, 7.2, 0);
+  placeProp('spectatorCanopy', 8, 9.2, 0);
 
-  // 2. Continuous stone retaining walls and timber barriers along corners
-  for (let i = 0; i < total; i += 7) {
-    const tan0 = tangents[i];
-    const tan1 = tangents[(i + 4) % total];
-    const crossY = tan0.x * tan1.z - tan0.z * tan1.x;
-    const curvature = Math.abs(crossY);
+  const placeCluster = (name: string, center: number, side: number, offsets: number[], distance: number, scale = 1) =>
+    offsets.forEach((offset, n) => placeProp(name, center + offset, side * (distance + (n % 2) * 2.1), side > 0 ? Math.PI : 0, scale * (0.92 + (n % 3) * 0.07)));
 
-    if (curvature > 0.04) {
-      const outsideSgn = crossY > 0 ? 1 : -1;
-      // Stone retaining wall on outside of curve
-      placeProp('stoneWall', i, outsideSgn * 7.6, outsideSgn > 0 ? Math.PI : 0);
-      // Hay bales protecting apex
-      if (i % 14 === 0) {
-        placeProp('hayBale', i, -outsideSgn * 5.6, 0);
-        placeProp('chevronSign', i + 3, outsideSgn * 7.2, outsideSgn > 0 ? Math.PI : 0);
-      }
-    } else if (i % 21 === 0) {
-      // Flowing straights get rustic timber guardrails
-      placeProp('timberBarrier', i, -6.8, 0);
-      placeProp('timberBarrier', i + 1, 6.8, Math.PI);
-    }
+  if (index === 0) {
+    // ORCHARD: dense hero bend, open vista, then paddock pocket.
+    placeCluster('oliveTree', 58, 1, [-12, -7, -2, 4, 10, 16], 10.5, 1.08);
+    placeCluster('timberBarrier', 62, -1, [-10, -5, 0, 5, 10], 6.6);
+    placeProp('spectatorCanopy', 72, 11.4, Math.PI, 1.12);
+    placeProp('marshalHut', 80, 8.4, Math.PI);
+    placeCluster('hayBale', 76, -1, [-6, -2, 2, 6], 5.5, 1.05);
+    placeCluster('oliveTree', 238, -1, [-14, -8, -1, 7, 14], 12, 1.18);
+    placeProp('spectatorCanopy', 252, -11.2, 0, 1.08);
+    placeProp('buntingLine', 262, 8.8, Math.PI);
+    placeProp('distantScenery', Math.floor(total * 0.42), -112, 0.4, 1.28);
+  } else if (index === 1) {
+    // QUARRY: readable braking walls, exposed basin and elevated crowd ledge.
+    placeCluster('stoneWall', 54, 1, [-14, -8, -2, 4, 10, 16], 7.4, 1.08);
+    placeCluster('tireBarrier', 66, -1, [-8, -3, 2, 7], 6.2);
+    placeCluster('chevronSign', 72, 1, [-6, 0, 6], 7.3);
+    placeProp('marshalHut', 84, 9.5, Math.PI, 1.05);
+    placeCluster('stoneWall', 205, -1, [-15, -9, -3, 3, 9, 15], 7.5, 1.14);
+    placeProp('spectatorCanopy', 220, -11.8, 0, 1.08);
+    placeCluster('cypressTree', 244, 1, [-9, 0, 11], 13, 1.12);
+    placeProp('distantScenery', Math.floor(total * 0.34), 122, -0.5, 0.9);
+  } else {
+    // SUMMIT: quiet exposed ridge followed by a concentrated championship finale.
+    placeCluster('stoneWall', 118, -1, [-15, -9, -3, 3, 9, 15], 7.2, 1.12);
+    placeCluster('cypressTree', 132, 1, [-12, -4, 6, 16], 12.5, 1.22);
+    placeProp('marshalHut', 144, 8.8, Math.PI, 1.08);
+    placeCluster('spectatorCanopy', 272, -1, [-16, 0, 17], 12.2, 1.12);
+    placeCluster('buntingLine', 286, 1, [-12, 0, 12], 8.5, 1.08);
+    placeCluster('stoneWall', 304, -1, [-12, -6, 0, 6, 12], 7.4, 1.16);
+    placeCluster('hayBale', 330, 1, [-8, -3, 2, 7], 5.6, 1.05);
+    placeProp('distantScenery', Math.floor(total * 0.52), -135, 0.4, 1.08);
   }
 
-  // 3. Mediterranean Olive Trees, Cypresses, and Spectator Pockets
-  for (let i = 0; i < total; i += 9) {
-    const sgn = i % 2 === 0 ? 1 : -1;
-    const dist = 9.5 + (i % 4) * 2.5;
-    if (i % 18 === 0) {
-      placeProp('oliveTree', i, sgn * dist, (i * 0.7) % Math.PI, 0.9 + (i % 3) * 0.15);
-    } else if (i % 27 === 0) {
-      placeProp('cypressTree', i, sgn * dist, 0, 1.0 + (i % 4) * 0.2);
-      placeProp('cypressTree', i + 1, sgn * (dist + 3.2), 0, 0.9 + (i % 3) * 0.15);
-    } else if (i % 36 === 0) {
-      placeProp('spectatorCanopy', i, sgn * 10.5, sgn > 0 ? Math.PI : 0);
-    } else if (i % 45 === 0) {
-      placeProp('marshalHut', i, -sgn * 8.0, sgn > 0 ? 0 : Math.PI);
-    } else if (i % 54 === 0) {
-      placeProp('rockFormation', i, sgn * 8.5, (i * 0.4) % Math.PI);
-    }
+  // Low-cost foreground parallax, deliberately concentrated around authored zones.
+  const grassCount = index === 0 ? 170 : index === 1 ? 95 : 120;
+  const grass = new THREE.InstancedMesh(
+    new THREE.ConeGeometry(0.12, 0.75, 5),
+    new THREE.MeshStandardMaterial({ color: index === 1 ? 0x776f50 : 0x8f8a5c, roughness: 1 }),
+    grassCount,
+  );
+  const grassDummy = new THREE.Object3D();
+  for (let i = 0; i < grassCount; i++) {
+    const route = index === 0 ? (44 + i * 1.23) % total : index === 1 ? (38 + i * 2.1) % total : (100 + i * 1.7) % total;
+    const sideSign = i % 2 ? 1 : -1;
+    grassDummy.position.copy(samples[Math.floor(route)]).addScaledVector(binormals[Math.floor(route)], sideSign * (5.2 + (i % 7) * 0.42));
+    grassDummy.position.y += 0.32;
+    grassDummy.rotation.set(0, i * 2.17, sideSign * 0.08);
+    grassDummy.scale.set(0.8 + (i % 3) * 0.16, 0.75 + (i % 5) * 0.12, 0.8 + (i % 4) * 0.1);
+    grassDummy.updateMatrix();
+    grass.setMatrixAt(i, grassDummy.matrix);
   }
+  grass.instanceMatrix.needsUpdate = true;
+  sceneryGroup.add(grass);
 
-  // 4. Distant Italian hillside village in the far midground
-  placeProp('distantScenery', Math.floor(total * 0.38), -115, 0.4, 1.2);
+  // Crowd banks read as warm colour clusters at racing distance: two draws per bank,
+  // no uncanny close-up figures and no randomly scattered one-off meshes.
+  const addCrowdBank = (center: number, sideSign: number, count: number, spread: number) => {
+    const bodies = new THREE.InstancedMesh(
+      new THREE.CapsuleGeometry(0.13, 0.34, 3, 6),
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92 }),
+      count,
+    );
+    const heads = new THREE.InstancedMesh(
+      new THREE.SphereGeometry(0.13, 7, 5),
+      new THREE.MeshStandardMaterial({ color: 0xb98262, roughness: 0.96 }),
+      count,
+    );
+    const palette = [0xc86845, 0xd5a23b, 0x53694c, 0x507d92, 0xefe1c6];
+    const bodyDummy = new THREE.Object3D();
+    const headDummy = new THREE.Object3D();
+    for (let i = 0; i < count; i++) {
+      const routeIndex = (center + Math.round((i / Math.max(1, count - 1) - 0.5) * spread) + total) % total;
+      const rank = Math.floor(i / 9);
+      const lateral = sideSign * (8.2 + rank * 1.05 + (i % 3) * 0.24);
+      const base = samples[routeIndex].clone().addScaledVector(binormals[routeIndex], lateral);
+      base.y += 0.52 + rank * 0.12;
+      bodyDummy.position.copy(base);
+      bodyDummy.rotation.set(0, Math.atan2(tangents[routeIndex].x, tangents[routeIndex].z) + (sideSign > 0 ? Math.PI : 0), 0);
+      bodyDummy.scale.setScalar(0.92 + (i % 4) * 0.04);
+      bodyDummy.updateMatrix();
+      bodies.setMatrixAt(i, bodyDummy.matrix);
+      bodies.setColorAt(i, new THREE.Color(palette[(i * 3 + center) % palette.length]));
+      headDummy.position.copy(base).add(new THREE.Vector3(0, 0.48, 0));
+      headDummy.scale.setScalar(0.9 + (i % 3) * 0.05);
+      headDummy.updateMatrix();
+      heads.setMatrixAt(i, headDummy.matrix);
+    }
+    bodies.instanceMatrix.needsUpdate = true;
+    bodies.instanceColor!.needsUpdate = true;
+    heads.instanceMatrix.needsUpdate = true;
+    bodies.name = 'spectator-colour-bank';
+    heads.name = 'spectator-head-bank';
+    sceneryGroup.add(bodies, heads);
+  };
+
+  if (index === 0) {
+    addCrowdBank(72, 1, 30, 28);
+    addCrowdBank(250, -1, 24, 22);
+  } else if (index === 1) {
+    addCrowdBank(84, 1, 22, 18);
+    addCrowdBank(220, -1, 28, 26);
+  } else {
+    addCrowdBank(286, -1, 42, 38);
+    addCrowdBank(8, 1, 34, 26);
+  }
 }
 
 // --- Racers & Vehicles Setup ---
@@ -291,7 +389,10 @@ let racers: Racer[] = [];
 let player: CarState = { speed: 0, heading: 0, slip: 0, steerAngle: 0, x: 0, z: 0, offroad: false };
 
 let mode: 'championship' | 'quick' = 'championship';
-let raceIndex = 0;
+const requestedCaptureTrack = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+  ? Number(new URLSearchParams(location.search).get('track'))
+  : 0;
+let raceIndex = Number.isInteger(requestedCaptureTrack) ? THREE.MathUtils.clamp(requestedCaptureTrack, 0, 2) : 0;
 let racing = false;
 let paused = false;
 let countdown = 0;
@@ -301,69 +402,14 @@ let fps = 60;
 let frames = 0;
 let fpsStamp = last;
 let standings: Standing[] = [];
+let prevThrottle = 0;
+let lastCountdownNumber = 4;
 
 const keys = new Set<string>();
 let touchSteer = 0;
 let touchThrottle = 0;
 let touchBrake = 0;
 let touchHandbrake = false;
-
-// --- Tire Golden Dust Particle System ---
-const MAX_DUST = 70;
-const dustParticles = new THREE.InstancedMesh(
-  new THREE.DodecahedronGeometry(0.24, 1),
-  new THREE.MeshStandardMaterial({
-    color: 0xd4ba8a,
-    roughness: 0.95,
-    transparent: true,
-    opacity: 0.45,
-  }),
-  MAX_DUST,
-);
-dustParticles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-scene.add(dustParticles);
-
-const dustData: Array<{ pos: THREE.Vector3; vel: THREE.Vector3; scale: number; life: number; maxLife: number }> = [];
-const dummyObj = new THREE.Object3D();
-
-function spawnDust(x: number, y: number, z: number, intensity: number) {
-  if (dustData.length >= MAX_DUST) return;
-  dustData.push({
-    pos: new THREE.Vector3(x + (Math.random() - 0.5) * 0.4, y + 0.1, z + (Math.random() - 0.5) * 0.4),
-    vel: new THREE.Vector3((Math.random() - 0.5) * 1.5, 0.8 + Math.random() * 1.2, (Math.random() - 0.5) * 1.5),
-    scale: 0.35 + intensity * 0.45,
-    life: 0,
-    maxLife: 0.65 + Math.random() * 0.45,
-  });
-}
-
-function updateDust(dt: number) {
-  for (let i = dustData.length - 1; i >= 0; i--) {
-    const d = dustData[i];
-    d.life += dt;
-    if (d.life >= d.maxLife) {
-      dustData.splice(i, 1);
-      continue;
-    }
-    d.pos.addScaledVector(d.vel, dt);
-    d.scale += dt * 0.6;
-  }
-  for (let i = 0; i < MAX_DUST; i++) {
-    if (i < dustData.length) {
-      const d = dustData[i];
-      dummyObj.position.copy(d.pos);
-      dummyObj.scale.setScalar(d.scale);
-      dummyObj.updateMatrix();
-      dustParticles.setMatrixAt(i, dummyObj.matrix);
-    } else {
-      dummyObj.position.set(0, -999, 0);
-      dummyObj.scale.setScalar(0.001);
-      dummyObj.updateMatrix();
-      dustParticles.setMatrixAt(i, dummyObj.matrix);
-    }
-  }
-  dustParticles.instanceMatrix.needsUpdate = true;
-}
 
 const freshStandings = () =>
   ['PLAYER', 'CHARGER', 'TECHNICIAN', 'DEFENDER'].map(id => ({
@@ -377,16 +423,8 @@ const freshStandings = () =>
 function nearestTrack(pos: THREE.Vector3) {
   if (!roadSystem) return { t: 0, distance: 0, idx: 0 };
   const samples = roadSystem.samples;
-  let best = Infinity;
-  let idx = 0;
-  for (let i = 0; i < samples.length; i++) {
-    const d = pos.distanceToSquared(samples[i]);
-    if (d < best) {
-      best = d;
-      idx = i;
-    }
-  }
-  return { t: idx / samples.length, distance: Math.sqrt(best), idx };
+  const nearest = nearestTrackXZ(pos, samples);
+  return { t: nearest.idx / samples.length, ...nearest };
 }
 
 function placeRacer(r: Racer, t: number, lane: number) {
@@ -420,29 +458,32 @@ function updateCameraPosition(dt: number, isCountdown = false) {
   const dir = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
   const isPortrait = innerWidth < innerHeight;
 
-  // Adapt camera distance and elevation to screen aspect ratio
   const dist = isPortrait ? 6.4 : 5.4;
   const height = isPortrait ? 3.1 : 2.4;
 
   if (isCountdown) {
-    // Cinematic Starting Grid Camera (references/scenes/01-starting-grid.png):
-    // Positioned low behind the player car looking forward across the starting grid
     const gridCamTarget = playerCar.position.clone().addScaledVector(dir, -4.5).add(new THREE.Vector3(0, 1.65, 0));
     camera.position.lerp(gridCamTarget, dt > 0 ? 1 - Math.exp(-6 * dt) : 1);
     camera.lookAt(playerCar.position.clone().addScaledVector(dir, 8.5).add(new THREE.Vector3(0, 0.9, 0)));
   } else {
-    // Dynamic Spring Chase Camera:
     const target = playerCar.position.clone().addScaledVector(dir, -dist).add(new THREE.Vector3(0, height, 0));
-    // Lateral inertia response on steering
     const side = new THREE.Vector3(-dir.z, 0, dir.x);
     target.addScaledVector(side, -player.steerAngle * 0.65);
+
+    // High-speed visceral camera shake (> 80 km/h)
+    const kph = Math.abs(player.speed) * 3.6;
+    if (kph > 80) {
+      const shakeAmt = Math.min(0.06, (kph - 80) * 0.0008);
+      target.x += (Math.random() - 0.5) * shakeAmt;
+      target.y += (Math.random() - 0.5) * shakeAmt;
+      target.z += (Math.random() - 0.5) * shakeAmt;
+    }
 
     camera.position.lerp(target, dt > 0 ? 1 - Math.exp(-6 * dt) : 1);
     const lookTarget = playerCar.position.clone().addScaledVector(dir, 7.5).add(new THREE.Vector3(0, 0.75, 0));
     camera.lookAt(lookTarget);
   }
 
-  // Adjust camera FOV responsively
   const baseFov = isPortrait ? 60 : 54;
   const speedKick = Math.min(8, Math.abs(player.speed) * 0.18);
   camera.fov = THREE.MathUtils.damp(camera.fov, baseFov + speedKick, 4, dt || 0.016);
@@ -450,9 +491,11 @@ function updateCameraPosition(dt: number, isCountdown = false) {
 }
 
 function resetRace() {
+  void raceAudio.unlock();
   buildTrack(raceIndex);
   raceClock = 0;
   countdown = 3.7;
+  lastCountdownNumber = 4;
   racing = true;
   paused = false;
 
@@ -481,7 +524,6 @@ function resetRace() {
   const p = playerCar.position;
   player = { speed: 0, heading: playerCar.rotation.y, slip: 0, steerAngle: 0, x: p.x, z: p.z, offroad: false };
 
-  // Immediately place camera behind the player car on the starting grid
   updateCameraPosition(0, true);
   updateHud();
 }
@@ -491,13 +533,28 @@ function updateHud() {
   const rank = p ? 1 + racers.filter(r => r !== p && r.lap + r.progress > p.lap + p.progress).length : 1;
   $('#position').textContent = `${rank} / 4`;
   $('#lap').textContent = `${Math.min(p?.lap || 1, 2)} / 2`;
-  $('#speed').textContent = String(Math.round(Math.abs(player.speed) * 3.6)).padStart(3, '0');
+  const kph = Math.round(Math.abs(player.speed) * 3.6);
+  $('#speed').textContent = String(kph).padStart(3, '0');
   $('#raceLabel').textContent = RACES[raceIndex].name;
+
+  // Analog Tachometer updates
+  const needle = $<HTMLElement>('#tachoNeedle');
+  const rpmNum = $<HTMLElement>('#tachoRpm');
+  if (needle && rpmNum) {
+    const gear = kph < 35 ? 1 : kph < 65 ? 2 : kph < 95 ? 3 : kph < 125 ? 4 : 5;
+    const gearMax = [0, 38, 70, 102, 132, 160][gear];
+    const gearMin = [0, 0, 32, 62, 92, 122][gear];
+    const revFraction = THREE.MathUtils.clamp((kph - gearMin) / (gearMax - gearMin), 0.15, 1.0);
+    const needleDeg = -120 + revFraction * 240;
+    needle.style.transform = `rotate(${needleDeg}deg)`;
+    rpmNum.textContent = String(gear);
+  }
 }
 
 function finishRace() {
   if (!racing) return;
   racing = false;
+  raceAudio.cue('finish');
   const order = [...racers]
     .sort((a, b) =>
       a.finished === b.finished
@@ -550,14 +607,23 @@ function resetPlayer() {
 function update(dt: number) {
   if (!racing || paused || !roadSystem) return;
   raceClock += dt;
-  updateDust(dt);
+  particleEngine.update(dt);
 
   if (countdown > 0) {
+    raceAudio.update(0, 0, 0, false, raceIndex);
     countdown -= dt;
+    const countdownNumber = Math.ceil(countdown);
+    if (countdownNumber > 0 && countdownNumber < lastCountdownNumber) {
+      raceAudio.cue('count');
+      lastCountdownNumber = countdownNumber;
+    }
+    if (countdown <= 0 && lastCountdownNumber !== 0) {
+      raceAudio.cue('go');
+      lastCountdownNumber = 0;
+    }
     $('#countdown').textContent = countdown > 0.55 ? String(Math.ceil(countdown)) : 'GO!';
     if (countdown <= 0) setTimeout(() => ($('#countdown').textContent = ''), 500);
 
-    // Keep camera smoothly positioned on grid during countdown!
     updateCameraPosition(dt, true);
     return;
   }
@@ -565,19 +631,20 @@ function update(dt: number) {
   const throttle = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) || touchThrottle;
   const brake = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) || touchBrake;
   const steer =
-    (keys.has('KeyA') || keys.has('ArrowLeft') ? -1 : 0) +
-    (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) +
+    (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
+    (keys.has('KeyD') || keys.has('ArrowRight') ? -1 : 0) -
     touchSteer;
   const handbrake = keys.has('Space') || touchHandbrake;
 
   const before = nearestTrack(playerCar.position);
   player.offroad = before.distance > 4.3;
   player = stepCar(player, { throttle, brake, steer, handbrake }, dt);
+  raceAudio.update(player.speed, throttle, player.slip, player.offroad, raceIndex);
 
   const after = nearestTrack(new THREE.Vector3(player.x, 0, player.z));
   const trackPoint = roadSystem.curve.getPointAt(after.t);
 
-  // Soft barrier boundary collision so car rebounds off roadside walls and stays on track
+  // Soft barrier boundary rebound
   if (after.distance > 5.2) {
     const toTrack = trackPoint.clone().sub(new THREE.Vector3(player.x, 0, player.z)).setY(0).normalize();
     player.x += toTrack.x * (after.distance - 5.1) * 0.45;
@@ -587,11 +654,18 @@ function update(dt: number) {
 
   playerCar.position.set(player.x, trackPoint.y + 0.16, player.z);
   playerCar.rotation.y = player.heading;
-  playerCar.rotation.z = THREE.MathUtils.damp(playerCar.rotation.z, -player.slip * 0.24, 7, dt);
 
-  // Steer front wheels & spin tyres
+  // Dynamic Suspension Simulation (Chassis roll & pitch)
   const parts = playerCar.userData.parts;
   if (parts) {
+    // Body roll into corners & slip
+    const bodyRoll = -player.steerAngle * 0.1 - player.slip * 0.18;
+    // Body pitch (dive on brake, squat on acceleration)
+    const bodyPitch = brake * 0.05 - throttle * 0.035;
+    parts.body.rotation.z = THREE.MathUtils.damp(parts.body.rotation.z, bodyRoll, 8, dt);
+    parts.body.rotation.x = THREE.MathUtils.damp(parts.body.rotation.x, bodyPitch, 8, dt);
+
+    // Front wheels steering & all wheels spinning
     parts.wheelFL.rotation.y = player.steerAngle * 0.26;
     parts.wheelFR.rotation.y = player.steerAngle * 0.26;
     const spin = (player.speed * dt) / 0.31;
@@ -599,18 +673,42 @@ function update(dt: number) {
     parts.meshFR.rotation.x -= spin;
     parts.meshRL.rotation.x -= spin;
     parts.meshRR.rotation.x -= spin;
+
+    // Dynamic brake lamp flares
+    if (parts.tailLampMaterial) {
+      const isBraking = brake > 0.05 || handbrake;
+      parts.tailLampMaterial.emissiveIntensity = isBraking ? 2.8 : 0.6;
+      parts.tailLampMaterial.color.setHex(isBraking ? 0xff2010 : 0xb51c19);
+    }
+
+    // Exhaust backfire flame bursts on sudden throttle lift-off or handbrake
+    if (prevThrottle > 0.7 && throttle < 0.2 && Math.abs(player.speed) > 15) {
+      const carDir = new THREE.Vector3(Math.sin(player.heading), 0, Math.cos(player.heading));
+      const exPos = playerCar.position.clone().addScaledVector(carDir, -1.8).add(new THREE.Vector3(0, 0.22, 0));
+      particleEngine.spawnBackfire(exPos, carDir);
+    }
+  }
+  prevThrottle = throttle;
+
+  // Spawn volumetric golden dust & tire smoke
+  const dir = new THREE.Vector3(Math.sin(player.heading), 0, Math.cos(player.heading));
+  const side = new THREE.Vector3(-dir.z, 0, dir.x);
+  const rearL = new THREE.Vector3(player.x, trackPoint.y + 0.1, player.z).addScaledVector(dir, -1.2).addScaledVector(side, -0.75);
+  const rearR = new THREE.Vector3(player.x, trackPoint.y + 0.1, player.z).addScaledVector(dir, -1.2).addScaledVector(side, 0.75);
+
+  if (Math.abs(player.speed) > 4) {
+    const dustInt = Math.abs(player.slip) * 1.5 + (player.offroad ? 1.2 : 0.25);
+    particleEngine.spawnDust(rearL, dustInt);
+    particleEngine.spawnDust(rearR, dustInt);
   }
 
-  // Spawn dust plumes behind rear tires during acceleration or drifting
-  if (Math.abs(player.speed) > 5 || Math.abs(player.slip) > 0.15) {
-    const dir = new THREE.Vector3(Math.sin(player.heading), 0, Math.cos(player.heading));
-    const side = new THREE.Vector3(-dir.z, 0, dir.x);
-    const intensity = Math.abs(player.slip) * 1.5 + (player.offroad ? 1.0 : 0.2);
-    spawnDust(player.x - dir.x * 1.2 - side.x * 0.7, trackPoint.y + 0.1, player.z - dir.z * 1.2 - side.z * 0.7, intensity);
-    spawnDust(player.x - dir.x * 1.2 + side.x * 0.7, trackPoint.y + 0.1, player.z - dir.z * 1.2 + side.z * 0.7, intensity);
+  // White tire smoke during drifts
+  if (Math.abs(player.slip) > 0.16 && Math.abs(player.speed) > 8) {
+    particleEngine.spawnSmoke(rearL, Math.abs(player.slip) * 1.8);
+    particleEngine.spawnSmoke(rearR, Math.abs(player.slip) * 1.8);
   }
 
-  // Lap and checkpoint tracking
+  // Lap & checkpoint tracking
   const pr = racers[0];
   const prev = pr.progress;
   pr.progress = after.t;
@@ -620,6 +718,7 @@ function update(dt: number) {
   if (prev > 0.8 && after.t < 0.2 && pr.checkpoint === 3) {
     pr.checkpoint = 0;
     pr.lap++;
+    if (pr.lap <= 2) raceAudio.cue('lap');
     if (pr.lap > 2) {
       pr.finished = true;
       pr.finishTime = raceClock;
@@ -664,7 +763,7 @@ function update(dt: number) {
     }
     placeRacer(r, r.progress, r.lane);
 
-    // AI wheel spin & steering
+    // AI wheel spin
     const rParts = r.car.userData.parts;
     if (rParts) {
       const rSpin = (r.speed * dt) / 0.31;
@@ -674,8 +773,9 @@ function update(dt: number) {
       rParts.meshRR.rotation.x -= rSpin;
     }
 
-    // Car-to-car bumper collision response
+    // Car-to-car collision
     if (r.car.position.distanceTo(playerCar.position) < 1.6) {
+      raceAudio.impact(Math.abs(player.speed - r.speed) / 43);
       player.speed *= 0.88;
       const push = playerCar.position.clone().sub(r.car.position).setY(0).normalize().multiplyScalar(0.09);
       player.x += push.x;
@@ -724,6 +824,7 @@ $('#next').addEventListener('click', () => {
 });
 
 addEventListener('keydown', e => {
+  void raceAudio.unlock();
   keys.add(e.code);
   if (e.code === 'KeyR' && racing) resetPlayer();
   if (e.code === 'Escape') paused = !paused;
@@ -742,6 +843,7 @@ function steerTouch(e: PointerEvent) {
 }
 
 pad.addEventListener('pointerdown', e => {
+  void raceAudio.unlock();
   pad.setPointerCapture(e.pointerId);
   steerTouch(e);
 });
@@ -760,6 +862,7 @@ for (const [id, set] of [
 ] as const) {
   const el = $<HTMLElement>(`#${id}`);
   el.addEventListener('pointerdown', e => {
+    void raceAudio.unlock();
     el.setPointerCapture(e.pointerId);
     set(1);
   });
@@ -772,6 +875,7 @@ function frame(now: number) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
 
+  if (!racing && !$('#menu').classList.contains('hidden')) updateMenuPreview(dt);
   update(dt);
   renderer.render(scene, camera);
 
@@ -812,7 +916,7 @@ addEventListener('resize', () => {
 });
 
 // Initial Setup
-buildTrack(0);
+buildTrack(raceIndex);
 const preview: Racer = {
   id: 'PLAYER',
   car: playerCar,
@@ -824,18 +928,56 @@ const preview: Racer = {
   finished: false,
   finishTime: 0,
 };
-placeRacer(preview, 0.005, -1.35);
-rivalCars.forEach((car, i) =>
-  placeRacer(
-    { ...preview, id: rivalIds[i], car },
-    0.994 - i * 0.008,
-    [1.35, -1.35, 1.35][i],
-  ),
-);
+const menuPreviewRacers: Racer[] = [preview, ...rivalCars.map((car, i) => ({
+  ...preview,
+  id: rivalIds[i],
+  car,
+}))];
+const menuPreviewOffsets = [0, 0.023, 0.045, -0.019];
+const menuPreviewLanes = [-0.7, 1.55, -1.35, 1.2];
+const menuPreviewLook = new THREE.Vector3();
+const menuTrackLength = roadSystem!.curve.getLength();
+const reduceMenuMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let menuPreviewTime = 0;
 
-// Menu preview camera: angled view across the starting grid
-camera.position.set(-6, 3.8, -84);
-camera.lookAt(playerCar.position.clone().add(new THREE.Vector3(4, 0.5, 8)));
+function updateMenuPreview(dt: number, immediate = false) {
+  if (!roadSystem) return;
+  if (!reduceMenuMotion) menuPreviewTime += dt;
+  const progress = (0.07 + menuPreviewTime * 17 / menuTrackLength) % 1;
+  menuPreviewRacers.forEach((racer, i) => {
+    placeRacer(racer, (progress + menuPreviewOffsets[i] + 1) % 1, menuPreviewLanes[i]);
+    if (dt > 0 && !reduceMenuMotion) {
+      const wheels = racer.car.userData.parts;
+      const spin = 17 * dt / 0.31;
+      for (const part of ['meshFL', 'meshFR', 'meshRL', 'meshRR']) {
+        if (wheels?.[part]) wheels[part].rotation.x -= spin;
+      }
+    }
+  });
+
+  const heading = playerCar.rotation.y;
+  const forward = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
+  const right = new THREE.Vector3(-forward.z, 0, forward.x);
+  const portrait = innerWidth < innerHeight;
+  const cameraTarget = playerCar.position.clone()
+    .addScaledVector(forward, portrait ? -12 : -11.5)
+    .addScaledVector(right, portrait ? 0 : -1)
+    .add(new THREE.Vector3(0, portrait ? 5.1 : 4.1, 0));
+  const lookTarget = playerCar.position.clone()
+    .addScaledVector(forward, portrait ? 9 : 13)
+    .addScaledVector(right, portrait ? 0 : -4)
+    .add(new THREE.Vector3(0, 0.8, 0));
+  if (immediate) {
+    camera.position.copy(cameraTarget);
+    menuPreviewLook.copy(lookTarget);
+  } else {
+    camera.position.lerp(cameraTarget, 1 - Math.exp(-3 * dt));
+    menuPreviewLook.lerp(lookTarget, 1 - Math.exp(-3 * dt));
+  }
+  camera.lookAt(menuPreviewLook);
+}
+
+updateMenuPreview(0, true);
 
 standings = freshStandings();
 window.__READY__ = true;
