@@ -2,7 +2,7 @@
 
 > The road doesn't exist until you race it.
 
-ROAD//ZERO is a high-speed Three.js arcade racer built for 404 Game Jam 001. Track plates physically fly into position ahead of the player, while SAFE and narrow REDLINE branches trade security for score and race advantage.
+ROAD//ZERO is an analog hillside arcade racer with a three-race championship, three distinct AI rivals, and a new Race Together lobby. Multiplayer Phase 1 currently ends at a synchronized loading grid; online driving is not implemented yet.
 
 ## Play
 
@@ -13,13 +13,13 @@ ROAD//ZERO is a high-speed Three.js arcade racer built for 404 Game Jam 001. Tra
 - Touch: move the left analog control up to accelerate, down to brake or reverse, and sideways to steer. Or tap USE ARROWS beneath it for a four-way pad: ▲ accelerates, ▼ brakes or reverses, and ◀/▶ steer. The GO, BRAKE, and SLIP pedals remain available on the right.
 - On supported mobile and tablet browsers, landscape play enters full screen from a player tap. Use the FULL SCREEN button if the browser asks for another tap.
 
-RUN is a finite escalating journey through Neon District, Redline Canyon, Skyline, and Orbital. Survive, drift, and choose REDLINE to multiply score. CHAMPIONSHIP races NOVA, VEX, and KAI through four races with a 10/7/5/3 points table.
+Championship visits Orchard Sprint, Quarry Loop, and Summit Run. Quick Race starts a single-player race immediately. Race Together creates a private 2–4 driver lobby with a six-character room code and invite URL.
 
 ## Technical architecture
 
 - Vite + TypeScript + Three.js, one WebGL canvas and DOM HUD.
-- Central arcade tuning in `src/main.ts`; real-time telemetry is exposed through the official `window.__GAME__` contract.
-- Deterministic modular road descriptors and stable gameplay collision width are independent from the visual plate-assembly animation.
+- Arcade handling and three AI personalities live in `src/race.ts`; real-time telemetry is exposed through `window.__GAME__`.
+- Phase 1 room state is authoritative on the Node WebSocket server. It does not alter the single-player race loop.
 - Official recipe `bakeStatic` merges generated object parts by material to keep draw calls low.
 - Web Audio synthesizes engine response after a real user interaction; no audio file or copyrighted music ships.
 
@@ -27,7 +27,7 @@ RUN is a finite escalating journey through Neon District, Redline Canyon, Skylin
 
 Every shipped 3D object is code built from Three.js constructors. No GLB/GLTF, downloaded mesh, literal vertex dump, or embedded mesh data is used.
 
-Production families—hero coupe, modular road, and monumental pylon—each followed:
+The game's hero asset families followed:
 
 1. generated isolated reference image;
 2. three independent JavaScript geometry candidates;
@@ -48,6 +48,15 @@ npm install
 npm run dev
 ```
 
+`npm run dev` starts both Vite and the local Race Together room server. Open two or more browsers at the Vite URL to try the lobby. To serve a built game and room server together for local network testing:
+
+```bash
+npm run build
+npm run multiplayer:serve
+```
+
+The lobby server listens on `MULTIPLAYER_PORT` (or `PORT`, default `8787`). Optional custom portraits use server-only `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Without them, all eight bundled original portraits work; do not put the secret in a `VITE_` variable. See [Phase 1 architecture](docs/multiplayer/ARCHITECTURE.md).
+
 Production:
 
 ```bash
@@ -55,27 +64,22 @@ npm run build
 npm run preview
 ```
 
-The static `dist/` folder uses relative paths and can be hosted at a domain root or repository subpath.
+Static `dist/` preview supports single-player. Race Together needs the Node server and `/multiplayer` WebSocket endpoint. No deployment is part of Phase 1.
 
 ## Testing and gates
 
 ```bash
 npm run typecheck
+npm test
+npm run test:multiplayer
 npm run build
-node /path/to/404-game-recipe/harness/ship.mjs dist
-PUPPETEER_EXECUTABLE_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  node scripts/road-zero-gate.mjs dist docs/evidence/latest-gate
+npm run gate:multiplayer
+npm run gate
 ```
 
-The ROAD//ZERO gate uses real click, keyboard, multi-touch tap/drag events and asserts RUN completion/restart, construction, movement, Championship AI/position/next-race, costs, missing requests, and console errors. See [QA](docs/QA.md) and [performance receipts](docs/PERFORMANCE.md).
+The multiplayer gate uses separate browser contexts and real menu actions to cover room joining, ready sync, loading, host migration, and reconnection. The single-player gate uses real keyboard and touch events. See [Phase 1 validation](receipts/multiplayer/PHASE_1_VALIDATION.md).
 
-The final official live jam command must be run after deployment:
-
-```bash
-node harness/jam.mjs https://PLAY-URL/ --commit=<public-sha>
-```
-
-No passing live verdict is claimed before that happens.
+No deployed/live verdict is claimed for this local Phase 1 work.
 
 ## Documentation
 
@@ -86,6 +90,6 @@ No passing live verdict is claimed before that happens.
 - [QA](docs/QA.md)
 - [Performance](docs/PERFORMANCE.md)
 
-## Deployment and submission
+## Phase 1 status
 
-Deploy `dist/` as static content. After confirming the deployed URL points at the intended public commit, run `ship.mjs`, the ROAD//ZERO gate, the official live jam gate, and manual phone-sized touch verification. `submission/road-zero.json` is a truthful draft with external identity/URL fields deliberately left as placeholders.
+The multiplayer work stops at the shared loading screen by design. Human car networking and voice are later phases. No deployment or live URL validation was performed for this phase.

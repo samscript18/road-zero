@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "menuEntry": true,
+    "avatars": true,
+    "roomCode": true,
+    "hostWaiting": true,
+    "noPrematureReady": true,
+    "copyCode": true,
+    "copyInvite": true,
+    "inviteRoute": true,
+    "codeJoin": true,
+    "fourClients": true,
+    "readyCheck": true,
+    "profilePropagation": true,
+    "notAllReady": true,
+    "readySync": true,
+    "unreadySync": true,
+    "hostOnly": true,
+    "loadingSync": true,
+    "startedRoomRejectsJoin": true,
+    "customAvatarFallback": true,
+    "hostMigration": true,
+    "hostMigrationNotice": true,
+    "reconnectNoDuplicate": true,
+    "noConsoleErrors": true
+  },
+  "errors": []
+}

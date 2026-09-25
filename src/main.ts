@@ -7,6 +7,7 @@ import { ParticleEngine } from './particles';
 import { RaceAudio } from './audio';
 import { bakeStatic } from './assetlib.js';
 import { awardRace, mapAnalogControl, nearestTrackXZ, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
+import { mountLobby } from './multiplayer/client';
 import './styles.css';
 
 const $ = <T extends Element>(q: string) => document.querySelector<T>(q)!;
@@ -30,6 +31,7 @@ app.innerHTML = `
     <div class="actions">
       <button id="championship" class="primary"><span>START CHAMPIONSHIP</span><span aria-hidden="true">↗</span></button>
       <button id="quick"><span>QUICK RACE</span><span aria-hidden="true">→</span></button>
+      <button id="raceTogether"><span>RACE TOGETHER</span><span aria-hidden="true">↗</span></button>
       <button id="how"><span>HOW TO PLAY</span><span aria-hidden="true">→</span></button>
     </div>
     <p class="keys">WASD / ARROWS <em>DRIVE</em><span>·</span> SPACE <em>SLIP</em><span>·</span> R <em>RESET</em></p>
@@ -1102,6 +1104,21 @@ function updateMenuPreview(dt: number, immediate = false) {
 }
 
 updateMenuPreview(0, true);
+
+const lobby = mountLobby({
+  onOpen: () => $('#menu').classList.add('hidden'),
+  onClose: () => { buildTrack(0); $('#menu').classList.remove('hidden'); updateMenuPreview(0, true); },
+  prepareTrack: async trackId => {
+    const index = ['ORCHARD', 'QUARRY', 'SUMMIT'].indexOf(trackId);
+    if (index < 0) throw new Error('Unknown track');
+    buildTrack(index);
+    updateMenuPreview(0, true);
+    renderer.compile(scene, camera);
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  },
+});
+$('#raceTogether').addEventListener('click', lobby.open);
+lobby.openInvite();
 
 standings = freshStandings();
 window.__READY__ = true;
