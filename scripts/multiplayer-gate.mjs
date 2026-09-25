@@ -68,25 +68,30 @@ async function run() {
   for (const tab of [host, guest1, guest2]) await tab.click('.lobby-ready');
   checks.notAllReady = await host.$('.lobby-proceed') === null;
   await guest3.click('.lobby-ready');
+  await new Promise(resolve => setTimeout(resolve, 220));
   await host.waitForSelector('.lobby-proceed');
   checks.readySync = await host.$$eval('.lobby-driver.is-ready', nodes => nodes.length === 4);
   await guest3.click('.lobby-ready');
+  await new Promise(resolve => setTimeout(resolve, 220));
   await host.waitForFunction(() => document.querySelectorAll('.lobby-driver.is-ready').length === 3);
   checks.unreadySync = await host.$('.lobby-proceed') === null;
   await guest3.click('.lobby-ready');
+  await new Promise(resolve => setTimeout(resolve, 220));
   await host.waitForSelector('.lobby-proceed');
   checks.hostOnly = await guest1.$('.lobby-proceed') === null;
   await host.click('.lobby-proceed');
-  for (const tab of [host, guest1, guest2, guest3]) await waitText(tab, '#multiplayerLobby h2', 'PREPARING THE GRID');
-  await host.waitForFunction(() => document.querySelectorAll('.lobby-driver-detail').length === 4 && [...document.querySelectorAll('.lobby-driver-detail')].every(node => node.textContent.includes('READY TO RACE')), { timeout: 20000 });
+  for (const tab of [host, guest1, guest2, guest3]) {
+    await tab.waitForFunction(() => ['loading', 'countdown', 'racing'].includes(window.__GAME__?.multiplayer?.state), { timeout: 30000 });
+  }
+  await host.waitForFunction(() => ['countdown', 'racing'].includes(window.__GAME__?.multiplayer?.state), { timeout: 30000 });
   checks.loadingSync = true;
   await guest1.screenshot({ path: 'receipts/multiplayer/phase-1-loading.png' });
   const extra = await page(`/race/${code}`);
   await extra.click('#multiplayerLobby .primary:last-of-type');
   await waitText(extra, '.lobby-notice', 'already moved on');
   checks.startedRoomRejectsJoin = true;
-  const noCloud = await extra.evaluate(async () => (await (await fetch('/api/avatar/config')).json()).available);
-  checks.customAvatarFallback = noCloud === false;
+  const configAvailable = await extra.evaluate(async () => (await (await fetch('/api/avatar/config')).json()).available);
+  checks.defaultAvatarFallback = typeof configAvailable === 'boolean' && await extra.$$eval('.lobby-avatar-button', nodes => nodes.length === 8);
 
   const smallHost = await page();
   const hostContext = pages.at(-1).context;

@@ -2,7 +2,12 @@ import { ClientEvent, ServerEvent, normalizeRoomCode, validateNickname, type Roo
 import { avatarDataUrl, avatarIds } from './avatars';
 import './lobby.css';
 
-type LobbyOptions = { onOpen: () => void; onClose: () => void; prepareTrack: (trackId: RoomSettings['trackId']) => Promise<void> };
+type LobbyOptions = {
+  onOpen: () => void; onClose: () => void;
+  prepareRace: (room: RoomSnapshot, playerId: string) => Promise<void>;
+  onRacePacket: (type: string, payload: any, room: RoomSnapshot | null) => void;
+  onExitRace: () => void;
+};
 const tracks: Record<string, string> = { ORCHARD: 'Orchard Sprint', QUARRY: 'Quarry Loop', SUMMIT: 'Summit Run' };
 const profileKey = 'road-zero-multiplayer-profile';
 const tokenKey = (code: string) => `road-zero-room-${code}`;
@@ -20,13 +25,15 @@ function storedProfile(): PlayerProfile {
   return profile;
 }
 
-export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
+export function mountLobby({ onOpen, onClose, prepareRace, onRacePacket, onExitRace }: LobbyOptions) {
   let profile = storedProfile();
   let socket: WebSocket | null = null;
   let room: RoomSnapshot | null = null;
   let playerId = '';
   let resumeToken = '';
   let reconnectTimer: number | null = null;
+  let pingTimer: number | null = null;
+  let renderTimer: number | null = null;
   let retry = 0;
   let active = false;
   let intent: 'create' | 'join' | null = null;
@@ -71,6 +78,9 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
     socket = new WebSocket(`${scheme}//${location.host}/multiplayer`);
     socket.onopen = () => {
       retry = 0;
+      if (pingTimer != null) window.clearInterval(pingTimer);
+      pingTimer = window.setInterval(() => send(ClientEvent.CLOCK_PING, { clientTime: Date.now() }), 500);
+      send(ClientEvent.CLOCK_PING, { clientTime: Date.now() });
       send(next === 'create' ? ClientEvent.ROOM_CREATE : ClientEvent.ROOM_JOIN,
         next === 'create' ? { profile, settings: settingsFromForm() } : { code: joinCode, profile, resumeToken: resumeToken || localStorage.getItem(tokenKey(joinCode)) || '' });
       notice('Connected to the paddock.');
@@ -86,19 +96,46 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
         localStorage.setItem(tokenKey(room!.code), resumeToken);
         history.replaceState(null, '', `/race/${room!.code}`);
         view = 'room';
+        onRacePacket(ServerEvent.ROOM_STATE_UPDATED, { room }, room);
         render();
         if (data.reconnected) notice('Back on the grid. Your place is saved.');
         if (room!.status === 'loading') {
-          void prepareTrack(room!.settings.trackId).then(() => send(ClientEvent.PLAYER_LOADED))
+          void prepareRace(room!, playerId).then(() => send(ClientEvent.PLAYER_LOADED))
             .catch(() => notice('Track loading failed. Try refreshing the page.'));
+        } else if (room!.status === 'countdown' || room!.status === 'racing') {
+          void prepareRace(room!, playerId).then(() => {
+            root.classList.add('hidden');
+            onRacePacket(ServerEvent.RACE_START_SCHEDULED, { startAtServerTime: room!.startAt }, room);
+          }).catch(() => notice('Could not restore the race. Try refreshing the page.'));
         }
       } else if (packet.type === ServerEvent.ROOM_STATE_UPDATED) {
         room = data.room;
-        if (view === 'room') render();
+        if (view === 'room' && !root.classList.contains('hidden')) {
+          if (renderTimer != null) window.clearTimeout(renderTimer);
+          renderTimer = window.setTimeout(() => { renderTimer = null; render(); }, 140);
+        }
+        onRacePacket(packet.type, data, room);
       } else if (packet.type === ServerEvent.HOST_CHANGED) {
         render(); notice(`${data.nickname} is now the host.`);
       } else if (packet.type === ServerEvent.LOADING_STARTED) {
-        void prepareTrack(data.trackId).then(() => send(ClientEvent.PLAYER_LOADED)).catch(() => notice('Track loading failed. Try refreshing the page.'));
+        if (room?.status === 'finished') {
+          room = { ...room, status: 'loading' };
+          root.classList.remove('hidden'); render();
+        }
+        if (room) void prepareRace(room, playerId).then(() => send(ClientEvent.PLAYER_LOADED)).catch(() => notice('Track loading failed. Try refreshing the page.'));
+      } else if (packet.type === ServerEvent.RACE_START_SCHEDULED) {
+        root.classList.add('hidden');
+        onRacePacket(packet.type, data, room);
+      } else if (packet.type === ServerEvent.RETURNED_TO_LOBBY) {
+        onExitRace();
+        if (room) room = { ...room, status: 'ready_check' };
+        root.classList.remove('hidden'); render();
+      } else if (packet.type === ServerEvent.RACE_RESULTS) {
+        root.classList.add('hidden'); onRacePacket(packet.type, data, room);
+      } else if (packet.type === ServerEvent.CLOCK_PONG || packet.type === ServerEvent.RACE_SNAPSHOT_BATCH ||
+        packet.type === ServerEvent.RESET_CONFIRMED || packet.type === ServerEvent.PLAYER_FINISHED ||
+        packet.type === ServerEvent.PLAYER_DNF || packet.type === ServerEvent.RACE_STARTED) {
+        onRacePacket(packet.type, data, room);
       } else if (packet.type === ServerEvent.ERROR) {
         notice(data.message || 'Something went wrong.');
         if (['ROOM_NOT_FOUND', 'ROOM_FULL', 'RACE_STARTED', 'ROOM_EXPIRED'].includes(data.code)) {
@@ -108,6 +145,7 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
     };
     socket.onerror = () => notice('Cannot reach the race lobby server. Check your connection.');
     socket.onclose = () => {
+      if (pingTimer != null) { window.clearInterval(pingTimer); pingTimer = null; }
       if (!active || !room || !intent) return;
       if (retry >= 8) { notice('Connection lost. Reopen the invite to try again.'); return; }
       notice('Connection interrupted. Holding your grid slot…');
@@ -153,13 +191,15 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
       choices.append(choice);
     }
     box.append(choices);
-    if (uploadAvailable) {
-      const file = node('input') as HTMLInputElement;
-      file.type = 'file'; file.accept = 'image/png,image/jpeg,image/webp'; file.className = 'lobby-file';
-      file.addEventListener('change', () => { if (file.files?.[0]) void uploadPortrait(file.files[0]); });
-      box.append(file);
-    } else box.append(node('small', '', 'Custom portraits unavailable here; choose a paddock portrait.'));
+    if (uploadAvailable) box.append(uploadField());
+    else box.append(node('small', 'lobby-upload-unavailable', 'Custom portraits unavailable here; choose a paddock portrait.'));
     parent.append(box);
+  }
+  function uploadField() {
+    const file = node('input') as HTMLInputElement;
+    file.type = 'file'; file.accept = 'image/png,image/jpeg,image/webp'; file.className = 'lobby-file';
+    file.addEventListener('change', () => { if (file.files?.[0]) void uploadPortrait(file.files[0]); });
+    return file;
   }
   async function uploadPortrait(file: File) {
     if (!room || !resumeToken) return notice('Join a room before uploading a portrait.');
@@ -271,10 +311,21 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
       }
       card.append(grid);
       if (!loading) {
-        if (full && me) card.append(button(me.ready ? 'UNREADY' : 'READY UP ✓', () => send(me.ready ? ClientEvent.PLAYER_UNREADY : ClientEvent.PLAYER_READY), `lobby-ready ${me.ready ? '' : 'primary'}`));
+        if (full && me) {
+          const action = me.ready ? ClientEvent.PLAYER_UNREADY : ClientEvent.PLAYER_READY;
+          const ready = node('button', `lobby-ready ${me.ready ? '' : 'primary'}`, me.ready ? 'UNREADY' : 'READY UP ✓');
+          ready.type = 'button';
+          ready.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            send(action);
+          });
+          ready.addEventListener('click', event => { if (event.detail === 0) send(action); });
+          card.append(ready);
+        }
         if (me?.isHost && full && room.players.every(p => p.ready && p.connected)) card.append(button('PROCEED TO RACE →', () => send(ClientEvent.HOST_START_REQUEST), 'primary lobby-proceed'));
         else if (!me?.isHost && full && room.players.every(p => p.ready && p.connected)) card.append(node('p', 'lobby-sub', 'Waiting for host to start the race…'));
-      } else card.append(node('p', 'lobby-phase-note', 'Phase 1 grid assembled. Live racing arrives in the next phase.'));
+      } else card.append(node('p', 'lobby-phase-note', 'Loading cars and road for the shared start…'));
       card.append(button('LEAVE ROOM', close, 'lobby-leave'));
     }
     card.append(node('p', 'lobby-notice', noticeText));
@@ -286,7 +337,13 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
     if (!avatarConfigChecked) {
       avatarConfigChecked = true;
       fetch('/api/avatar/config').then(r => r.ok ? r.json() : null)
-        .then(data => { const available = !!data?.available; if (available !== uploadAvailable) { uploadAvailable = available; if (active) render(); } }).catch(() => {});
+        .then(data => {
+          uploadAvailable = !!data?.available;
+          if (active && uploadAvailable) for (const box of root.querySelectorAll('.lobby-profile')) {
+            box.querySelector('.lobby-upload-unavailable')?.remove();
+            if (!box.querySelector('.lobby-file')) box.append(uploadField());
+          }
+        }).catch(() => {});
     }
     const match = location.pathname.match(/^\/race\/([A-Za-z0-9-]+)\/?$/);
     if (match) { joinCode = normalizeRoomCode(match[1]); view = 'join'; }
@@ -296,9 +353,12 @@ export function mountLobby({ onOpen, onClose, prepareTrack }: LobbyOptions) {
   function close() {
     active = false;
     if (reconnectTimer != null) window.clearTimeout(reconnectTimer);
+    if (renderTimer != null) window.clearTimeout(renderTimer);
+    if (pingTimer != null) window.clearInterval(pingTimer);
     if (socket) { if (socket.readyState === WebSocket.OPEN) send(ClientEvent.ROOM_LEAVE); socket.onclose = null; socket.close(); socket = null; }
     room = null; playerId = ''; resumeToken = ''; retry = 0;
+    onExitRace();
     root.classList.add('hidden'); history.replaceState(null, '', '/'); onClose();
   }
-  return { open, openInvite: () => { if (location.pathname.startsWith('/race/')) open(); } };
+  return { open, close, send, openInvite: () => { if (location.pathname.startsWith('/race/')) open(); } };
 }

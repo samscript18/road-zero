@@ -111,9 +111,11 @@ export function createRoomServer({ serveDist = false, root = resolve('dist'), ma
     socket.on('close', () => manager.leave(socket));
     socket.on('error', () => manager.leave(socket));
   });
-  const cleanup = setInterval(() => manager.sweep(), 5_000);
+  const cleanup = setInterval(() => manager.tick(), 50);
   cleanup.unref();
-  server.on('close', () => { clearInterval(cleanup); sockets.close(); });
+  const sweep = setInterval(() => manager.sweep(), 5_000);
+  sweep.unref();
+  server.on('close', () => { clearInterval(cleanup); clearInterval(sweep); sockets.close(); });
   return { server, manager, sockets };
 }
 

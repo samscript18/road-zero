@@ -6,8 +6,10 @@ import createFestivalEnvironment from './assets/festival_environment.js';
 import { ParticleEngine } from './particles';
 import { RaceAudio } from './audio';
 import { bakeStatic } from './assetlib.js';
-import { awardRace, mapAnalogControl, nearestTrackXZ, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
+import { awardRace, mapAnalogControl, nearestTrackXZ, rankedStandings, resolveCarOverlap, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
 import { mountLobby } from './multiplayer/client';
+import { MultiplayerRace } from './multiplayer/race-mode';
+import { generateTrackPoints } from '../shared/track-route.js';
 import './styles.css';
 
 const $ = <T extends Element>(q: string) => document.querySelector<T>(q)!;
@@ -233,26 +235,6 @@ for (let m = 0; m < 18; m++) {
 scene.add(mountainGroup);
 
 // --- Track Layout Generators ---
-const layoutConfigs = [
-  { points: 14, radius: 76, wave: 11, phase: 0.3, elevation: 3.2 },
-  { points: 16, radius: 72, wave: 15, phase: 1.2, elevation: 4.8 },
-  { points: 16, radius: 78, wave: 13, phase: 2.4, elevation: 6.2 },
-];
-
-function generateTrackPoints(index: number): THREE.Vector3[] {
-  const cfg = layoutConfigs[index];
-  const pts: THREE.Vector3[] = [];
-  for (let i = 0; i < cfg.points; i++) {
-    const a = (i / cfg.points) * Math.PI * 2 - Math.PI / 2;
-    const r = cfg.radius + Math.sin(i * 1.6 + cfg.phase) * cfg.wave + Math.cos(i * 0.9 + index) * 4.5;
-    // A positive datum keeps the complete asphalt ribbon above the shared
-    // terrain bowl, including Summit's lowest switchback.
-    const y = 7.0 + Math.sin(i * 1.2 + index) * cfg.elevation;
-    pts.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
-  }
-  return pts;
-}
-
 let roadSystem: RoadSystem | null = null;
 let sceneryGroup = new THREE.Group();
 scene.add(sceneryGroup);
@@ -469,6 +451,7 @@ let fpsStamp = last;
 let standings: Standing[] = [];
 let prevThrottle = 0;
 let lastCountdownNumber = 4;
+let lastCarImpact = 0;
 
 const keys = new Set<string>();
 let touchSteer = 0;
@@ -480,6 +463,17 @@ let directionLeft = false;
 let directionRight = false;
 let directionUp = false;
 let directionDown = false;
+
+function readPlayerInput() {
+  return {
+    throttle: Math.max(keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0, touchThrottle, directionUp ? 1 : 0, touchDrive),
+    brake: Math.max(keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0, touchBrake, directionDown ? 1 : 0, -touchDrive),
+    steer: (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
+      (keys.has('KeyD') || keys.has('ArrowRight') ? -1 : 0) - touchSteer +
+      (directionLeft ? 1 : 0) - (directionRight ? 1 : 0),
+    handbrake: keys.has('Space') || touchHandbrake,
+  };
+}
 
 const freshStandings = () =>
   ['PLAYER', 'CHARGER', 'TECHNICIAN', 'DEFENDER'].map(id => ({
@@ -699,13 +693,7 @@ function update(dt: number) {
     return;
   }
 
-  const throttle = Math.max(keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0, touchThrottle, directionUp ? 1 : 0, touchDrive);
-  const brake = Math.max(keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0, touchBrake, directionDown ? 1 : 0, -touchDrive);
-  const steer =
-    (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
-    (keys.has('KeyD') || keys.has('ArrowRight') ? -1 : 0) -
-    touchSteer + (directionLeft ? 1 : 0) - (directionRight ? 1 : 0);
-  const handbrake = keys.has('Space') || touchHandbrake;
+  const { throttle, brake, steer, handbrake } = readPlayerInput();
 
   const before = nearestTrack(playerCar.position);
   player.offroad = before.distance > 4.3;
@@ -715,12 +703,12 @@ function update(dt: number) {
   const after = nearestTrack(new THREE.Vector3(player.x, 0, player.z));
   const trackPoint = roadSystem.curve.getPointAt(after.t);
 
-  // Soft barrier boundary rebound
+  // Keep the car on a recoverable verge; reversing must still overcome drag.
   if (after.distance > 5.2) {
     const toTrack = trackPoint.clone().sub(new THREE.Vector3(player.x, 0, player.z)).setY(0).normalize();
-    player.x += toTrack.x * (after.distance - 5.1) * 0.45;
-    player.z += toTrack.z * (after.distance - 5.1) * 0.45;
-    player.speed *= 0.88;
+    player.x += toTrack.x * (after.distance - 5.1) * 0.65;
+    player.z += toTrack.z * (after.distance - 5.1) * 0.65;
+    if (player.speed > 0) player.speed *= 0.985;
   }
 
   playerCar.position.set(player.x, trackPoint.y + 0.16, player.z);
@@ -844,13 +832,18 @@ function update(dt: number) {
       rParts.meshRR.rotation.x -= rSpin;
     }
 
-    // Car-to-car collision
-    if (r.car.position.distanceTo(playerCar.position) < 1.6) {
-      raceAudio.impact(Math.abs(player.speed - r.speed) / 43);
-      player.speed *= 0.88;
-      const push = playerCar.position.clone().sub(r.car.position).setY(0).normalize().multiplyScalar(0.09);
-      player.x += push.x;
-      player.z += push.z;
+    // Resolve an actual car-sized footprint before the next rendered frame.
+    const contact = resolveCarOverlap(player, r.car.position);
+    if (contact.overlap > 0) {
+      player.x = contact.x;
+      player.z = contact.z;
+      playerCar.position.x = contact.x;
+      playerCar.position.z = contact.z;
+      player.speed *= contact.overlap > 0.2 ? 0.78 : 0.94;
+      if (raceClock - lastCarImpact > 0.4) {
+        raceAudio.impact(Math.min(1, Math.abs(player.speed - r.speed) / 35));
+        lastCarImpact = raceClock;
+      }
     }
   }
 
@@ -898,6 +891,7 @@ addEventListener('keydown', e => {
   void raceAudio.unlock();
   keys.add(e.code);
   if (e.code === 'KeyR' && racing) resetPlayer();
+  if (e.code === 'KeyR' && multiplayerRace.isActive) lobby.send('RACE_RESET');
   if (e.code === 'Escape') paused = !paused;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
 });
@@ -1003,6 +997,7 @@ function frame(now: number) {
 
   if (!racing && !$('#menu').classList.contains('hidden')) updateMenuPreview(dt);
   update(dt);
+  multiplayerRace.update(dt);
   renderer.render(scene, camera);
 
   frames++;
@@ -1014,9 +1009,9 @@ function frame(now: number) {
 
   const p = racers[0];
   window.__GAME__ = {
-    pos: [playerCar.position.x, playerCar.position.z],
+    pos: multiplayerRace.isActive ? multiplayerRace.telemetry.position as [number, number] : [playerCar.position.x, playerCar.position.z],
     fps,
-    speed: player.speed,
+    speed: multiplayerRace.isActive ? multiplayerRace.telemetry.speed : player.speed,
     score: standings.find(s => s.id === 'PLAYER')?.points || 0,
     over: !racing && !!p,
     draws: renderer.info.render.calls,
@@ -1029,7 +1024,8 @@ function frame(now: number) {
     heading: player.heading,
     position: p ? 1 + racers.filter(r => r !== p && r.lap + r.progress > p.lap + p.progress).length : 1,
     aiProgress: racers.slice(1).map(r => r.progress),
-    mode,
+    mode: multiplayerRace.isActive ? 'multiplayer' : mode,
+    multiplayer: multiplayerRace.telemetry,
   };
 }
 
@@ -1105,16 +1101,25 @@ function updateMenuPreview(dt: number, immediate = false) {
 
 updateMenuPreview(0, true);
 
+const multiplayerRace = new MultiplayerRace({
+  scene, camera, renderer, road: () => roadSystem, buildTrack, input: readPlayerInput,
+  audio: raceAudio, send: (type, payload) => lobby.send(type, payload),
+  setSingleCarsVisible: visible => { playerCar.visible = visible; rivalCars.forEach(car => { car.visible = visible; }); },
+  onMainMenu: () => lobby.close(),
+});
+
 const lobby = mountLobby({
   onOpen: () => $('#menu').classList.add('hidden'),
   onClose: () => { buildTrack(0); $('#menu').classList.remove('hidden'); updateMenuPreview(0, true); },
-  prepareTrack: async trackId => {
-    const index = ['ORCHARD', 'QUARRY', 'SUMMIT'].indexOf(trackId);
-    if (index < 0) throw new Error('Unknown track');
-    buildTrack(index);
-    updateMenuPreview(0, true);
-    renderer.compile(scene, camera);
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  prepareRace: (room, playerId) => multiplayerRace.prepare(room, playerId),
+  onExitRace: () => multiplayerRace.disposeCars(),
+  onRacePacket: (type, payload, room) => {
+    if (type === 'CLOCK_PONG') multiplayerRace.onClockPong(payload);
+    if (type === 'ROOM_STATE_UPDATED' && room) multiplayerRace.onRoomState(room);
+    if (type === 'RACE_START_SCHEDULED') multiplayerRace.startCountdown(payload.startAtServerTime, room || undefined);
+    if (type === 'RACE_SNAPSHOT_BATCH') multiplayerRace.onBatch(payload);
+    if (type === 'RESET_CONFIRMED') multiplayerRace.onReset(payload);
+    if (type === 'RACE_RESULTS') multiplayerRace.showResults(payload);
   },
 });
 $('#raceTogether').addEventListener('click', lobby.open);

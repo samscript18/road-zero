@@ -21,6 +21,11 @@ interface GameTelemetry {
   construction: number; modules: number; heading: number;
   position?: number; aiProgress?: number[]; mode?: string;
   assemblyProgress?: number;
+  multiplayer?: { active: boolean; room: string; playerId: string; state: string;
+    clockOffset: number; rtt: number; snapshotsSent: number; sentBytes: number;
+    receivedBytes: number; remoteCars: number; speed: number; position: number[];
+    order: string[]; lap: number; checkpoint: number; heading: number; startAt: number;
+    remotePositions: Array<{ playerId: string; x: number; z: number }> };
 }
 
 interface Window {

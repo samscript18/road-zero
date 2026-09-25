@@ -18,7 +18,7 @@
     "hostOnly": true,
     "loadingSync": true,
     "startedRoomRejectsJoin": true,
-    "customAvatarFallback": true,
+    "defaultAvatarFallback": true,
     "hostMigration": true,
     "hostMigrationNotice": true,
     "reconnectNoDuplicate": true,

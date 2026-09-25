@@ -1,0 +1,171 @@
+{
+  "runs": [
+    {
+      "count": 2,
+      "code": "DHPE2N",
+      "startSpreadMs": 0,
+      "lockedBeforeGo": true,
+      "localMovedMetres": [
+        27.09506367956935,
+        25.496857918846086
+      ],
+      "remoteVisibleAndMoved": [
+        true,
+        true
+      ],
+      "remoteCounts": [
+        1,
+        1
+      ],
+      "fps": [
+        51.897502432695546,
+        58.375222960920965
+      ],
+      "draws": [
+        201,
+        200
+      ],
+      "tris": [
+        31960,
+        30698
+      ],
+      "sentBytes": [
+        6203,
+        6320
+      ],
+      "receivedBytes": [
+        15708,
+        15708
+      ],
+      "passed": true,
+      "authoritativeResultsAgree": true,
+      "serverFinished": true,
+      "finishRows": [
+        "1. HillAce5419.90 s",
+        "2. RedlineRunner4435.58 s"
+      ],
+      "rematchKeepsRoom": true
+    },
+    {
+      "count": 3,
+      "code": "QBHT3N",
+      "startSpreadMs": 0,
+      "lockedBeforeGo": true,
+      "localMovedMetres": [
+        29.89685212775403,
+        27.852474349695996,
+        25.97241216185846
+      ],
+      "remoteVisibleAndMoved": [
+        true,
+        true,
+        true
+      ],
+      "remoteCounts": [
+        2,
+        2,
+        2
+      ],
+      "fps": [
+        35.67953292247798,
+        34.05221339387066,
+        36.317700931628025
+      ],
+      "draws": [
+        183,
+        210,
+        260
+      ],
+      "tris": [
+        30524,
+        32208,
+        36824
+      ],
+      "sentBytes": [
+        5904,
+        5726,
+        6018
+      ],
+      "receivedBytes": [
+        27401,
+        27401,
+        27401
+      ],
+      "passed": true,
+      "hostDisconnectKeepsRace": true,
+      "hostReconnectSameIdentity": true,
+      "authoritativeResultsAgree": true,
+      "serverFinished": true,
+      "finishRows": [
+        "1. CanyonRunner8926.97 s",
+        "2. DustRunner2542.45 s",
+        "3. HillHawk1158.63 s"
+      ]
+    },
+    {
+      "count": 4,
+      "code": "WYZ99Y",
+      "startSpreadMs": 0,
+      "lockedBeforeGo": true,
+      "localMovedMetres": [
+        34.586623958890755,
+        34.32500376457933,
+        28.48816785192155,
+        28.04975628069131
+      ],
+      "remoteVisibleAndMoved": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "remoteCounts": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "fps": [
+        28.42254855518715,
+        24.330900243309003,
+        21.005251312828207,
+        28.422548555187067
+      ],
+      "draws": [
+        200,
+        203,
+        263,
+        321
+      ],
+      "tris": [
+        31878,
+        32030,
+        36668,
+        40788
+      ],
+      "sentBytes": [
+        6510,
+        6760,
+        6775,
+        7045
+      ],
+      "receivedBytes": [
+        37476,
+        37476,
+        37476,
+        37476
+      ],
+      "passed": true,
+      "authoritativeResultsAgree": true,
+      "serverFinished": true,
+      "finishRows": [
+        "1. HillRider9920.02 s",
+        "2. PaddockPilot9235.81 s",
+        "3. DustFox5951.78 s",
+        "4. PaddockAce7367.89 s"
+      ],
+      "returnToLobbySynchronized": true
+    }
+  ],
+  "errors": []
+}

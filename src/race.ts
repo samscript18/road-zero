@@ -16,17 +16,17 @@ export type RivalTuning = {
 
 export const RIVAL_TUNING: Record<RivalId, RivalTuning> = {
   CHARGER: {
-    topSpeed: 44.5, cornerGrip: .86, brakeLookahead: 20, overtakeThreshold: 8.5,
+    topSpeed: 34.5, cornerGrip: .86, brakeLookahead: 20, overtakeThreshold: 8.5,
     passOffset: 2.25, defensiveBias: 0, mistakeChance: .028, mistakeLoss: .25,
     lineSmoothing: 4.2, launch: 1.04,
   },
   TECHNICIAN: {
-    topSpeed: 42.8, cornerGrip: 1.04, brakeLookahead: 28, overtakeThreshold: 5.5,
+    topSpeed: 32.8, cornerGrip: 1.04, brakeLookahead: 28, overtakeThreshold: 5.5,
     passOffset: 1.4, defensiveBias: 0, mistakeChance: .004, mistakeLoss: .08,
     lineSmoothing: 6.8, launch: 1,
   },
   DEFENDER: {
-    topSpeed: 40.8, cornerGrip: .94, brakeLookahead: 24, overtakeThreshold: 4.5,
+    topSpeed: 31.4, cornerGrip: .94, brakeLookahead: 24, overtakeThreshold: 4.5,
     passOffset: 1.25, defensiveBias: 1.8, mistakeChance: .009, mistakeLoss: .1,
     lineSmoothing: 5.4, launch: .98,
   },
@@ -112,9 +112,9 @@ export function nearestTrackXZ(pos: { x: number; z: number }, samples: ReadonlyA
 }
 
 export const CAR_TUNE = {
-  accel: 15.5, brake: 28, reverseAccel: 8, maxForward: 43, maxReverse: 8,
+  accel: 12.5, brake: 26, reverseAccel: 11, maxForward: 32, maxReverse: 9,
   drag: .34, rolling: 1.1, lowSteer: 2.25, highSteer: .82,
-  grip: 7.4, handbrakeGrip: 2.1, slipBuild: 3.8, offroadDrag: 9.5,
+  grip: 7.4, handbrakeGrip: 2.1, slipBuild: 3.8, offroadDrag: 3.2,
 };
 
 export function stepCar(s: CarState, input: CarInput, dt: number): CarState {
@@ -139,4 +139,19 @@ export function stepCar(s: CarState, input: CarInput, dt: number): CarState {
 
 export function damp(current: number, target: number, lambda: number, dt: number): number {
   return current + (target - current) * (1 - Math.exp(-lambda * dt));
+}
+
+// A soft car-shaped exclusion zone: longer along the bonnet/boot than sideways.
+// The local driver yields to scripted/remote cars without exchanging unstable impulses.
+export function resolveCarOverlap(local: { x: number; z: number; heading: number }, other: { x: number; z: number }) {
+  const fx = Math.sin(local.heading), fz = Math.cos(local.heading);
+  const rx = fz, rz = -fx;
+  let dx = local.x - other.x, dz = local.z - other.z;
+  if (Math.hypot(dx, dz) < 0.001) { dx = rx * 0.01; dz = rz * 0.01; }
+  const along = dx * fx + dz * fz;
+  const across = dx * rx + dz * rz;
+  const metric = Math.hypot(along / 3.55, across / 1.82);
+  if (metric >= 1) return { x: local.x, z: local.z, overlap: 0 };
+  const scale = Math.min(8, 1 / Math.max(metric, 0.05));
+  return { x: other.x + dx * scale, z: other.z + dz * scale, overlap: 1 - metric };
 }

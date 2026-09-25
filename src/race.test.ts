@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { awardRace, createProgress, crossCheckpoint, mapAnalogControl, nearestTrackXZ, rankedStandings, RIVAL_TUNING, stepCar, type Standing } from './race';
+import { awardRace, createProgress, crossCheckpoint, mapAnalogControl, nearestTrackXZ, rankedStandings, resolveCarOverlap, RIVAL_TUNING, stepCar, type Standing } from './race';
 
 describe('ordered checkpoint and lap state', () => {
   it('rejects skipped and repeated checkpoints', () => {
@@ -50,9 +50,22 @@ describe('handling and personalities', () => {
   it('accelerates, brakes, reverses and limits high-speed steering', () => {
     let s={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
     for(let i=0;i<120;i++)s=stepCar(s,{throttle:1,brake:0,steer:0,handbrake:false},1/60);
-    expect(s.speed).toBeGreaterThan(20);const fast=s;
+    expect(s.speed).toBeGreaterThan(15);expect(s.speed).toBeLessThan(22);const fast=s;
     for(let i=0;i<45;i++)s=stepCar(s,{throttle:0,brake:1,steer:1,handbrake:true},1/60);
     expect(s.speed).toBeLessThan(fast.speed);expect(Math.abs(s.slip)).toBeGreaterThan(.01);
+  });
+  it('reverses on a verge and keeps top speed below the previous tune', () => {
+    let s={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:true};
+    for(let i=0;i<90;i++)s=stepCar(s,{throttle:0,brake:1,steer:0,handbrake:false},1/60);
+    expect(s.speed).toBeLessThan(-3);
+    expect(s.z).toBeLessThan(0);
+    expect(s.speed).toBeGreaterThan(-10);
+  });
+  it('separates overlapping car footprints but leaves clear lanes alone', () => {
+    const contact=resolveCarOverlap({x:0,z:1,heading:0},{x:0,z:0});
+    expect(contact.overlap).toBeGreaterThan(0);
+    expect(contact.z).toBeGreaterThan(3.4);
+    expect(resolveCarOverlap({x:2.7,z:0,heading:0},{x:0,z:0}).overlap).toBe(0);
   });
   it('has materially different rival parameters', () => {
     expect(RIVAL_TUNING.CHARGER.overtakeThreshold).toBeGreaterThan(RIVAL_TUNING.TECHNICIAN.overtakeThreshold);

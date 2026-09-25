@@ -20,7 +20,7 @@
       2.4814815840016085,
       -85.15994745166068
     ],
-    "fps": 59.999999999999986,
+    "fps": 42.16672072656504,
     "speed": 0,
     "score": 0,
     "over": false,
@@ -38,19 +38,42 @@
       0.986,
       0.978
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "before": {
     "pos": [
       2.4814815840016085,
       -85.15994745166068
     ],
-    "fps": 59.9900016663889,
+    "fps": 59.99675693205774,
     "speed": 0,
     "score": 0,
     "over": false,
-    "draws": 291,
-    "tris": 39796,
+    "draws": 280,
+    "tris": 38336,
     "progress": 0.005263157894736842,
     "drift": 0,
     "route": "ORCHARD",
@@ -59,23 +82,46 @@
     "heading": 1.595966367975058,
     "position": 2,
     "aiProgress": [
-      0.01119493800099818,
-      0.002393980109906972,
-      0.9932516519654264
+      0.007373840868140875,
+      0.9985857788985952,
+      0.989722864512264
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "moved": {
     "pos": [
-      15.957434014048152,
-      -85.96480732401298
+      16.488828216814596,
+      -87.636997650789
     ],
-    "fps": 59.99675693205774,
-    "speed": 17.004071869785708,
+    "fps": 60.006487187804055,
+    "speed": 10.356054910487476,
     "score": 0,
     "over": false,
-    "draws": 334,
-    "tris": 42000,
+    "draws": 324,
+    "tris": 40928,
     "progress": 0.031578947368421054,
     "drift": 0,
     "route": "ORCHARD",
@@ -84,99 +130,191 @@
     "heading": 1.595966367975058,
     "position": 4,
     "aiProgress": [
-      0.0887797916593568,
-      0.08341305687910634,
-      0.0735989425452188
+      0.06778180814560138,
+      0.06249387111942803,
+      0.054472539806476296
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "steered": {
     "pos": [
-      29.277721684430453,
-      -88.3308128031864
+      29.091600704193432,
+      -88.35929658077094
     ],
-    "fps": 59.99675693205774,
-    "speed": 1.77333736226697,
+    "fps": 60.00648718780414,
+    "speed": 9.851569502369333,
     "score": 0,
     "over": false,
     "draws": 128,
     "tris": 23600,
     "progress": 0.05526315789473684,
-    "drift": 0.006398369890128587,
+    "drift": 0.02195512251971854,
     "route": "ORCHARD",
     "construction": 0,
     "modules": 1,
-    "heading": 2.051609048794693,
+    "heading": 2.1757301279724346,
     "position": 4,
     "aiProgress": [
-      0.16682737182134202,
-      0.15853128892856883,
-      0.1434537490508059
+      0.1246811297123424,
+      0.11579992349475314,
+      0.10301402954413269
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "slipping": {
     "pos": [
-      30.158979046473483,
-      -88.25014566358942
+      32.148493275611536,
+      -87.90788848615644
     ],
     "fps": 60.006487187804055,
-    "speed": 1.6549226220579292,
+    "speed": 8.398655961662568,
     "score": 0,
     "over": false,
-    "draws": 126,
-    "tris": 23504,
-    "progress": 0.05789473684210526,
-    "drift": 0.007643689313718542,
+    "draws": 128,
+    "tris": 23600,
+    "progress": 0.060526315789473685,
+    "drift": 0.19548357117270485,
     "route": "ORCHARD",
     "construction": 0,
     "modules": 1,
-    "heading": 2.0848142494597313,
+    "heading": 2.354876062072487,
     "position": 4,
     "aiProgress": [
-      0.205588261782679,
-      0.19697967033854932,
-      0.1808407102265128
+      0.1543916791350336,
+      0.14436885341567327,
+      0.1307605001946286
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "reset": {
     "pos": [
-      29.34462710934673,
-      -83.14162060747218
+      30.68788967241978,
+      -82.94583936663801
     ],
     "fps": 60.006487187804055,
     "speed": 0,
     "score": 0,
     "over": false,
-    "draws": 154,
-    "tris": 29466,
-    "progress": 0.05789473684210526,
+    "draws": 232,
+    "tris": 35498,
+    "progress": 0.060526315789473685,
     "drift": 0,
     "route": "ORCHARD",
     "construction": 0,
     "modules": 1,
-    "heading": 1.437861018561711,
+    "heading": 1.413523861164122,
     "position": 4,
     "aiProgress": [
-      0.21876843631759005,
-      0.20919594229664926,
-      0.19299767172796908
+      0.16550202688786886,
+      0.15447718451370615,
+      0.14032048387489177
     ],
-    "mode": "championship"
+    "mode": "championship",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "mobileMoved": {
     "pos": [
-      12.494999198478421,
-      -85.87758546017898
+      14.652857354490738,
+      -87.5909923052542
     ],
     "fps": 60.006487187804055,
-    "speed": 14.768041462943293,
+    "speed": 8.740021988142313,
     "score": 0,
     "over": false,
-    "draws": 354,
-    "tris": 43786,
-    "progress": 0.02368421052631579,
+    "draws": 341,
+    "tris": 42722,
+    "progress": 0.02894736842105263,
     "drift": 0,
     "route": "ORCHARD",
     "construction": 0,
@@ -184,36 +322,82 @@
     "heading": 1.595966367975058,
     "position": 4,
     "aiProgress": [
-      0.07727353070910994,
-      0.07217856600983505,
-      0.06337065851920012
+      0.061374544549831433,
+      0.05579165829373957,
+      0.04760187840322269
     ],
-    "mode": "quick"
+    "mode": "quick",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "mobileSteered": {
     "pos": [
-      28.612440111814955,
-      -82.67889072889957
+      25.1561540250113,
+      -85.67080268194267
     ],
-    "fps": 60.00648718780414,
-    "speed": 23.005922250308764,
+    "fps": 60.006487187804055,
+    "speed": 15.667424573213133,
     "score": 0,
     "over": false,
-    "draws": 360,
-    "tris": 44184,
-    "progress": 0.05526315789473684,
-    "drift": 0.07215173345381996,
+    "draws": 355,
+    "tris": 43730,
+    "progress": 0.05,
+    "drift": 0.06832581528987566,
     "route": "ORCHARD",
     "construction": 0,
     "modules": 1,
-    "heading": 1.240344258129313,
+    "heading": 1.2671025729168166,
     "position": 4,
     "aiProgress": [
-      0.1298593360934921,
-      0.12304332540212022,
-      0.1095104657907364
+      0.09681117882267143,
+      0.08974917078163291,
+      0.07958877059659958
     ],
-    "mode": "quick"
+    "mode": "quick",
+    "multiplayer": {
+      "active": false,
+      "room": "",
+      "playerId": "",
+      "state": "",
+      "clockOffset": 0,
+      "rtt": 0,
+      "snapshotsSent": 0,
+      "sentBytes": 0,
+      "receivedBytes": 0,
+      "remoteCars": 0,
+      "speed": 0,
+      "position": [
+        0,
+        0
+      ],
+      "order": [],
+      "heading": 0,
+      "startAt": 0,
+      "remotePositions": [],
+      "lap": 1,
+      "checkpoint": 0
+    }
   },
   "missing": [],
   "errors": []

@@ -14,6 +14,7 @@
     "test": "vitest run src",
     "test:multiplayer": "node --test server/*.test.mjs",
     "gate:multiplayer": "npm run build && node scripts/multiplayer-gate.mjs",
+    "gate:race-together": "npm run build && node scripts/multiplayer-race-gate.mjs",
     "gate": "npm run build && node scripts/road-zero-gate.mjs dist receipts/playtests/current"
   },
   "dependencies": {

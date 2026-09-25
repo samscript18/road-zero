@@ -5,15 +5,16 @@ export type Avatar = { avatarId: string | null; avatarUrl: string | null };
 export type PlayerProfile = Avatar & { nickname: string };
 export type RoomPlayer = PlayerProfile & {
   id: string; connected: boolean; isHost: boolean; ready: boolean; loaded: boolean;
-  micEnabled: boolean; lap: number; checkpoint: number;
+  micEnabled: boolean; lap: number; checkpoint: number; slot: number;
+  progress: number; finished: boolean; dnf: boolean; finishTime: number | null;
 };
 export type RoomSnapshot = {
   id: string; code: string; hostPlayerId: string; settings: RoomSettings;
   status: RoomStatus; players: RoomPlayer[]; createdAt: number; startAt?: number;
 };
 export type ServerPacket = { type: string; payload: Record<string, unknown> };
-export const ClientEvent: Readonly<Record<'ROOM_CREATE' | 'ROOM_JOIN' | 'ROOM_LEAVE' | 'PROFILE_UPDATE' | 'PLAYER_READY' | 'PLAYER_UNREADY' | 'HOST_START_REQUEST' | 'PLAYER_LOADED', string>>;
-export const ServerEvent: Readonly<Record<'ROOM_CREATED' | 'ROOM_JOINED' | 'ROOM_STATE_UPDATED' | 'PLAYER_JOINED' | 'PLAYER_LEFT' | 'PROFILE_UPDATED' | 'HOST_CHANGED' | 'READY_STATE_UPDATED' | 'LOADING_STARTED' | 'ERROR', string>>;
+export const ClientEvent: Readonly<Record<'ROOM_CREATE' | 'ROOM_JOIN' | 'ROOM_LEAVE' | 'PROFILE_UPDATE' | 'PLAYER_READY' | 'PLAYER_UNREADY' | 'HOST_START_REQUEST' | 'PLAYER_LOADED' | 'CLOCK_PING' | 'RACE_SNAPSHOT' | 'RACE_RESET' | 'REMATCH_REQUEST' | 'RETURN_TO_LOBBY', string>>;
+export const ServerEvent: Readonly<Record<'ROOM_CREATED' | 'ROOM_JOINED' | 'ROOM_STATE_UPDATED' | 'PLAYER_JOINED' | 'PLAYER_LEFT' | 'PROFILE_UPDATED' | 'HOST_CHANGED' | 'READY_STATE_UPDATED' | 'LOADING_STARTED' | 'CLOCK_PONG' | 'RACE_START_SCHEDULED' | 'RACE_STARTED' | 'RACE_SNAPSHOT_BATCH' | 'CHECKPOINT_CONFIRMED' | 'LAP_CONFIRMED' | 'PLAYER_FINISHED' | 'PLAYER_DNF' | 'RACE_RESULTS' | 'RESET_CONFIRMED' | 'REMATCH_STARTED' | 'RETURNED_TO_LOBBY' | 'ERROR', string>>;
 export const RoomStatus: Readonly<Record<'WAITING' | 'READY_CHECK' | 'LOADING' | 'COUNTDOWN' | 'RACING' | 'FINISHED', RoomStatus>>;
 export const TRACK_IDS: readonly TrackId[];
 export const LAP_OPTIONS: readonly RoomSettings['laps'][];
