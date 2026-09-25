@@ -1,8 +1,18 @@
 declare module '*.js' {
   import type * as THREE from 'three';
-  const generate: (namespace: typeof THREE) => THREE.Group;
+  const generate: (namespace: typeof THREE, ...args: any[]) => THREE.Group;
   export default generate;
   export function bakeStatic(root: THREE.Object3D): THREE.Group;
+}
+
+declare module '*/rival_cars.js' {
+  import type * as THREE from 'three';
+  export function createRivalCar(namespace: typeof THREE, id: string): THREE.Group;
+}
+
+declare module '*/festival_environment.js' {
+  import type * as THREE from 'three';
+  export function createFestivalEnvironment(namespace: typeof THREE): THREE.Group;
 }
 
 interface GameTelemetry {

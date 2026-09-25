@@ -1,1748 +1,1731 @@
-# ROAD//ZERO — 404 Game Jam 001
+# 404 GAME JAM RACER — COMPLETE RESCUE, VISUAL OVERHAUL & FINALIZATION DIRECTIVE
 
-You are the lead game engineer, gameplay programmer, technical artist, QA engineer, performance engineer, and product-quality owner for this repository.
+You are taking over an EXISTING 404 Game Jam racing project.
 
-Your task is to build ROAD//ZERO from start to finish as a polished, competition-ready submission for 404 Game Jam 001.
+The project is already substantially implemented, but the current result is NOT acceptable.
 
-Do not treat this as a prototype, mockup, tech demo, landing page, or proof of concept.
+The previous implementation feels generic, synthetic and overly robotic. The visual design looks like an AI-generated prototype rather than a deliberately art-directed game. The environment, cars, lighting, UI, materials and overall composition lack a cohesive identity.
 
-Build the actual playable game.
+Your job is NOT to blindly add more features on top of the current version.
 
-Continue autonomously through implementation, testing, visual review, performance optimization, polish, documentation, deployment preparation, and submission preparation.
+Your job is to:
 
-Do not stop merely because the game compiles or because every requested feature technically exists.
+1. audit the existing game,
+2. preserve what works,
+3. identify why it currently feels generic/robotic,
+4. establish a completely new cohesive art direction,
+5. rebuild weak visual assets correctly through the 404 recipe,
+6. substantially improve driving feel,
+7. implement/refine the three distinct AI rivals,
+8. finish the championship structure,
+9. improve presentation and game feel,
+10. create proper visual and gameplay validation loops,
+11. pass the official 404 jam requirements,
+12. leave strong build receipts showing the iteration process.
 
-The target is a small but exceptionally polished arcade racing game that can compete for first place.
+This is an overhaul of an existing build, not a superficial polish pass.
 
----
+Do not declare the project finished simply because it runs.
 
-# 0. PRIMARY DIRECTIVE
-
-Build:
-
-> ROAD//ZERO — a high-speed 3D arcade racing game where the road does not fully exist ahead of the racers. Track modules physically assemble while the player approaches them, and route splits force rapid risk/reward decisions.
-
-Core identity:
-
-> THE ROAD DOESN'T EXIST UNTIL YOU RACE IT.
-
-The player must immediately understand three things:
-
-1. I am driving extremely fast.
-2. The road is physically constructing itself ahead of me.
-3. I can choose between safer routes and dangerous REDLINE routes.
-
-Every major design decision must reinforce at least one of:
-
-* driving feel;
-* speed;
-* dynamic road construction;
-* meaningful route choice;
-* visual spectacle;
-* replayability;
-* competitive racing;
-* mobile usability;
-* polish.
-
-Do not add unrelated systems simply to increase feature count.
+The finished game should feel like somebody deliberately designed a racing game rather than an agent assembled one.
 
 ---
 
-# 1. SOURCE OF TRUTH
+# 0. READ THE OFFICIAL MATERIAL BEFORE TOUCHING THE GAME
 
-Before writing game code:
+Before editing the project, locate/read the latest versions of:
 
-1. Read this entire AGENTS.md.
-2. Read the current official 404 Game Jam rules.
-3. Read the cloned 404 Game Recipe `GAME.md`.
-4. Read `404.md`.
-5. Read the style-lock documentation.
-6. Read the gate documentation.
-7. Read the claims/visual-critique documentation.
-8. Study the Drive case study only to understand process, performance, testing, and lessons.
-9. Do NOT copy code, assets, geometry, level layouts, or implementation from any 404 reference game.
-10. Inspect the current repository before changing anything.
+* `GAME.md`
+* `404.md`
+* `docs/style-lock.md`
+* `docs/traps.md`
+* `docs/gates.md`
+* `docs/claims.md`
+* `docs/concept-images.md`
+* `docs/asset-contract.md`
+* the official 404 Game Jam README/rules
+* relevant harness files
 
-If this document conflicts with the current official jam rules, the official jam rules win.
+Do not rely on assumptions from this AGENTS.md if the official repository gives a stricter technical requirement.
 
-If a proposed implementation risks violating the 404 asset rule, stop that implementation and replace it with a compliant approach.
+The hard jam requirements take priority.
 
-Keep the 404 recipe repository separate from this game repository as instructed by the recipe.
+Remember in particular:
 
----
+Every actual 3D object must remain compliant with the 404 recipe.
 
-# 2. 404 HARD RULE — NON-NEGOTIABLE
+No downloaded meshes.
 
-Every 3D object used by ROAD//ZERO must comply with the 404 Game Jam asset rule.
+No asset-store models.
 
-Every 3D object must be Three.js code created through the 404 recipe.
+No GLB/GLTF models.
 
-Do not use:
+No hand-modelled binary meshes.
 
-* downloaded 3D meshes;
-* GLB/GLTF models from the internet;
-* asset-store meshes;
-* Sketchfab models;
-* manually modelled external meshes;
-* copied meshes;
-* literal vertex dumps;
-* base64-embedded meshes;
-* disguised mesh data;
-* 404 reference-game assets;
-* geometry copied from another entrant.
+No literal vertex-array smuggling.
 
-For every required 3D asset, follow the current `404.md` workflow.
+No base64 mesh data.
 
-Use:
+No copied assets or copied game code from 404's Drive racer or any other reference game.
 
-reference image
-→ candidate generation
-→ three candidates where required by the recipe
-→ verification/rendering
-→ visual comparison
-→ choose best candidate
-→ integrate chosen Three.js asset module.
+Reference games may be studied for lessons only.
 
-Textures, skies, sprites, audio, music, and other file types may only be used where permitted by current jam rules and must be properly declared/documented.
-
-Maintain an asset provenance document:
-
-`docs/ASSET_PROVENANCE.md`
-
-For each asset record:
-
-* asset name;
-* purpose;
-* reference source/type;
-* generation process;
-* candidate files;
-* chosen candidate;
-* relevant tool/model;
-* whether external files such as textures/audio are used;
-* license/provenance where relevant.
-
-Never silently introduce an asset that violates the jam rules.
+The existing repository history must be preserved. Do not squash everything into a fake single build.
 
 ---
 
-# 3. FIRST TASK — CREATE THE BUILD PLAN
+# 1. DO NOT START BY CODING
 
-Before implementing substantial game systems, create:
+The first task is an audit.
 
-`docs/BUILD_PLAN.md`
+Run the current game and play it properly on both desktop and a phone-sized viewport.
 
-Break development into phases with acceptance criteria.
+Capture screenshots while:
 
-Recommended order:
+* sitting on the starting grid,
+* accelerating,
+* cornering,
+* following another racer,
+* overtaking,
+* entering a visually dense part of the circuit,
+* finishing a race,
+* viewing menus/results/championship screens.
 
-Phase 0 — Rules, recipe, architecture and baseline
-Phase 1 — Style lock and visual targets
-Phase 2 — Minimum playable driving floor
-Phase 3 — 404 asset library
-Phase 4 — Modular track system
-Phase 5 — Dynamic road construction
-Phase 6 — RUN mode
-Phase 7 — Four environments
-Phase 8 — REDLINE route system
-Phase 9 — AI racing
-Phase 10 — Championship
-Phase 11 — Audio/VFX/game feel
-Phase 12 — Mobile controls
-Phase 13 — Menus/UI/accessibility
-Phase 14 — Custom automated game gate
-Phase 15 — Performance optimization
-Phase 16 — Harsh visual/gameplay critic rounds
-Phase 17 — Final jam gate
-Phase 18 — Deployment/submission materials.
+Inspect the current source tree and determine what is already working.
 
-Maintain progress in this document.
+Create:
 
-Do not blindly implement every feature before testing.
+`docs/RESCUE_AUDIT.md`
 
-At every phase:
+Document:
 
-implement
-→ run
-→ play
-→ inspect
-→ test
-→ fix
-→ commit meaningful progress.
+### KEEP
 
-Preserve real repository history. Do not squash the entire build into one final commit.
+Existing systems that are structurally good enough to preserve.
+
+For example:
+
+* race state machine,
+* checkpoint logic,
+* lap counting,
+* input system,
+* AI navigation,
+* collision system,
+* championship data model,
+* deployment setup,
+* telemetry,
+* existing compliant assets that genuinely look good.
+
+### REWORK
+
+Things that basically work but need meaningful improvement.
+
+### REPLACE
+
+Anything causing the generic/robotic result.
+
+Pay particular attention to:
+
+* blocky vehicles,
+* box-like buildings,
+* metallic grey materials everywhere,
+* excessive emissive lighting,
+* cyan/purple sci-fi lighting,
+* neon outlines,
+* sterile environments,
+* repeated procedural boxes,
+* perfectly symmetrical scenery,
+* empty track edges,
+* generic HUD panels,
+* robotic-looking spectators,
+* unrealistic object proportions,
+* weak road material,
+* flat lighting,
+* no visual hierarchy,
+* camera that feels detached from the car,
+* scenery that does not establish a real place.
+
+Do not preserve weak work just because it already exists.
 
 ---
 
-# 4. STYLE LOCK BEFORE ASSET GENERATION
+# 2. CREATE A CHECKPOINT BEFORE THE OVERHAUL
 
-Before generating production assets, create:
+Before major destructive changes, make sure the repository is in a known working state.
+
+Record:
+
+* current commit,
+* current screenshots,
+* current gate/test status,
+* current performance,
+* current deployment status if deployed.
+
+Do not erase previous build history.
+
+The improvement from bad first version → final version is useful evidence for the jam's build-receipts criterion.
+
+---
+
+# 3. NEW ART DIRECTION
+
+The existing robotic visual identity must be discarded.
+
+The new direction is:
+
+## ANALOG HILLSIDE MOTORSPORT FESTIVAL
+
+This is NOT cyberpunk.
+
+This is NOT sci-fi.
+
+This is NOT futuristic.
+
+This is NOT a world filled with robots.
+
+This is NOT neon racing.
+
+This is NOT a metallic industrial simulation.
+
+Imagine a fictional late-1970s/early-1980s grassroots hill-climb championship taking place in a warm mountainous region.
+
+The world should feel:
+
+* handcrafted,
+* sun-warmed,
+* tactile,
+* imperfect,
+* energetic,
+* colourful,
+* inhabited,
+* slightly nostalgic,
+* stylized rather than photorealistic,
+* premium rather than childish.
+
+The visual inspiration is classic analog motorsport photography, vintage hill-climb events, rally paddocks, handmade race barriers, dusty mountain roads, cloth flags, sun-faded structures, spectators sitting around improvised viewing areas and colourful compact racing coupes.
+
+DO NOT copy any real motorsport brand, logo, vehicle or trademark.
+
+Everything remains fictional.
+
+---
+
+# 4. CREATE THE STYLE LOCK BEFORE GENERATING ANY NEW ASSET
+
+Create:
 
 `STYLE_LOCK.md`
 
-Follow the official 404 style-lock format.
+Every agent or sub-agent creating visual work MUST receive this exact style lock.
 
-Use this direction as the starting point:
+Use this core style sentence:
 
-> A premium near-future arcade racing world built from monumental engineered forms: dark graphite road surfaces, restrained futuristic architecture, luminous navigation elements, strong silhouettes, high contrast, dramatic atmospheric depth, and a sleek hero vehicle. The visual language should feel intentionally designed rather than like generic cyberpunk asset soup.
+> A warm analog hill-climb motorsport festival rendered as a premium stylized miniature world: rounded compact racing coupes, painted fiberglass and enamel bodywork, sun-faded plaster and timber architecture, dry grass, rock, cloth track furniture, dusty roadside detail, strong silhouettes and golden natural light, with believable proportions and absolutely no sci-fi, cyberpunk, robotic or neon visual language.
 
-Define exact:
+Use a tightly controlled palette.
 
-* color palette in hex;
-* road dimensions;
-* lane widths;
-* vehicle dimensions;
-* barriers;
-* signage;
-* track-module dimensions;
-* architectural scale;
-* lighting principles;
-* material principles;
-* UI principles;
-* environment-specific accent treatment.
+Suggested master palette:
 
-All agents/sub-agents generating visual content must receive the exact same STYLE_LOCK.md.
+* warm cream: `#EFE1C6`
+* sun-faded orange: `#C86845`
+* ochre: `#D5A23B`
+* forest green: `#53694C`
+* dusty sage: `#849077`
+* faded blue: `#507D92`
+* asphalt charcoal: `#343537`
+* warm stone: `#A88869`
+* earth brown: `#79533F`
+* deep shadow: `#353A3B`
 
-Do not allow four environments to become four unrelated art styles.
+Player-car accent:
+
+`#D74B3F`
+
+Rival accents:
+
+* Rival 1: `#D7A72F`
+* Rival 2: `#3F7390`
+* Rival 3: `#617B4E`
+
+Do not make every material saturated.
+
+Use colour intentionally.
+
+Most environment surfaces should have moderate or high roughness.
+
+Vehicle paint may have controlled gloss.
+
+Glass may reflect.
+
+Chrome should be rare and restrained.
+
+Emissive materials should NOT dominate the visual design.
+
+Brake lamps may emit subtly.
+
+No glowing vehicle outlines.
+
+No cyan holographic UI.
+
+No purple cyberpunk lighting.
+
+No futuristic transparent dashboards.
+
+No sci-fi hexagon motifs.
+
+No random metallic panels.
+
+No robot-like human characters.
 
 ---
 
-# 5. VISUAL QUALITY PROCESS
+# 5. REAL-WORLD SCALE MUST BE CONSISTENT
 
-Follow the 404 recipe's visual iteration philosophy.
+Put approximate real sizes in `STYLE_LOCK.md`.
+
+Suggested scale:
+
+Compact race coupe:
+
+* width roughly 1.65–1.80 m
+* height roughly 1.25–1.45 m
+* length roughly 3.7–4.2 m
+
+Safety barrier:
+
+* roughly 0.8–1.0 m high
+
+Hay bale:
+
+* roughly 0.45 m high
+* roughly 0.9 m long
+
+Marshal hut:
+
+* roughly 2.3–2.8 m high
+
+Spectator canopy:
+
+* roughly 2.4–3 m high
+
+Tree:
+
+* roughly 5–9 m depending on variant
+
+Track:
+
+* approximately 7–9 m usable racing width where appropriate
+
+Everything should look like it belongs to the same physical world.
+
+---
+
+# 6. BUILD CONCEPT FRAMES BEFORE REBUILDING THE WORLD
+
+Do NOT immediately start remodelling scenery from text.
+
+Generate or source several visual references for the intended final look.
+
+Create/reference frames for:
+
+1. starting grid at golden hour,
+2. sweeping uphill corner,
+3. village or paddock section,
+4. rocky mountain section,
+5. close chase-camera racing frame,
+6. four cars battling into a corner.
+
+These are VISUAL TARGETS.
+
+Do not use them as textures.
+
+Use them to judge composition, lighting, density, silhouettes and colour relationships.
 
 Create:
 
-`docs/VISUAL_TARGETS.md`
+`references/scenes/`
 
-Before polishing, establish visual reference frames for:
+and store the permitted reference/concept material there when appropriate.
 
-* Neon District;
-* Redline Canyon;
-* Skyline;
-* Orbital;
-* race start;
-* REDLINE split;
-* dynamic road assembly;
-* high-speed drift;
-* jump;
-* championship finish.
+If Atlas MCP is connected, it may be used for generating concept frames, visual references, sky/audio/texture material and other permitted files.
 
-Convert visual goals into concrete claims.
+If Atlas MCP is not configured, do not block development.
 
-Examples:
-
-* the player's car must remain clearly readable at racing speed;
-* the road must remain readable against the environment;
-* the upcoming route must be identifiable before a decision is required;
-* SAFE and REDLINE routes must be visually distinguishable without relying exclusively on text;
-* the environment must communicate speed through parallax and motion;
-* the road assembly event must be obvious while driving;
-* driving frames must remain visually readable, not merely parked screenshots;
-* each world must be identifiable within approximately two seconds;
-* important gameplay information must survive a phone-sized viewport.
-
-Build a visual floor/baseline and preserve screenshots.
-
-Run critic rounds against frames captured while the game is moving.
-
-A critic must be allowed to fail a round.
-
-Do not accept:
-
-"looks good"
-
-as sufficient evaluation.
-
-Identify specific failures and fix them.
-
-Use fresh critics/sub-agents when practical.
+Do not expose, print, commit or hard-code `ATLAS_API_KEY`.
 
 ---
 
-# 6. PRODUCT STRUCTURE
-
-ROAD//ZERO has two primary modes:
-
-1. RUN
-2. CHAMPIONSHIP
-
-Do not build accounts, authentication, wallets, blockchain integration, backend services, multiplayer, garage systems, vehicle purchasing, story campaigns, loot systems, or unrelated meta systems.
-
-The game should load directly into a premium interactive game menu.
-
----
-
-# 7. MAIN MENU
-
-Create a polished main menu.
-
-Required actions:
-
-* RUN
-* CHAMPIONSHIP
-* HOW TO PLAY
-* AUDIO/settings control if needed
-
-The background should already communicate the game's identity.
-
-Preferred presentation:
-
-the hero car rests on a partially constructed track while distant track components or environmental structures move subtly.
-
-Do not make the menu expensive enough to threaten mobile performance.
-
-No unnecessary loading sequence.
-
-The user should be able to begin playing rapidly.
-
----
-
-# 8. INPUT MODEL
-
-The game must work properly on:
-
-* desktop/laptop;
-* touch/mobile.
-
-Desktop minimum:
-
-* keyboard steering;
-* clear drift control;
-* pause;
-* menu navigation.
-
-Mobile minimum:
-
-* real touch start;
-* real finger-controlled steering;
-* usable drift mechanic;
-* menu interaction;
-* restart;
-* pause where appropriate.
-
-Do not depend on debug hooks for automated testing.
-
-Real user events must work.
-
-Design touch controls from the beginning rather than porting desktop controls at the end.
-
-Touch UI must not obscure critical road information.
-
----
-
-# 9. DRIVING MODEL
-
-The vehicle should be arcade-first rather than simulation-first.
-
-Do not spend the project implementing realistic tire simulation.
-
-The target feel is:
-
-* responsive;
-* predictable;
-* fast;
-* satisfying;
-* forgiving enough for mobile;
-* skillful enough to reward mastery.
-
-Implement:
-
-* automatic or strongly assisted forward acceleration where appropriate;
-* steering;
-* acceleration curve;
-* braking only if it materially improves gameplay;
-* drift;
-* controlled lateral grip;
-* controlled air handling;
-* jumps;
-* landing;
-* collision response;
-* road-edge behavior;
-* crash/fall detection;
-* recovery/restart;
-* speed-based camera effects.
-
-Tune game feel through repeated actual playtests.
-
-Do not assume mathematically plausible physics equals fun physics.
-
-Create centralized tuning constants rather than scattering magic numbers.
-
-Potential tuning categories:
-
-* acceleration;
-* max speed;
-* steering response;
-* steering response versus speed;
-* grip;
-* drift initiation;
-* drift retention;
-* drift exit;
-* jump impulse;
-* air control;
-* landing stabilization;
-* collision slowdown;
-* camera follow;
-* camera lag;
-* FOV versus speed;
-* camera shake;
-* assist strength.
-
----
-
-# 10. SPEED PRESENTATION
-
-Speed must FEEL fast.
-
-Use a combination of:
-
-* FOV progression;
-* environmental parallax;
-* road markings;
-* particles;
-* subtle camera vibration;
-* wind/audio progression;
-* track construction timing;
-* motion cues;
-* passing structures;
-* controlled screen effects.
-
-Do not rely only on displaying a high km/h number.
-
-Avoid excessive effects that harm readability or mobile performance.
-
----
-
-# 11. MODULAR TRACK SYSTEM
-
-Build the track from reusable compliant 404-generated modules.
-
-Required module families should include, where appropriate:
-
-* straight;
-* wide turn;
-* tight turn;
-* banked turn;
-* hairpin;
-* narrow section;
-* small ramp;
-* major jump;
-* safe split;
-* REDLINE split;
-* merge;
-* tunnel;
-* bridge;
-* wall-ride;
-* transition module;
-* finish module.
-
-Do not require every environment to have completely unique geometry.
-
-Reuse intelligently.
-
-Track modules need reliable:
-
-* entry transform;
-* exit transform;
-* width;
-* route metadata;
-* AI waypoint/spline data;
-* collision surface;
-* hazard metadata;
-* assembly metadata.
-
-The track engine must be deterministic enough to debug and test.
-
-Use seeded randomness where randomness is useful.
-
----
-
-# 12. SIGNATURE SYSTEM — DYNAMIC ROAD CONSTRUCTION
-
-This is the most important visual/mechanical system.
-
-The road ahead should not simply pop into existence.
-
-Upcoming track modules must visibly assemble.
-
-Possible sequence:
-
-1. module pieces begin outside their final position;
-2. pieces translate/rotate toward the connection;
-3. pieces lock together;
-4. a restrained impact response occurs;
-5. lights/material accents activate;
-6. an energy/light pulse can travel along the completed segment;
-7. the player reaches it shortly afterward.
-
-Construction timing should scale with speed.
-
-Early game:
-
-the player sees the road comfortably assembling ahead.
-
-Late game:
-
-the road completes increasingly close to the approaching car.
-
-The effect must remain fair.
-
-Never create unavoidable failure because geometry was not ready.
-
-Collision geometry must be ready at the correct time.
-
-Avoid physics glitches caused by animated track pieces.
-
-Use pooling/recycling rather than unbounded object creation.
-
-This system should look excellent in moving screenshots because it is our signature.
-
----
-
-# 13. REDLINE ROUTE SYSTEM
-
-At selected points, create branching choices.
-
-Two broad categories:
-
-SAFE
-
-and
-
-REDLINE.
-
-SAFE:
-
-* easier;
-* wider;
-* lower mechanical risk;
-* usually longer or lower reward.
-
-REDLINE:
-
-* harder;
-* narrower or more technically demanding;
-* may contain jump, wall ride, difficult drift, obstacle, shortcut, or extreme geometry;
-* offers meaningful reward.
-
-Potential rewards:
-
-* shorter route;
-* championship position advantage;
-* score multiplier;
-* drift/skill multiplier;
-* speed preservation;
-* bonus score.
-
-Do not make route choice cosmetic.
-
-The player should understand why REDLINE is tempting.
-
-Communicate the upcoming split early enough to make an intentional decision.
-
-Do not overload the HUD with paragraphs.
-
-Use world geometry, signage, lighting, icons, and short labels.
-
----
-
-# 14. RUN MODE
-
-RUN is:
-
-> YOU VS THE ROAD.
-
-No AI opponents are required in RUN.
-
-The player starts in Neon District and progresses continuously through:
-
-1. Neon District
-2. Redline Canyon
-3. Skyline
-4. Orbital
-
-These should feel like one escalating journey rather than four loading screens.
-
-Primary objective:
-
-survive and maximize score.
-
-Score should consider:
-
-* distance;
-* speed;
-* drift skill;
-* REDLINE completions;
-* near misses if reliably detectable;
-* survival;
-* multiplier.
-
-Do not create an exploitable scoring system where repeatedly farming one trivial action dominates.
-
-Difficulty should escalate.
-
-Potential progression:
-
-Neon District:
-learning/readability.
-
-Redline Canyon:
-larger jumps and more demanding turns.
-
-Skyline:
-narrow roads, exposed gaps, wall rides.
-
-Orbital:
-maximum speed, extreme construction timing, rotating/monumental structures, demanding REDLINE choices.
-
-RUN must remain playable indefinitely or have a satisfying terminal milestone. Choose whichever produces the better game within scope.
-
-If endless continuation is implemented, recycle track/environment assets safely.
-
----
-
-# 15. RUN RESULTS
-
-After crash/end, show a polished result screen.
-
-Possible statistics:
-
-* score;
-* distance;
-* max speed;
-* REDLINE routes completed;
-* best drift;
-* highest multiplier;
-* time survived.
-
-Actions:
-
-* RUN AGAIN
-* MAIN MENU
-
-Restart must be fast.
-
-Do not force a page refresh.
-
----
-
-# 16. FOUR ENVIRONMENTS
-
-## WORLD 1 — NEON DISTRICT
-
-Purpose:
-
-teach the game and immediately look polished.
-
-Characteristics:
-
-* monumental near-future city;
-* readable wide road;
-* tunnels/urban structures;
-* illuminated navigation language;
-* moderate jumps;
-* first route splits;
-* strong parallax.
-
-Avoid generic random cyberpunk clutter.
-
-## WORLD 2 — REDLINE CANYON
-
-Characteristics:
-
-* engineered road cutting through huge geological formations;
-* exposed drops;
-* bridges;
-* large jumps;
-* tighter corners;
-* environmental hazards where fair;
-* stronger verticality.
-
-The art style must still belong to the same universe.
-
-## WORLD 3 — SKYLINE
-
-Characteristics:
-
-* road above cloud layer;
-* floating/engineered structures;
-* enormous visible depth;
-* exposed narrow sections;
-* banked roads;
-* wall rides;
-* long jumps.
-
-Maintain road readability against bright clouds.
-
-## WORLD 4 — ORBITAL
-
-Characteristics:
-
-* near-space/orbital environment;
-* monumental rings/structures;
-* dark sky/stars;
-* engineered track around structures;
-* rotating visual elements;
-* extreme speed;
-* final spectacle.
-
-Do not make the environment so visually busy that the player cannot read the road.
-
----
-
-# 17. ENVIRONMENT STREAMING / RECYCLING
-
-Do not keep all four worlds fully loaded.
-
-Create a transition system that:
-
-* preloads what is required;
-* introduces next-world visual elements;
-* removes/recycles old elements;
-* avoids visible stalls;
-* avoids excessive memory growth.
-
-Reuse instancing/pooling where appropriate.
-
-Monitor:
-
-* draw calls;
-* triangle count;
-* memory;
-* frame rate;
-* total build size.
-
----
-
-# 18. CHAMPIONSHIP MODE
-
-CHAMPIONSHIP is the conventional competitive mode.
-
-Four racers:
-
-* player;
-* NOVA;
-* VEX;
-* KAI.
-
-Four races:
-
-1. Neon District
-2. Redline Canyon
-3. Skyline
-4. Orbital
-
-Each race should be a deliberately composed race using the modular track system.
-
-Championship is NOT four copies of RUN.
-
-It needs:
-
-* starting grid;
-* countdown;
-* finish condition;
-* race position;
-* AI opponents;
-* race results;
-* points;
-* standings;
-* final champion state.
-
----
-
-# 19. AI DRIVERS
-
-Do not build unnecessarily sophisticated general-purpose AI.
-
-Use robust racing-line/waypoint/spline following.
-
-Each track module should expose AI navigation data.
-
-AI should understand:
-
-* desired line;
-* desired speed;
-* upcoming turn severity;
-* branch selection;
-* recovery;
-* finish progression.
-
-Three personalities:
-
-## NOVA
-
-* fast;
-* confident;
-* high REDLINE preference;
-* strongest overall pace;
-* accepts greater risk.
-
-## VEX
-
-* aggressive;
-* pressures nearby racers;
-* more willing to challenge for position;
-* moderate/high REDLINE preference.
-
-## KAI
-
-* consistent;
-* safer;
-* lower error rate;
-* generally prefers SAFE routes;
-* slightly lower peak pace.
-
-Personality should emerge from tuning rather than huge bespoke systems.
-
-AI must occasionally feel imperfect/human but must not deliberately throw races in obviously scripted ways.
-
-Avoid rubber-banding so strong that player performance becomes meaningless.
-
-If catch-up assistance is used, keep it subtle.
-
----
-
-# 20. AI SAFETY / RECOVERY
-
-AI cars must not routinely:
-
-* get stuck;
-* drive backward;
-* oscillate;
-* fall forever;
-* miss every jump;
-* pile up at splits;
-* fail transitions;
-* disappear.
-
-Create recovery logic.
-
-Possible strategy:
-
-if progress is invalid for a defined interval, restore the AI to a safe recent track anchor with appropriate penalty.
-
-Make recovery visually unobtrusive where possible.
-
-Test every AI across every championship track repeatedly.
-
----
-
-# 21. RACE POSITION
-
-Track race progress robustly.
-
-Do not calculate position from raw Euclidean distance to the finish.
-
-Use:
-
-* route/module progress;
-* route distance;
-* checkpoint/progress index;
-* local progress through current segment.
-
-This must work across branching routes.
-
-HUD:
-
-`1 / 4`, `2 / 4`, etc.
-
-Position should update correctly when routes split and merge.
-
----
-
-# 22. CHAMPIONSHIP SCORING
-
-Use a simple understandable points system.
-
-Initial target:
-
-1st = 10
-2nd = 7
-3rd = 5
-4th = 3
-
-Keep points centralized/configurable.
-
-After every race:
-
-show:
-
-* race result;
-* points earned;
-* updated championship standings.
-
-Then:
-
-NEXT RACE.
-
-Before the final Orbital race, the player should understand the standings and stakes.
-
-After the final:
-
-if player wins championship:
-
-CHAMPION presentation.
-
-Otherwise:
-
-show final standing and allow retry/new championship.
-
-Do not require winning to continue playing.
-
----
-
-# 23. RACE START
-
-Championship races should have a short polished start.
-
-Show cars on grid.
-
-Use a concise camera presentation.
-
-Countdown:
-
-3
-2
-1
-DRIVE
-
-Do not waste the player's time with a long unskippable cinematic.
-
----
-
-# 24. COLLISIONS BETWEEN CARS
-
-Keep car-to-car interaction arcade-friendly.
-
-Do not allow opponents to permanently pin the player against barriers.
-
-Use controlled collision impulses.
-
-Preserve fun over realism.
-
-If full dynamic car collisions cause instability, implement a simplified collision response rather than sacrificing game quality.
-
----
-
-# 25. GAME FEEL / JUICE
-
-Once systems work, aggressively polish the existing game.
-
-Potential elements:
-
-* suspension-like visual response;
-* wheel steering animation;
-* wheel spin;
-* body roll;
-* drift yaw;
-* tire/energy trail;
-* sparks;
-* dust;
-* canyon debris;
-* subtle speed particles;
-* jump anticipation;
-* landing impact;
-* camera shake;
-* FOV kick;
-* drift sound;
-* wind;
-* engine pitch;
-* road assembly impact;
-* REDLINE success feedback;
-* overtake feedback;
-* finish presentation.
-
-Every effect must have a gameplay/feel purpose.
-
-Do not drown the game in particles.
-
----
-
-# 26. AUDIO
-
-Audio is important.
-
-Implement:
-
-* engine loop;
-* speed/pitch response;
-* wind;
-* drift/skid;
-* collisions;
-* jump/air;
-* landing;
-* track assembly;
-* REDLINE cue;
-* countdown;
-* menu feedback;
-* finish;
-* environment/music where appropriate.
-
-Follow current jam rules for audio provenance.
-
-Do not ship copyrighted commercial music.
-
-Provide mute/audio control.
-
-Handle browser autoplay restrictions correctly.
-
-Audio should start only after valid user interaction where required.
-
----
-
-# 27. CAMERA
-
-Create a polished chase camera.
-
-It should:
-
-* follow smoothly;
-* communicate speed;
-* look ahead;
-* remain stable enough for mobile;
-* handle jumps;
-* handle banking;
-* handle wall rides;
-* avoid clipping where practical;
-* recover gracefully after crashes.
-
-Tune:
-
-* distance;
-* height;
-* lag;
-* look-ahead;
-* FOV;
-* speed response;
-* drift offset;
-* jump behavior;
-* shake.
-
-Do not make camera shake so strong that driving becomes difficult.
-
----
-
-# 28. UI/HUD
-
-HUD should be minimal and premium.
-
-RUN:
-
-* speed;
-* score;
-* multiplier;
-* REDLINE communication;
-* environment transition when appropriate.
-
-CHAMPIONSHIP:
-
-* speed;
-* position;
-* race progress;
-* REDLINE communication.
-
-Do not cover the center of the screen during high-speed driving.
-
-Make mobile typography readable.
-
-Respect safe areas.
-
-Avoid generic developer/debug styling.
-
----
-
-# 29. HOW TO PLAY
-
-Keep instructions extremely short.
-
-Explain:
-
-* steer;
-* drift;
-* SAFE versus REDLINE;
-* RUN objective;
-* CHAMPIONSHIP objective.
-
-Prefer visual instruction over walls of text.
-
-The player should be driving within seconds.
-
----
-
-# 30. FIRST 15 SECONDS REQUIREMENT
-
-Treat the first 15 seconds as a critical design surface.
-
-The player should quickly experience:
-
-* driving;
-* speed;
-* visible road construction;
-* one meaningful route decision;
-* one visually satisfying event.
-
-Do not hide the signature mechanic for several minutes.
-
----
-
-# 31. MOBILE-FIRST PERFORMANCE
-
-The official gate is not optional.
-
-Continuously budget against the current official limits.
-
-At the time this document was written, the jam requires the live build to satisfy constraints including:
-
-* ready within the official time limit;
-* total transfer/build size below the official cap;
-* real tap start;
-* real finger movement;
-* draw calls below official cap;
-* triangles below official cap;
-* no 404s;
-* no console errors.
-
-Do not merely aim exactly at the maximum.
-
-Create safety margins.
-
-Preferred internal targets where practical:
-
-* comfortably under 10 MB;
-* substantially under 900 draw calls;
-* substantially under 1.5M triangles;
-* stable frame rate on mobile-class hardware.
-
-Use:
-
-* instancing;
-* pooling;
-* geometry reuse;
-* material reuse;
-* sensible texture resolution;
-* compressed assets where permitted;
-* object recycling;
-* limited shadow casters;
-* appropriate pixel ratio caps;
-* LOD only where useful.
-
-Avoid premature micro-optimization, but instrument from the beginning.
-
----
-
-# 32. PERFORMANCE HUD / DEBUG MODE
-
-Create a development-only debug mode capable of showing:
-
-* FPS;
-* draw calls;
-* triangles;
-* active track modules;
-* active environment objects;
-* player speed;
-* current route/module;
-* AI state;
-* race progress.
-
-Ensure debug UI is disabled in production by default.
-
----
-
-# 33. CUSTOM ROAD//ZERO GATE
-
-The standard playtest cannot adequately test the entire game.
-
-Create a game-specific automated gate in the appropriate harness location, following official recipe guidance.
-
-It must interact through real browser input events.
-
-Do NOT bypass gameplay by directly invoking internal debug functions.
-
-Test at least:
-
-* page loads;
-* start screen can be activated with real input;
-* RUN starts;
-* keyboard steering works;
-* touch steering works;
-* player moves;
-* road construction occurs;
-* route split can be reached;
-* crash/restart works;
-* menu navigation works;
-* Championship starts;
-* AI cars progress;
-* race position changes plausibly;
-* no console errors;
-* no network 404s.
-
-Where reliable, capture telemetry.
-
-Capture screenshots/frames while moving.
-
-Keep this custom gate separate from the official jam gate.
-
-Passing our gate does NOT replace passing the official gate.
-
----
-
-# 34. QA MATRIX
+# 7. TURN THE VISUAL TARGET INTO TESTABLE CLAIMS
 
 Create:
 
-`docs/QA.md`
+`docs/VISUAL_CLAIMS.md`
 
-Test combinations including:
+Include objective visual statements such as:
+
+* The player's car is immediately recognisable as the visual hero.
+* At normal chase distance, the player's vehicle occupies enough screen space to read its body shape and wheels clearly.
+* Cars must not look like boxes with wheels attached.
+* Vehicle wheel arches, cabin, bonnet/hood, body volume and rear mass must read as intentional separate forms.
+* There must always be foreground, midground and background depth during normal racing.
+* Track boundaries must remain readable at racing speed.
+* The road must not blend into the environment.
+* Every major gameplay frame should contain both warm and cool colour relationships rather than flat single-temperature lighting.
+* No major gameplay frame should read as a grey metallic environment.
+* No scene should resemble a robotics laboratory, futuristic warehouse or cyberpunk track.
+* The world should contain deliberate asymmetry.
+* Important corners should have recognisable landmark silhouettes.
+* The background must not be empty sky plus flat ground.
+* Trackside scenery must visibly respond to the road and terrain instead of being randomly scattered.
+* Cars must remain readable in shadow.
+* Racing frames must look good while moving, not only when parked.
+* AI cars must be distinguishable from one another without relying solely on HUD labels.
+* The HUD should feel like analog motorsport graphic design rather than a sci-fi interface.
+
+A critic must be able to reject a visual round if these claims fail.
+
+---
+
+# 8. REBUILD HERO ASSETS USING THE ACTUAL 404 RECIPE
+
+Do not invent important assets from descriptions.
+
+For every significant asset:
+
+1. obtain/create an appropriate reference image,
+2. generate THREE genuinely independent geometry approaches,
+3. run the official asset verifier,
+4. inspect multiple views,
+5. select the strongest candidate BY EYE,
+6. reject all candidates if none are good enough,
+7. regenerate when necessary.
+
+Do not simply make version A and then slightly modify it twice.
+
+Use different construction strategies.
+
+Important assets that deserve this process include at minimum:
+
+* player race car,
+* Rival 1 car,
+* Rival 2 car,
+* Rival 3 car,
+* marshal hut,
+* track barrier system,
+* hay bale / soft barrier,
+* spectator canopy,
+* roadside tree,
+* rock formation,
+* paddock structure,
+* village/building module if used,
+* distinctive track landmark.
+
+Cars are the most important visual assets in the entire game.
+
+Spend disproportionate effort on them.
+
+---
+
+# 9. VEHICLES MUST NOT LOOK LIKE ROBOTS
+
+This is a hard artistic requirement.
+
+The old version's robotic/AI aesthetic must not survive.
+
+Each vehicle needs:
+
+* coherent body volume,
+* rounded or intentionally shaped fenders,
+* convincing wheel placement,
+* clear wheel arches,
+* visible tyres,
+* a readable greenhouse/cabin,
+* windscreen and side glass,
+* front and rear visual identity,
+* believable stance,
+* body-over-wheel proportion,
+* subtle suspension/body movement,
+* appropriate material separation.
+
+Avoid:
+
+* rectangles stacked on rectangles,
+* exposed geometric joints that resemble robot limbs,
+* glowing panels,
+* mechanical face-like fronts,
+* excessive greebling,
+* floating body components,
+* tiny wheels,
+* wheels buried inside boxes,
+* unrealistic cabin height,
+* razor-thin body panels,
+* identical bodies recoloured four times.
+
+The four cars should belong to the same racing category while having recognisable silhouettes.
+
+Do not copy an existing real production car.
+
+---
+
+# 10. THE PLAYER CAR
+
+The player car should be a compact, agile hill-climb racing coupe.
+
+It should visually communicate:
+
+* light weight,
+* speed,
+* grip,
+* character.
+
+Use the red player accent from the style lock.
+
+It must be the hero object of the frame.
+
+Make sure its paint responds attractively to light.
+
+Keep the body readable even in shade.
+
+Wheels should rotate correctly.
+
+Front wheels should visibly steer.
+
+If hierarchy is required for moving wheels/parts, preserve hierarchy through the asset loader.
+
+Do not merge away parts that need articulation.
+
+---
+
+# 11. THREE RIVALS — NOT THREE GENERIC BOTS
+
+The championship has exactly three major AI rivals in addition to the player.
+
+They are recurring characters expressed primarily through DRIVING BEHAVIOUR.
+
+Do not turn them into humanoid characters.
+
+Do not use talking robots.
+
+Their identity comes from:
+
+* car silhouette,
+* colour,
+* driving style,
+* race behaviour,
+* championship performance.
+
+## RIVAL 1 — THE CHARGER
+
+Character:
+
+Aggressive and exciting.
+
+Behaviour:
+
+* highest willingness to attempt overtakes,
+* brakes later,
+* slightly higher peak pace,
+* accepts smaller gaps,
+* sometimes overshoots,
+* higher error probability,
+* particularly dangerous on straights and heavy braking zones.
+
+The player should learn:
+
+"Don't assume the door will stay closed when the Charger is behind me."
+
+---
+
+## RIVAL 2 — THE TECHNICIAN
+
+Character:
+
+Clean and calculated.
+
+Behaviour:
+
+* strongest adherence to optimal line,
+* smooth braking,
+* excellent corner exits,
+* low variance,
+* avoids unnecessary contact,
+* very consistent lap times,
+* difficult to catch once allowed into clean air.
+
+The player should learn:
+
+"I have to disrupt the Technician's rhythm instead of simply waiting for a mistake."
+
+---
+
+## RIVAL 3 — THE DEFENDER
+
+Character:
+
+Position-focused.
+
+Behaviour:
+
+* slightly lower ultimate pace,
+* strong awareness of a nearby challenger,
+* chooses defensive line when threatened,
+* makes the player work for overtakes,
+* returns toward the racing line appropriately,
+* should NOT zig-zag unrealistically.
+
+The player should learn:
+
+"I need to set up an overtake rather than dive at the first opening."
+
+---
+
+# 12. THE AI DIFFERENCES MUST BE REAL
+
+Do not implement rival personalities as text labels attached to identical AI.
+
+Their behaviour parameters must actually differ.
+
+Possible parameters include:
+
+* preferred racing line,
+* corner-entry speed,
+* brake point offset,
+* acceleration confidence,
+* overtaking threshold,
+* lateral passing offset,
+* defensive line bias,
+* risk tolerance,
+* mistake probability,
+* recovery speed,
+* reaction distance,
+* tyre/grip utilisation abstraction,
+* slip tolerance.
+
+Keep AI fair.
+
+Do not teleport.
+
+Do not rubber-band visibly.
+
+Moderate catch-up assistance is acceptable only if subtle and not enough to erase player skill.
+
+AI should recover safely if stuck.
+
+---
+
+# 13. THE CORE "WHAT I FOUND" MECHANIC
+
+The distinctive idea of this game is NOT simply:
+
+"I made a racing game."
+
+It is:
+
+> A championship racer built around three persistent rivals with visibly different racing personalities, where the player learns how each rival behaves across several races and adapts strategy accordingly.
+
+Everything should support this.
+
+The game should create moments where the player thinks:
+
+* "That's the aggressive one."
+* "The blue car always nails this section."
+* "I need to make the defender cover the inside and switch back."
+* "If I pressure the Charger, it may overcommit."
+
+This is how the game becomes memorable.
+
+---
+
+# 14. CHAMPIONSHIP STRUCTURE
+
+Create a compact championship that is realistic for a jam game but feels complete.
+
+Target:
+
+3 races.
+
+4 racers total:
+
+* Player
+* Charger
+* Technician
+* Defender
+
+Use a simple persistent points system.
+
+For example:
+
+1st — 10 points
+2nd — 7 points
+3rd — 4 points
+4th — 2 points
+
+Or another sensible distribution.
+
+A tie should have a deterministic tiebreak.
+
+Keep the whole championship short enough that judges can experience meaningful progression within their play session.
+
+---
+
+# 15. TRACK STRATEGY
+
+Do NOT build three completely unrelated giant worlds if that damages quality.
+
+Create one cohesive fictional motorsport region and use a shared art kit intelligently.
+
+Three championship races can have different layouts and local identities while sharing core materials/assets.
+
+Suggested identity:
+
+## Race 1 — ORCHARD SPRINT
+
+Opening event.
+
+Flowing.
+
+Accessible.
+
+Dry grass.
+
+Trees.
+
+Timber barriers.
+
+Spectator pockets.
+
+Introduces overtaking and basic rival behaviour.
+
+---
+
+## Race 2 — QUARRY LOOP
+
+More technical.
+
+Rock formations.
+
+Elevation.
+
+Tighter braking zones.
+
+Dust.
+
+Stronger opportunities for the Technician to shine.
+
+---
+
+## Race 3 — SUMMIT RUN
+
+Championship finale.
+
+Most dramatic elevation.
+
+A mix of flowing and technical sections.
+
+Stronger visual composition.
+
+Big finish-line atmosphere.
+
+Use the most impressive vista and lighting here.
+
+The tracks must remain original and must not copy the 404 Drive reference track.
+
+---
+
+# 16. REUSE ASSETS WITHOUT MAKING THE WORLD REPETITIVE
+
+Reuse is good.
+
+Obvious repetition is bad.
+
+For repeated props:
+
+* vary rotation,
+* vary scale slightly,
+* create a small number of genuine variants,
+* cluster objects naturally,
+* place them according to terrain and track context,
+* avoid perfect grids,
+* avoid identical spacing.
+
+For trees, rocks and track furniture, build reusable families.
+
+Use instancing where appropriate.
+
+Be aware of the official InstancedMesh traps.
+
+Do not accidentally collapse instances through an incorrect loader path.
+
+---
+
+# 17. DRIVING MUST BECOME THE NUMBER ONE PRIORITY
+
+The jam's largest judging category is whether the game is good to play.
+
+A visually beautiful car with poor handling will still lose.
+
+The game should be immediately enjoyable with arcade handling.
+
+Target:
+
+easy to understand,
+responsive,
+fast,
+forgiving enough for a first-time player,
+but with enough depth that good cornering matters.
+
+---
+
+# 18. VEHICLE HANDLING
+
+Implement/refine:
+
+* acceleration curve,
+* braking,
+* reverse,
+* speed-dependent steering,
+* lateral grip,
+* controlled rear slip,
+* drag,
+* off-road slowdown,
+* collision response,
+* recovery/reset.
+
+Steering should become less twitchy at high speed.
+
+The player should be able to feel:
+
+* braking before a corner,
+* weight/load change,
+* turning in,
+* reaching grip limit,
+* accelerating out.
+
+Do not create a physics simulator.
+
+This is an arcade championship racer.
+
+But do not make it a floating cube either.
+
+---
+
+# 19. DRIFT / SLIP
+
+If drift/slip already exists, make it deliberate.
+
+If it does not exist and can be implemented without destabilising the project, add a controlled form of rear slip.
+
+The player should be able to rotate the car slightly under aggressive cornering.
+
+Avoid constant uncontrolled drifting.
+
+Grip racing should remain viable.
+
+If a dedicated handbrake is used:
 
 Desktop:
 
-* Chrome-like browser;
-* keyboard;
-* RUN;
-* Championship.
+* Space or another intuitive key.
 
-Mobile viewport:
+Mobile:
 
-* touch;
-* portrait/landscape according to chosen game orientation;
-* RUN;
-* Championship;
-* pause/restart;
-* route choices.
+* dedicated reachable button.
 
-Test:
-
-* fresh load;
-* repeated restart;
-* switching modes;
-* losing RUN;
-* completing each championship race;
-* winning championship;
-* not winning championship;
-* AI recovery;
-* REDLINE success;
-* REDLINE failure;
-* transitions between worlds;
-* audio muted/unmuted;
-* resize/orientation behavior where supported.
-
-Record known limitations honestly.
+Do not let the drift mechanic destroy accessibility.
 
 ---
 
-# 35. CRITIC ROUNDS
+# 20. COLLISION FEEL
 
-Once the complete game exists, do not immediately stop.
+Collisions should communicate impact without feeling punitive.
 
-Run multiple focused critic rounds.
+Use:
 
-At minimum:
+* brief camera impulse,
+* subtle sound,
+* slight speed loss,
+* body reaction,
+* small particles when appropriate.
 
-## Critic 1 — Driving feel
+Avoid:
+
+* cars exploding,
+* arcade pinball,
+* spinning the player 180° from a light touch,
+* AI pushing the player unrealistically,
+* cars clipping through each other.
+
+---
+
+# 21. CAMERA
+
+The chase camera must be significantly improved.
+
+Requirements:
+
+* spring-based smoothing,
+* anticipatory look direction,
+* subtle FOV increase with speed,
+* slight lateral response,
+* stable horizon,
+* strong player-car visibility,
+* no nausea-inducing oscillation.
+
+Do NOT orient camera roll directly from whatever ground normal exists beneath the car.
+
+Use track banking information if banking is required.
+
+Clamp any camera roll.
+
+If the car spins, do not instantly spin the entire camera with it.
+
+Allow the camera to lag and recover smoothly.
+
+---
+
+# 22. SENSE OF SPEED
+
+Create speed through:
+
+* road motion,
+* nearby trackside objects,
+* appropriate FOV response,
+* subtle camera vibration only at high speed,
+* dust,
+* tyre audio,
+* engine pitch,
+* wind audio,
+* roadside parallax,
+* particles,
+* suspension/body motion.
+
+Do not fake speed primarily with excessive motion blur.
+
+---
+
+# 23. START PROCEDURE
+
+A race should feel like an event.
+
+Flow:
+
+Championship/race screen
+→ starting grid
+→ 3
+→ 2
+→ 1
+→ GO
+→ race.
+
+The countdown must be visually clear.
+
+AI cannot launch before GO.
+
+Allow a tiny dramatic pause between numbers.
+
+Audio should reinforce it if available.
+
+---
+
+# 24. RACING HUD
+
+Completely eliminate the generic robot/sci-fi dashboard aesthetic.
+
+The HUD should feel inspired by vintage motorsport timing graphics.
+
+Use:
+
+* warm cream,
+* charcoal,
+* small colour accents,
+* strong numbers,
+* simple geometric plates,
+* restrained shadows,
+* clear hierarchy.
+
+During a race show only important information:
+
+* position: `2 / 4`
+* lap: `2 / 3`
+* speed
+* current race identity if useful
+* optional compact checkpoint/progress indicator
+* championship context only when necessary
+
+Avoid:
+
+* giant glass panels,
+* glowing holographic panels,
+* sci-fi corner brackets,
+* cyberpunk typography,
+* unnecessary telemetry.
+
+The game world should remain the focus.
+
+---
+
+# 25. RESULTS PRESENTATION
+
+After each race show:
+
+* race finishing order,
+* earned points,
+* championship standings,
+* next race action.
+
+Make standings easy to understand immediately.
+
+At the final race:
+
+show the championship result clearly.
+
+Winning should feel rewarding.
+
+Losing should still allow replay.
+
+---
+
+# 26. MAIN MENU
+
+Keep it simple and polished.
+
+Possible options:
+
+CHAMPIONSHIP
+QUICK RACE
+HOW TO PLAY
+
+Do not create ten unnecessary modes.
+
+If Quick Race is already functional, preserve it.
+
+Championship is the hero mode.
+
+The first screen must look intentionally designed.
+
+Use an attractive real-time background or hero composition from the game if performance allows.
+
+---
+
+# 27. AUDIO
+
+Audio contributes strongly to perceived quality.
+
+Implement or improve:
+
+* engine loop with pitch responding to RPM/speed,
+* tyre scrub,
+* collision thump,
+* countdown,
+* UI feedback,
+* ambient crowd/wind/environment,
+* race finish cue,
+* restrained menu ambience/music if allowed.
+
+Do not let sounds clip.
+
+Do not play every effect at maximum volume.
+
+Do not make the engine sound like a robot/electric sci-fi machine unless deliberately justified, which it is not for this art direction.
+
+---
+
+# 28. LIGHTING
+
+The lighting must be rebuilt if the current scene uses generic ambient + directional light.
+
+Use the official rig principles where appropriate.
+
+Target golden late-afternoon light.
+
+Create colour separation:
+
+warm direct sunlight,
+cooler ambient/sky contribution,
+strong but readable shadow,
+atmospheric depth.
+
+Cars must remain readable when shaded.
+
+Road must remain readable.
+
+Important track geometry must not disappear into black.
+
+Avoid flat exposure.
+
+Avoid uniformly lit objects.
+
+Avoid every surface having identical colour temperature.
+
+---
+
+# 29. SKY & ATMOSPHERE
+
+The sky should support the world.
+
+Use:
+
+* warm horizon,
+* clearer/cooler upper sky,
+* subtle atmospheric haze,
+* distant terrain depth.
+
+Do not use giant sci-fi planets.
+
+Do not use cyberpunk skylines.
+
+Do not overload the sky with effects.
+
+---
+
+# 30. ROAD
+
+The road occupies a huge percentage of every racing frame.
+
+Treat it as a hero surface.
+
+It should have:
+
+* subtle colour variation,
+* believable roughness,
+* slight procedural material variation,
+* clear edge definition,
+* occasional wear,
+* readable relationship to surrounding dirt/grass.
+
+Avoid:
+
+* perfectly uniform grey,
+* mirror-like asphalt,
+* pitch-black asphalt,
+* repeated obvious texture tiling.
+
+If procedural surfaces are used, follow the recipe's provided surface tooling where appropriate.
+
+---
+
+# 31. TRACK EDGES
+
+Track boundaries must communicate racing line intuitively.
+
+Use combinations of:
+
+* edge paint/curbing,
+* timber/soft barriers,
+* hay bales,
+* stone,
+* dust transitions,
+* roadside vegetation,
+* banners/colour shapes without relying heavily on readable text.
+
+The 404 format is weak at small printed typography.
+
+Do not build the art direction around readable trackside advertising.
+
+Use shape, colour and silhouette instead.
+
+---
+
+# 32. HUMAN PRESENCE WITHOUT "ROBOT VIBE"
+
+The game should feel inhabited.
+
+This does NOT require highly detailed human models everywhere.
+
+Use:
+
+* spectator groups,
+* canopies,
+* parked service vehicles if generated properly,
+* marshal stations,
+* flags,
+* folding structures,
+* viewing areas,
+* distant crowd treatment.
+
+Any close human figures must not look like robots.
+
+Do not place metallic grey humanoid primitives along the track.
+
+For distant crowds, prefer appropriate low-cost treatment rather than ugly close-up geometry.
+
+---
+
+# 33. PARTICLES AND GAME FEEL
+
+Use restrained effects:
+
+* dust when leaving asphalt,
+* small tyre smoke under heavy slip,
+* tiny debris where appropriate,
+* finish celebration if lightweight.
+
+Particles must support gameplay.
+
+Do not fill the screen with effects.
+
+---
+
+# 34. VISUAL HIERARCHY
+
+At any racing moment, the eye should understand:
+
+1. player car,
+2. next track direction,
+3. opponents,
+4. immediate track boundaries,
+5. environment.
+
+If scenery competes with gameplay, simplify it.
+
+---
+
+# 35. PERFORMANCE BUDGET
+
+The official hard limits are not our targets.
+
+Leave safety margin.
+
+Aim approximately for:
+
+* total transferred size under 8 MB,
+* draw calls generally under 700,
+* triangles generally under 1.2M,
+* stable usable mobile performance,
+* ideally around 60 FPS where realistic.
+
+Hard jam limits must still be respected.
+
+Optimise using:
+
+* instancing,
+* shared materials,
+* sensible object density,
+* distance-based detail,
+* pooled particles,
+* avoiding excessive transparency,
+* avoiding needless material clones.
+
+Be especially careful with transparent double-sided materials.
+
+---
+
+# 36. MOBILE IS A FIRST-CLASS PLATFORM
+
+The judges play on phone and laptop.
+
+The game must not merely "technically support touch."
+
+Mobile controls must be comfortable.
+
+Suggested layout:
+
+Left thumb:
+
+* steering control.
+
+Right thumb:
+
+* accelerator,
+* brake,
+* optional handbrake.
+
+Buttons should be large enough.
+
+Do not cover the racing line.
+
+Respect safe areas.
+
+Test portrait behaviour and lock/use landscape appropriately if the game requires landscape.
+
+If landscape is required, communicate it elegantly.
+
+Real touch events must start and move the game.
+
+---
+
+# 37. DESKTOP CONTROLS
+
+Support:
+
+* WASD
+* Arrow keys where sensible
+* brake/reverse
+* optional handbrake
+* pause
+* restart/reset
+
+Make controls visible in How To Play and/or pre-race presentation.
+
+---
+
+# 38. WRITE A CUSTOM RACING PLAYTEST/GATE
+
+The generic recipe playtest is insufficient for this game.
+
+Build a game-specific automated racing test inside the appropriate harness location.
+
+The test should use REAL browser input events.
+
+Do not invoke internal debug movement functions.
+
+The test should verify at minimum:
+
+* game reaches ready state,
+* start button works,
+* race countdown completes,
+* forward input moves the player,
+* steering changes vehicle heading,
+* touch acceleration moves the player on mobile viewport,
+* touch steering changes direction,
+* AI cars move,
+* race position logic updates plausibly,
+* checkpoint progress works,
+* reset/recovery works,
+* no console errors,
+* no asset 404s,
+* FPS telemetry is based on real elapsed time,
+* draw calls and triangles remain healthy.
+
+If practical, test braking and handbrake/slip as well.
+
+Expose/update official telemetry:
+
+`window.__READY__`
+
+`window.__START__`
+
+`window.__GAME__`
+
+with real:
+
+* position,
+* FPS,
+* speed,
+* score/state if relevant,
+* race-over state,
+* draw calls,
+* triangles.
+
+Do not fake telemetry.
+
+---
+
+# 39. FUNCTIONAL TESTS
+
+Test the race state machine separately.
+
+Verify:
+
+* countdown,
+* race start,
+* checkpoint order,
+* lap completion,
+* finish detection,
+* race ranking,
+* tie handling,
+* championship points,
+* next-race transition,
+* final standings,
+* replay,
+* restart,
+* AI recovery.
+
+A player must not be able to finish laps by crossing only the start/finish line repeatedly.
+
+Use ordered checkpoints.
+
+---
+
+# 40. AI VALIDATION
+
+Create repeatable AI simulation checks where possible.
+
+Run AI races without player intervention and verify:
+
+* all cars can complete the route,
+* none remain permanently stuck,
+* differences in personality actually affect behaviour,
+* no AI routinely drives through walls,
+* no AI permanently reverses,
+* no AI circles one checkpoint forever,
+* no AI finishes impossible laps.
+
+The personalities should create variance without breaking fairness.
+
+---
+
+# 41. CRITIC ROUND 1 — COMPOSITION
+
+After the first visual rebuild:
+
+Run the game in motion.
+
+Capture representative frames.
+
+Use a fresh critic/sub-agent that did not build the scene.
+
+Give it:
+
+* target concept frames,
+* current frames,
+* `STYLE_LOCK.md`,
+* `VISUAL_CLAIMS.md`.
+
+Ask it to identify the SINGLE largest visual reason the current build still loses to the target.
+
+It must issue:
+
+PASS
+
+or
+
+FAIL.
+
+"Looks okay" is not a pass.
+
+If FAIL, fix the highest-impact issue.
+
+Record the critique under:
+
+`receipts/critics/round-1.md`
+
+---
+
+# 42. CRITIC ROUND 2 — VEHICLES & MATERIALS
+
+Use a different critic.
+
+Focus especially on:
+
+* car silhouette,
+* wheels,
+* paint response,
+* glass,
+* body proportions,
+* rival differentiation,
+* robotic/generic geometry,
+* material quality.
+
+Record it.
+
+Fix the most decisive problem.
+
+---
+
+# 43. CRITIC ROUND 3 — RACING IN MOTION
+
+Use another fresh critic.
+
+This round MUST judge moving race frames.
+
+Not menu screenshots.
+
+Not parked cars.
+
+Not isolated assets.
+
+Compare:
+
+* close racing,
+* overtaking,
+* fast corner,
+* shaded section,
+* finish section.
 
 Ask:
 
-* Is steering responsive?
-* Does drift feel intentional?
-* Are jumps fair?
-* Is speed convincing?
-* Is failure understandable?
+Does this look like a deliberately art-directed finished racing game while moving?
 
-Fix failures.
+If not, identify the one largest reason.
 
-## Critic 2 — Visual cohesion
-
-Compare moving gameplay frames against visual targets.
-
-Ask:
-
-* Does this look like one authored game?
-* Is the car readable?
-* Is the road readable?
-* Are environments distinct but cohesive?
-* Does construction look intentional?
-
-Fix failures.
-
-## Critic 3 — Mobile
-
-Ask:
-
-* Can a new player understand controls?
-* Can they steer precisely?
-* Is HUD readable?
-* Are touch targets appropriate?
-* Does performance remain acceptable?
-
-Fix failures.
-
-## Critic 4 — Fun/replayability
-
-Ask:
-
-* Is RUN worth immediately replaying?
-* Are REDLINE choices actually tempting?
-* Does Championship create tension?
-* Do AI racers feel alive?
-* Is there downtime?
-
-Fix failures.
-
-## Critic 5 — Stage-one visual test
-
-Capture moving frames with names/UI context minimized as appropriate.
-
-Ask:
-
-> If this appeared beside another game for only a short visual comparison, does it clearly look like a finished, deliberately made game?
-
-Fix anything that makes it resemble a raw Three.js demo.
-
-Use a fresh critic when possible.
+Fix it.
 
 ---
 
-# 36. PRIORITY SYSTEM IF TIME BECOMES LIMITED
+# 44. OPTIONAL ROUND 4
 
-Never sacrifice the core game to preserve secondary features.
+Only run a fourth major critic round if there is a clearly fixable high-impact gap.
 
-Priority order:
+Do NOT loop forever.
 
-P0:
-
-* jam compliance;
-* playable build;
-* mobile input;
-* performance;
-* no errors.
-
-P1:
-
-* excellent driving;
-* dynamic road assembly;
-* RUN mode;
-* Neon/Canyon/Sky/Orbital progression;
-* REDLINE choices.
-
-P2:
-
-* visual/audio polish;
-* strong first 15 seconds;
-* satisfying restart/results.
-
-P3:
-
-* AI racers;
-* Championship.
-
-P4:
-
-* secondary spectacle/events.
-
-If Championship threatens the quality or validity of P0–P2, simplify Championship rather than damaging RUN.
-
-If an environment is weak, improve it rather than adding a fifth environment.
-
-Never add:
-
-* multiplayer;
-* garage;
-* car customization;
-* weapons;
-* economy;
-* story campaign;
-* additional vehicles merely for quantity;
-* fifth track/world
-
-unless every required feature is finished, polished, gate-safe, and there is a compelling reason.
-
-Default answer to scope expansion is NO.
+If critics repeatedly identify a structural limitation twice, change the approach instead of blindly rerunning the same process.
 
 ---
 
-# 37. SPECTACLE EVENTS
+# 45. SAVE THE RECEIPTS
 
-If performance/time allows after core quality is secure, add inexpensive authored spectacle events.
+Create:
 
-Examples:
+`receipts/`
 
-Neon District:
+Keep useful evidence such as:
 
-* train/transport passes below;
-* giant structure assembles nearby;
-* tunnel opens.
+* initial screenshots,
+* style lock,
+* scene reference list,
+* visual claims,
+* rejected asset candidates,
+* verifier output,
+* critic rounds,
+* performance logs,
+* gameplay-test logs,
+* jam-gate output,
+* before/after comparisons.
 
-Canyon:
+Do not clutter the shipped build if receipt files can be kept outside the public game payload.
 
-* distant rockfall;
-* bridge assembly;
-* debris event.
-
-Skyline:
-
-* aircraft passes;
-* cloud break;
-* floating structure rotates.
-
-Orbital:
-
-* enormous ring rotates;
-* station component moves;
-* final structure assembly.
-
-These are secondary visual events.
-
-They must not introduce unfair collisions or expensive systems.
+These receipts should show real iteration.
 
 ---
 
-# 38. ACCESSIBILITY / FAIRNESS
+# 46. MAKE MEANINGFUL COMMITS
 
-At minimum:
+Do not put the entire rescue into one mega-commit if work naturally breaks into stages.
 
-* do not encode SAFE versus REDLINE only through color;
-* maintain readable contrast;
-* allow audio mute;
-* avoid excessive flashing;
-* make touch targets large enough;
-* provide predictable restart;
-* avoid impossible reaction windows.
+Examples of meaningful phases:
 
-The game should be challenging because of driving decisions, not because information is unreadable.
+* audit and art-direction lock,
+* player-car rebuild,
+* rival-car rebuild,
+* environment asset rebuild,
+* track visual pass,
+* driving feel improvement,
+* AI personality refinement,
+* championship/results polish,
+* mobile controls,
+* audio/FX,
+* performance,
+* gate fixes.
 
----
+Do not fabricate history.
 
-# 39. ERROR HANDLING
-
-Production build must have:
-
-* no console errors;
-* no missing files;
-* no 404 network requests;
-* no uncaught promises;
-* no broken menu state;
-* no permanent loading state.
-
-Test reloads from deployed URLs.
-
-Do not rely on local-only paths.
+Use the actual work.
 
 ---
 
-# 40. REPOSITORY QUALITY / BUILD RECEIPTS
+# 47. DO NOT COPY 404 DRIVE
 
-The jam explicitly rewards evidence of how the game was made.
+You may inspect 404's Drive reference for general lessons about:
 
-Maintain:
+* camera,
+* controls,
+* performance,
+* recipe usage,
+* testing methodology.
 
-`docs/BUILD_PLAN.md`
-`docs/ASSET_PROVENANCE.md`
-`docs/QA.md`
-`docs/ITERATION_LOG.md`
-`docs/PERFORMANCE.md`
+You MUST NOT copy:
 
-ITERATION_LOG should document:
+* its code,
+* assets,
+* layout,
+* exact track,
+* vehicle design,
+* environment composition,
+* UI,
+* distinctive game mechanics.
 
-* important early failures;
-* what was changed;
-* rejected ideas;
-* critic feedback;
-* before/after improvements;
-* performance optimizations;
-* controls tuning;
-* AI tuning;
-* visual changes.
-
-Do not fabricate process history.
-
-Preserve actual evidence.
-
-Take useful screenshots/gate outputs where appropriate.
-
-Make meaningful commits throughout development.
+Our game needs its own identity.
 
 ---
 
-# 41. README
+# 48. PRIORITY ORDER
 
-Create a polished README containing:
+If time becomes constrained, work in this exact priority order:
 
-* ROAD//ZERO title;
-* concise game pitch;
-* controls;
-* RUN explanation;
-* Championship explanation;
-* SAFE/REDLINE mechanic;
-* four worlds;
-* technical architecture;
-* 404 recipe usage;
-* tools/models used;
-* asset/audio provenance summary;
-* local run instructions;
-* build instructions;
-* deployment instructions;
-* testing/gate instructions;
-* jam compliance notes.
+1. Game starts and remains technically valid.
+2. Driving feels good.
+3. Player car looks excellent.
+4. AI opponents race correctly.
+5. Rival personalities are clearly different.
+6. One race looks genuinely excellent.
+7. Championship works.
+8. Remaining track layouts look cohesive.
+9. Mobile controls feel good.
+10. Lighting/environment composition.
+11. Race presentation and HUD.
+12. Audio/particles/minor polish.
 
-Do not claim things that are not true.
+Do not sacrifice items 1–6 to add unnecessary breadth.
+
+One excellent environment reused intelligently is better than three ugly unrelated worlds.
 
 ---
 
-# 42. JAM SUBMISSION PREPARATION
+# 49. DEFINITION OF "DONE"
 
-Before finalizing, inspect the current official jam repository/template.
+Do NOT mark this project complete because:
 
-Prepare the required entry JSON information.
+* it compiles,
+* the cars move,
+* AI follows waypoints,
+* three tracks exist,
+* the menu works.
 
-Do not open or modify external submissions unless explicitly instructed.
+The project is done only when all of the following are true:
 
-Prepare truthful content for:
+The game has a coherent visual identity.
 
-* title;
-* slug;
-* play URL;
-* source URL;
-* team information;
-* tools;
-* gate verdict;
-* required three sentences/fields;
-* `what_i_found`.
+The old robotic aesthetic is gone.
 
-Draft `what_i_found` around the actual shipped differentiator, not marketing exaggeration.
+The player car looks intentionally designed.
 
-Starting direction:
+All three rivals are visually and behaviourally recognisable.
 
-> ROAD//ZERO turns track generation into the racing mechanic itself: the road physically assembles seconds ahead of the racers, while SAFE/REDLINE route choices determine the challenge and reward the player is about to face.
+Driving is immediately enjoyable.
 
-Revise this based on what actually ships and on current competing entries.
+The camera feels good at speed.
 
----
+The championship works from beginning to end.
 
-# 43. OFFICIAL JAM GATE
+The result screen works.
 
-Before considering the project submission-ready:
+Mobile controls work with real touch events.
 
-1. produce a production build;
-2. deploy to the intended live URL;
-3. identify the exact commit SHA;
-4. run the current official jam gate exactly as documented;
-5. preserve the unedited verdict;
-6. fix every failure;
-7. rerun;
-8. confirm the live URL still points to the tested commit;
-9. verify manually on phone-sized viewport;
-10. verify real touch interaction.
+The game runs without console errors.
 
-Do not fake, edit, sanitize, or manually manufacture a passing verdict.
+The game runs without missing assets.
 
-The official organizers will rerun it.
+Track boundaries are readable.
 
----
+The world feels inhabited.
 
-# 44. FINAL PERFORMANCE PASS
+The road/environment do not look like placeholder geometry.
 
-Before final sign-off, inspect:
+Lighting creates depth.
 
-* total transferred bytes;
-* draw calls;
-* triangles;
-* frame pacing;
-* FPS;
-* memory growth over a long RUN;
-* object counts;
-* shader/material count;
-* network requests;
-* console;
-* mobile viewport.
+Motion frames still look good.
 
-Look especially for leaks caused by endless/dynamic track recycling.
+At least three meaningful critic rounds have been completed.
 
-RUN should not continually accumulate abandoned objects.
+The custom racing gate passes.
 
-Dispose/reuse Three.js resources correctly.
+The official shipping checks pass.
+
+The deployed URL works.
+
+The official jam gate passes.
 
 ---
 
-# 45. FINAL GAMEPLAY PASS
+# 50. FINAL OFFICIAL VALIDATION
 
-Play the game like a judge.
+Before finalising:
 
-Do not debug while playing.
+Run appropriate asset verification.
 
-Ask:
+Run the custom racing gameplay test.
 
-* Do I understand it immediately?
-* Does the car feel good?
-* Does road construction impress me?
-* Do I intentionally choose REDLINE?
-* Does RUN make me want another attempt?
-* Are four environments meaningfully different?
-* Does Championship feel competitive?
-* Are AI opponents believable enough?
-* Does the final Orbital race feel climactic?
-* Is restarting painless?
-* Is anything obviously unfinished?
+Run the recipe shipping check.
 
-Fix the largest remaining issue rather than adding another feature.
+Use stamping where instructed by the recipe.
 
----
+Deploy the real game.
 
-# 46. FINAL VISUAL PASS
+Then test THE DEPLOYED URL rather than trusting localhost.
 
-Capture gameplay in motion from:
+Run the official live/mobile verification.
 
-* first 15 seconds;
-* Neon District;
-* Canyon jump;
-* Skyline;
-* Orbital;
-* REDLINE split;
-* four-car race;
-* championship climax.
+Finally run the official jam gate against the deployed URL and the actual submission commit.
 
-Judge those frames without relying on explanations.
+Do not paste an invented verdict.
 
-The game must visually communicate:
-
-speed,
-road construction,
-racing,
-risk,
-cohesion,
-finish.
-
-If parked screenshots look great but driving screenshots look weak, the game is not finished.
+Use the real verdict exactly as produced.
 
 ---
 
-# 47. DEFINITION OF DONE
+# 51. FINAL REPORT BACK TO ME
 
-ROAD//ZERO is done only when:
+When everything is finished, give me a concise but complete report containing:
 
-* the game is genuinely playable;
-* RUN works end-to-end;
-* all four environment phases work;
-* road construction is visually obvious and mechanically stable;
-* SAFE/REDLINE choices matter;
-* steering feels good;
-* drift feels good;
-* mobile controls work;
-* restart works;
-* production has no console errors or 404s;
-* performance is safely within current jam limits;
-* official jam gate passes;
-* documentation reflects reality;
-* asset provenance is complete;
-* repo history demonstrates actual development;
-* moving gameplay looks intentionally finished.
+### A. Audit
 
-If Championship ships, additionally require:
+What was wrong with the original version.
 
-* all three AI racers reliably complete races;
-* all four championship races work;
-* route branching works for AI;
-* race position is accurate enough;
-* points/standings work;
-* final championship result works.
+### B. Visual overhaul
 
-Do not label unfinished functionality as complete.
+Which assets/environment systems were replaced and why.
 
----
+### C. 404 asset process
 
-# 48. DEVELOPMENT BEHAVIOR
+Which important assets used references, three candidates, verification and final selection.
 
-Work autonomously.
+### D. Gameplay
 
-Do not stop after every small change to ask for permission.
+What changed in handling, camera, collisions and racing.
 
-Do not repeatedly ask questions whose answers can be derived from:
+### E. Rivals
 
-* this file;
-* official 404 documentation;
-* repository state;
-* standard engineering judgment.
+Explain precisely how Charger, Technician and Defender differ in code and actual behaviour.
 
-When uncertain:
+### F. Championship
 
-1. inspect the relevant source/rules;
-2. choose the safest compliant implementation;
-3. document important assumptions;
-4. proceed.
+Race structure, points and progression.
 
-Ask the human only when:
+### G. Mobile
 
-* a required credential/token is unavailable;
-* a decision cannot safely be reversed;
-* external paid action is required;
-* deployment/account authorization is required;
-* the official rules are genuinely ambiguous in a way that could risk disqualification.
+What was tested with real touch.
 
-Do not hide failures.
+### H. Critic rounds
 
-If something is blocked, report:
+What each critic rejected and what changed as a result.
 
-* exact blocker;
-* evidence;
-* attempted fixes;
-* safest next action.
+### I. Performance
+
+Final load size, draw calls, triangle count and FPS observations.
+
+### J. Tests
+
+Every automated/manual test run and its result.
+
+### K. Jam compliance
+
+Results of ship/live/jam validation.
+
+### L. Remaining limitations
+
+State anything still imperfect instead of hiding it.
 
 ---
 
-# 49. QUALITY BAR
+# FINAL DIRECTIVE
 
-Do not confuse:
+Do not make another generic AI racing demo.
 
-"implemented"
+Make a small but convincing finished racing game.
 
-with
+Quality beats quantity.
 
-"finished."
+Gameplay comes first.
 
-A feature is finished when:
+Cars come second.
 
-* it works;
-* it feels good;
-* it looks intentional;
-* it works on target inputs;
-* it survives testing;
-* it does not violate performance budgets;
-* it integrates with the rest of the game.
+Visual composition comes third.
 
-Prefer one exceptional mechanic over five mediocre mechanics.
+Then polish everything around them.
 
-ROAD//ZERO's exceptional mechanic is:
+The player's first reaction should NOT be:
 
-> racing on a world that is physically being constructed immediately ahead of you.
+"This looks AI-generated."
 
-Protect that mechanic above everything except jam validity.
+It should be:
 
----
+"This actually feels like a little racing game."
 
-# 50. START NOW
+The strongest identity of the project is the persistent-rival championship:
 
-Begin by:
+four cars,
+three recurring opponents,
+three recognisable racing personalities,
+three races,
+one championship.
 
-1. inspecting the repository;
-2. locating/reading the current official 404 documentation;
-3. verifying the project is separate from the recipe repository;
-4. running the recipe self-test where applicable;
-5. creating `docs/BUILD_PLAN.md`;
-6. creating `STYLE_LOCK.md`;
-7. creating the asset/provenance/iteration documentation skeleton;
-8. establishing the minimum game architecture;
-9. building a deliberately simple baseline/floor version;
-10. capturing the baseline;
-11. implementing the minimum playable car controller;
-12. validating desktop AND touch input;
-13. building the first compliant road/car assets through the 404 process;
-14. creating the modular track engine;
-15. implementing visible road assembly;
-16. producing the first playable Neon District RUN slice.
+The player should finish the game knowing how each opponent drives.
 
-The first major milestone is:
+Preserve anything from the existing build that genuinely helps achieve that.
 
-> On both desktop and a phone-sized touch viewport, the player can tap to start, drive a visually compliant 404-generated car down a compliant modular track, steer reliably, see road modules physically assemble ahead, encounter a SAFE/REDLINE split, choose a route, crash/fall, and restart without refreshing the page.
+Replace everything that does not.
 
-Do not proceed deeply into Championship until that milestone is genuinely fun and stable.
+https://github.com/404-Repo/404-game-recipe
 
-After reaching it, continue through this document until the game is submission-ready.
+Now read the existing repository, read the official 404 recipe documents, audit the current game, write `RESCUE_AUDIT.md` and `STYLE_LOCK.md`, and then execute the overhaul end-to-end without stopping after the first acceptable-looking pass.
