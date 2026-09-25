@@ -65,11 +65,21 @@ app.innerHTML = `
   <div id="notice"></div>
 </div>
 <div id="touch" class="hidden">
-  <div id="steerPad"><span id="steerKnob"></span></div>
+  <div class="steering-controls">
+    <div id="steerPad" aria-label="Analog steering"><span id="steerKnob"></span></div>
+    <div id="directionPad" class="hidden" aria-label="Directional driving controls">
+      <button type="button" id="directionUp" aria-label="Accelerate">▲</button>
+      <button type="button" id="directionLeft" aria-label="Steer left">◀</button>
+      <span class="direction-center" aria-hidden="true"></span>
+      <button type="button" id="directionRight" aria-label="Steer right">▶</button>
+      <button type="button" id="directionDown" aria-label="Brake or reverse">▼</button>
+    </div>
+    <button type="button" id="steerMode" aria-pressed="false" aria-controls="steerPad directionPad" aria-label="Switch to directional controls">USE ARROWS</button>
+  </div>
   <div class="pedals">
-    <button id="brake">BRAKE</button>
-    <button id="throttle">GO</button>
-    <button id="handbrake">SLIP</button>
+    <button type="button" id="brake">BRAKE</button>
+    <button type="button" id="throttle">GO</button>
+    <button type="button" id="handbrake">SLIP</button>
   </div>
 </div>
 <section id="results" class="screen hidden">
@@ -410,6 +420,10 @@ let touchSteer = 0;
 let touchThrottle = 0;
 let touchBrake = 0;
 let touchHandbrake = false;
+let directionLeft = false;
+let directionRight = false;
+let directionUp = false;
+let directionDown = false;
 
 const freshStandings = () =>
   ['PLAYER', 'CHARGER', 'TECHNICIAN', 'DEFENDER'].map(id => ({
@@ -628,12 +642,12 @@ function update(dt: number) {
     return;
   }
 
-  const throttle = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) || touchThrottle;
-  const brake = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) || touchBrake;
+  const throttle = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) || touchThrottle || (directionUp ? 1 : 0);
+  const brake = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) || touchBrake || (directionDown ? 1 : 0);
   const steer =
     (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
     (keys.has('KeyD') || keys.has('ArrowRight') ? -1 : 0) -
-    touchSteer;
+    touchSteer + (directionLeft ? 1 : 0) - (directionRight ? 1 : 0);
   const handbrake = keys.has('Space') || touchHandbrake;
 
   const before = nearestTrack(playerCar.position);
@@ -835,8 +849,55 @@ addEventListener('keyup', e => keys.delete(e.code));
 // Touch Steering & Pedal Controls
 const pad = $<HTMLElement>('#steerPad');
 const knob = $<HTMLElement>('#steerKnob');
+const directionPad = $<HTMLElement>('#directionPad');
+const steerMode = $<HTMLButtonElement>('#steerMode');
+
+function clearSteering() {
+  touchSteer = 0;
+  directionLeft = false;
+  directionRight = false;
+  directionUp = false;
+  directionDown = false;
+  knob.style.transform = '';
+  directionPad.querySelectorAll('button').forEach(button => button.classList.remove('pressed'));
+}
+
+steerMode.addEventListener('click', () => {
+  clearSteering();
+  const arrowsActive = steerMode.getAttribute('aria-pressed') !== 'true';
+  steerMode.setAttribute('aria-pressed', String(arrowsActive));
+  steerMode.setAttribute('aria-label', arrowsActive ? 'Switch to analog steering' : 'Switch to directional controls');
+  steerMode.textContent = arrowsActive ? 'USE ANALOG' : 'USE ARROWS';
+  pad.classList.toggle('hidden', arrowsActive);
+  directionPad.classList.toggle('hidden', !arrowsActive);
+});
+
+for (const [id, setPressed] of [
+  ['directionLeft', (pressed: boolean) => (directionLeft = pressed)],
+  ['directionRight', (pressed: boolean) => (directionRight = pressed)],
+  ['directionUp', (pressed: boolean) => (directionUp = pressed)],
+  ['directionDown', (pressed: boolean) => (directionDown = pressed)],
+] as const) {
+  const button = $<HTMLButtonElement>(`#${id}`);
+  button.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    void raceAudio.unlock();
+    button.setPointerCapture(e.pointerId);
+    setPressed(true);
+    button.classList.add('pressed');
+  });
+  const release = () => {
+    setPressed(false);
+    button.classList.remove('pressed');
+  };
+  button.addEventListener('pointerup', release);
+  button.addEventListener('pointercancel', release);
+  button.addEventListener('lostpointercapture', release);
+}
+$<HTMLElement>('#touch').addEventListener('contextmenu', e => e.preventDefault());
 
 function steerTouch(e: PointerEvent) {
+  if (steerMode.getAttribute('aria-pressed') === 'true') return;
   const r = pad.getBoundingClientRect();
   touchSteer = THREE.MathUtils.clamp((e.clientX - r.left - r.width / 2) / (r.width * 0.38), -1, 1);
   knob.style.transform = `translateX(${touchSteer * 38}px)`;
@@ -850,10 +911,13 @@ pad.addEventListener('pointerdown', e => {
 pad.addEventListener('pointermove', e => {
   if (pad.hasPointerCapture(e.pointerId)) steerTouch(e);
 });
-pad.addEventListener('pointerup', () => {
+const releaseAnalog = () => {
   touchSteer = 0;
   knob.style.transform = '';
-});
+};
+pad.addEventListener('pointerup', releaseAnalog);
+pad.addEventListener('pointercancel', releaseAnalog);
+pad.addEventListener('lostpointercapture', releaseAnalog);
 
 for (const [id, set] of [
   ['throttle', (v: number) => (touchThrottle = v)],
@@ -868,6 +932,7 @@ for (const [id, set] of [
   });
   el.addEventListener('pointerup', () => set(0));
   el.addEventListener('pointercancel', () => set(0));
+  el.addEventListener('lostpointercapture', () => set(0));
 }
 
 function frame(now: number) {

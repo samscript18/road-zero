@@ -6,7 +6,7 @@ canvas{display:block;width:100%;height:100%}
 /* Filmic warm golden hour vignette */
 #app::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:3;box-shadow:inset 0 0 120px rgba(45,30,16,.42),inset 0 0 45px rgba(200,104,69,.12)}
 
-button{font:800 13px/1 inherit;letter-spacing:.12em;border:0;background:#353a3b;color:#efe1c6;padding:17px 20px;cursor:pointer;box-shadow:4px 4px 0 #79533f;text-align:left}
+button{font:800 13px/1 inherit;letter-spacing:.12em;border:0;background:#353a3b;color:#efe1c6;padding:17px 20px;cursor:pointer;box-shadow:4px 4px 0 #79533f;text-align:left;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 button:hover,button:focus-visible{translate:2px 2px;box-shadow:2px 2px 0 #79533f;outline:2px solid #efe1c6}
 .primary{background:#c86845;color:#fff}
 .screen{position:fixed;inset:0;z-index:10;display:grid;align-items:center;padding:max(28px,env(safe-area-inset-top)) max(28px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(28px,env(safe-area-inset-left));background:linear-gradient(90deg,rgba(53,58,59,.88) 0 38%,rgba(53,58,59,.18) 74%)}
@@ -77,13 +77,25 @@ h3{font:800 11px system-ui,sans-serif;letter-spacing:.2em;margin:24px 0 8px;colo
 #tacho .rpm-num{font:900 21px/1 inherit;color:#353a3b;margin-top:24px}
 #tacho small{font:800 8px system-ui,sans-serif;letter-spacing:.14em;color:#79533f}
 
-#touch{position:fixed;z-index:6;inset:auto 0 max(16px,env(safe-area-inset-bottom)) 0;height:132px;pointer-events:none}
-#steerPad{pointer-events:auto;position:absolute;left:max(18px,env(safe-area-inset-left));bottom:0;width:125px;height:125px;border:3px solid rgba(239,225,198,.8);border-radius:50%;background:rgba(53,58,59,.45)}
-#steerKnob{position:absolute;width:45px;height:45px;left:37px;top:37px;border-radius:50%;background:#efe1c6;box-shadow:3px 3px 0 #79533f}
+#touch{position:fixed;z-index:6;inset:auto 0 max(16px,env(safe-area-inset-bottom)) 0;height:184px;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#touch button,#steerPad{touch-action:none}
+.steering-controls{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:0;width:140px;display:grid;justify-items:center;gap:7px;pointer-events:auto}
+#steerPad{pointer-events:auto;position:relative;width:140px;height:140px;border:3px solid rgba(239,225,198,.86);border-radius:50%;background:radial-gradient(circle,rgba(83,105,76,.48) 0 38%,rgba(53,58,59,.68) 39% 100%);box-shadow:inset 0 0 0 3px rgba(53,58,59,.45),3px 3px 0 rgba(53,58,59,.45)}
+#steerPad::before,#steerPad::after{content:'';position:absolute;top:50%;width:15px;height:2px;background:#efe1c6;opacity:.8}
+#steerPad::before{left:12px}#steerPad::after{right:12px}
+#steerKnob{position:absolute;width:46px;height:46px;left:calc(50% - 23px);top:calc(50% - 23px);border-radius:50%;background:#efe1c6;border:3px solid #c86845;box-shadow:3px 3px 0 #79533f;pointer-events:none}
+#directionPad{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;pointer-events:auto}
+#directionPad button{width:44px;height:44px;padding:0;display:grid;place-items:center;text-align:center;border:2px solid #efe1c6;border-radius:7px;background:rgba(53,58,59,.86);color:#efe1c6;box-shadow:2px 2px 0 #79533f;font:900 18px/1 system-ui,sans-serif}
+#directionPad button.pressed,#directionPad button:active{background:#c86845;color:#fff;translate:2px 2px;box-shadow:none}
+#directionUp{grid-column:2;grid-row:1}#directionLeft{grid-column:1;grid-row:2}#directionRight{grid-column:3;grid-row:2}#directionDown{grid-column:2;grid-row:3}
+.direction-center{grid-column:2;grid-row:2;align-self:center;justify-self:center;width:19px;height:19px;border:3px solid rgba(239,225,198,.72);border-radius:50%;background:#c86845}
+#steerMode{width:140px;min-height:31px;padding:7px 5px;border:1px solid rgba(239,225,198,.8);border-radius:3px;background:rgba(53,58,59,.87);box-shadow:2px 2px 0 #79533f;color:#efe1c6;text-align:center;font:900 10px/1 system-ui,sans-serif;letter-spacing:.1em}
+#steerMode:active{translate:2px 2px;box-shadow:none}
 .pedals{pointer-events:auto;position:absolute;right:max(18px,env(safe-area-inset-right));bottom:0;display:grid;grid-template-columns:74px 88px;gap:8px;align-items:end}
 .pedals button{pointer-events:auto;padding:0;text-align:center;border-radius:50%;width:74px;height:74px;box-shadow:3px 3px 0 #79533f}
 .pedals #throttle{width:88px;height:88px;background:#c86845;grid-row:1/3;grid-column:2}
 .pedals #handbrake{height:45px;border-radius:4px;font-size:10px}
+#touch .pedals button:active{translate:2px 2px;box-shadow:1px 1px 0 #79533f}
 
 .results-card{max-height:88vh;overflow:auto}
 #raceOrder>div,#standings>div{display:grid;grid-template-columns:32px 1fr auto;align-items:center;border-top:1px solid #b8a98e;padding:8px 4px;font-family:system-ui,sans-serif}
@@ -110,13 +122,16 @@ h3{font:800 11px system-ui,sans-serif;letter-spacing:.2em;margin:24px 0 8px;colo
   #menu .keys{display:none}
   .plate{min-width:82px;padding:8px 10px}
   .plate b{font-size:23px}
-  #raceLabel{bottom:150px}
+  #raceLabel{bottom:202px}
   #tacho{display:none}
   .results-card{max-height:94vh}
 }
 @media(orientation:portrait) and (pointer:coarse){
   #menu h1{font-size:clamp(58px,15vw,82px)}
   .card{width:100%}
+}
+@media(pointer:coarse){
+  #raceLabel{bottom:calc(202px + env(safe-area-inset-bottom))}
 }
 @media(max-height:520px) and (min-width:701px){
   #menu .hero{width:min(390px,46vw);max-height:calc(100dvh - 28px);padding:15px 20px}
