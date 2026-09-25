@@ -6,11 +6,15 @@ import createFestivalEnvironment from './assets/festival_environment.js';
 import { ParticleEngine } from './particles';
 import { RaceAudio } from './audio';
 import { bakeStatic } from './assetlib.js';
-import { awardRace, nearestTrackXZ, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
+import { awardRace, mapAnalogControl, nearestTrackXZ, rankedStandings, RACES, RIVAL_TUNING, stepCar, type CarState, type RivalId, type Standing } from './race';
 import './styles.css';
 
 const $ = <T extends Element>(q: string) => document.querySelector<T>(q)!;
 const app = $<HTMLDivElement>('#app');
+
+for (const eventName of ['selectstart', 'copy', 'contextmenu']) {
+  app.addEventListener(eventName, event => event.preventDefault());
+}
 
 app.innerHTML = `
 <main id="menu" class="screen">
@@ -66,7 +70,7 @@ app.innerHTML = `
 </div>
 <div id="touch" class="hidden">
   <div class="steering-controls">
-    <div id="steerPad" aria-label="Analog steering"><span id="steerKnob"></span></div>
+    <div id="steerPad" aria-label="Analog steering; push up to accelerate and down to reverse"><span id="steerKnob"></span></div>
     <div id="directionPad" class="hidden" aria-label="Directional driving controls">
       <button type="button" id="directionUp" aria-label="Accelerate">▲</button>
       <button type="button" id="directionLeft" aria-label="Steer left">◀</button>
@@ -82,6 +86,7 @@ app.innerHTML = `
     <button type="button" id="handbrake">SLIP</button>
   </div>
 </div>
+<button type="button" id="fullscreenButton" class="hidden" aria-label="Enter full screen">FULL SCREEN</button>
 <section id="results" class="screen hidden">
   <div class="card results-card">
     <p id="resultKicker" class="kicker"></p>
@@ -93,6 +98,54 @@ app.innerHTML = `
     <button id="menuButton">MAIN MENU</button>
   </div>
 </section>`;
+
+const fullscreenButton = $<HTMLButtonElement>('#fullscreenButton');
+let fullscreenRequestPending = false;
+
+function isTouchDevice() {
+  return matchMedia('(any-pointer:coarse)').matches || navigator.maxTouchPoints > 0;
+}
+
+function isLandscapeTouch() {
+  return innerWidth > innerHeight && isTouchDevice();
+}
+
+function fullscreenAvailable() {
+  const standalone = matchMedia('(display-mode: standalone)').matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return !standalone && document.fullscreenEnabled !== false &&
+    typeof document.documentElement.requestFullscreen === 'function';
+}
+
+function syncFullscreenButton() {
+  fullscreenButton.classList.toggle('hidden', !isLandscapeTouch() || !fullscreenAvailable() || !!document.fullscreenElement);
+}
+
+function requestLandscapeFullscreen() {
+  if (!isLandscapeTouch() || !fullscreenAvailable() || document.fullscreenElement || fullscreenRequestPending) return;
+  fullscreenRequestPending = true;
+  try {
+    void Promise.resolve(document.documentElement.requestFullscreen())
+      .catch(() => {})
+      .finally(() => {
+        fullscreenRequestPending = false;
+        syncFullscreenButton();
+      });
+  } catch {
+    fullscreenRequestPending = false;
+    syncFullscreenButton();
+  }
+}
+
+fullscreenButton.addEventListener('click', requestLandscapeFullscreen);
+app.classList.toggle('touch-device', isTouchDevice());
+document.addEventListener('fullscreenchange', syncFullscreenButton);
+addEventListener('resize', syncFullscreenButton);
+addEventListener('orientationchange', syncFullscreenButton);
+addEventListener('pointerdown', () => {
+  if (racing) requestLandscapeFullscreen();
+});
+syncFullscreenButton();
 
 // --- Renderer & WebGL Setup ---
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -417,6 +470,7 @@ let lastCountdownNumber = 4;
 
 const keys = new Set<string>();
 let touchSteer = 0;
+let touchDrive = 0;
 let touchThrottle = 0;
 let touchBrake = 0;
 let touchHandbrake = false;
@@ -506,6 +560,7 @@ function updateCameraPosition(dt: number, isCountdown = false) {
 
 function resetRace() {
   void raceAudio.unlock();
+  requestLandscapeFullscreen();
   buildTrack(raceIndex);
   raceClock = 0;
   countdown = 3.7;
@@ -516,7 +571,7 @@ function resetRace() {
   $('#preRace').classList.add('hidden');
   $('#results').classList.add('hidden');
   $('#hud').classList.remove('hidden');
-  $('#touch').classList.toggle('hidden', !matchMedia('(pointer:coarse)').matches);
+  $('#touch').classList.toggle('hidden', !isTouchDevice());
 
   racers = [
     { id: 'PLAYER', car: playerCar, progress: 0.005, checkpoint: 0, lap: 1, speed: 0, lane: -1.35, finished: false, finishTime: 0 },
@@ -642,8 +697,8 @@ function update(dt: number) {
     return;
   }
 
-  const throttle = (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) || touchThrottle || (directionUp ? 1 : 0);
-  const brake = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) || touchBrake || (directionDown ? 1 : 0);
+  const throttle = Math.max(keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0, touchThrottle, directionUp ? 1 : 0, touchDrive);
+  const brake = Math.max(keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0, touchBrake, directionDown ? 1 : 0, -touchDrive);
   const steer =
     (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0) +
     (keys.has('KeyD') || keys.has('ArrowRight') ? -1 : 0) -
@@ -854,6 +909,7 @@ const steerMode = $<HTMLButtonElement>('#steerMode');
 
 function clearSteering() {
   touchSteer = 0;
+  touchDrive = 0;
   directionLeft = false;
   directionRight = false;
   directionUp = false;
@@ -899,8 +955,10 @@ $<HTMLElement>('#touch').addEventListener('contextmenu', e => e.preventDefault()
 function steerTouch(e: PointerEvent) {
   if (steerMode.getAttribute('aria-pressed') === 'true') return;
   const r = pad.getBoundingClientRect();
-  touchSteer = THREE.MathUtils.clamp((e.clientX - r.left - r.width / 2) / (r.width * 0.38), -1, 1);
-  knob.style.transform = `translateX(${touchSteer * 38}px)`;
+  const analog = mapAnalogControl(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2, r.width * 0.38);
+  touchSteer = analog.steer;
+  touchDrive = analog.drive;
+  knob.style.transform = `translate(${touchSteer * 38}px, ${-touchDrive * 38}px)`;
 }
 
 pad.addEventListener('pointerdown', e => {
@@ -913,6 +971,7 @@ pad.addEventListener('pointermove', e => {
 });
 const releaseAnalog = () => {
   touchSteer = 0;
+  touchDrive = 0;
   knob.style.transform = '';
 };
 pad.addEventListener('pointerup', releaseAnalog);

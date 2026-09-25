@@ -88,6 +88,14 @@ export function rankedStandings(standings: Standing[]): Standing[] {
 export type CarInput = { throttle: number; brake: number; steer: number; handbrake: boolean };
 export type CarState = { speed: number; heading: number; slip: number; steerAngle: number; x: number; z: number; offroad: boolean };
 
+export function mapAnalogControl(offsetX: number, offsetY: number, travel: number) {
+  const radius = Math.max(1, travel);
+  const steer = Math.max(-1, Math.min(1, offsetX / radius));
+  const vertical = Math.max(-1, Math.min(1, -offsetY / radius));
+  const drive = Math.abs(vertical) < 0.18 ? 0 : Math.sign(vertical) * Math.min(1, (Math.abs(vertical) - 0.18) / 0.82);
+  return { steer, drive };
+}
+
 export function nearestTrackXZ(pos: { x: number; z: number }, samples: ReadonlyArray<{ x: number; z: number }>) {
   let best = Infinity;
   let idx = 0;

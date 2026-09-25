@@ -1,1731 +1,2314 @@
-# 404 GAME JAM RACER — COMPLETE RESCUE, VISUAL OVERHAUL & FINALIZATION DIRECTIVE
+# ROAD ZERO — RACE TOGETHER MULTIPLAYER EXPANSION
 
-You are taking over an EXISTING 404 Game Jam racing project.
+You are extending an EXISTING, WORKING racing game.
 
-The project is already substantially implemented, but the current result is NOT acceptable.
+The existing game already contains:
 
-The previous implementation feels generic, synthetic and overly robotic. The visual design looks like an AI-generated prototype rather than a deliberately art-directed game. The environment, cars, lighting, UI, materials and overall composition lack a cohesive identity.
+- single-player championship,
+- quick race,
+- three AI rivals,
+- multiple tracks,
+- lap/checkpoint validation,
+- race countdown,
+- results screens,
+- desktop controls,
+- mobile/touch controls,
+- existing 404 Game Jam compliance,
+- existing visual/audio systems,
+- existing local validation and tests.
 
-Your job is NOT to blindly add more features on top of the current version.
+DO NOT rebuild the existing game.
 
-Your job is to:
+DO NOT destabilize working single-player systems.
 
-1. audit the existing game,
-2. preserve what works,
-3. identify why it currently feels generic/robotic,
-4. establish a completely new cohesive art direction,
-5. rebuild weak visual assets correctly through the 404 recipe,
-6. substantially improve driving feel,
-7. implement/refine the three distinct AI rivals,
-8. finish the championship structure,
-9. improve presentation and game feel,
-10. create proper visual and gameplay validation loops,
-11. pass the official 404 jam requirements,
-12. leave strong build receipts showing the iteration process.
+The goal is to add a new multiplayer mode called:
 
-This is an overhaul of an existing build, not a superficial polish pass.
+# RACE TOGETHER
 
-Do not declare the project finished simply because it runs.
+The mode allows players in different locations to create a private race, invite friends through a link or room code, wait for the selected number of racers, complete a ready check, load the race together, compete against real human-controlled cars, and optionally communicate through live voice chat.
 
-The finished game should feel like somebody deliberately designed a racing game rather than an agent assembled one.
+This work MUST be completed in THREE SEPARATE PHASES.
 
----
+Do not begin Phase 2 until Phase 1 passes its acceptance tests.
 
-# 0. READ THE OFFICIAL MATERIAL BEFORE TOUCHING THE GAME
+Do not begin Phase 3 until Phase 2 passes its acceptance tests.
 
-Before editing the project, locate/read the latest versions of:
+The phases are:
 
-* `GAME.md`
-* `404.md`
-* `docs/style-lock.md`
-* `docs/traps.md`
-* `docs/gates.md`
-* `docs/claims.md`
-* `docs/concept-images.md`
-* `docs/asset-contract.md`
-* the official 404 Game Jam README/rules
-* relevant harness files
+1. Lobby / invite link / room code / player profiles / ready synchronization
+2. Real human multiplayer racing
+3. Live multiplayer voice chat
 
-Do not rely on assumptions from this AGENTS.md if the official repository gives a stricter technical requirement.
-
-The hard jam requirements take priority.
-
-Remember in particular:
-
-Every actual 3D object must remain compliant with the 404 recipe.
-
-No downloaded meshes.
-
-No asset-store models.
-
-No GLB/GLTF models.
-
-No hand-modelled binary meshes.
-
-No literal vertex-array smuggling.
-
-No base64 mesh data.
-
-No copied assets or copied game code from 404's Drive racer or any other reference game.
-
-Reference games may be studied for lessons only.
-
-The existing repository history must be preserved. Do not squash everything into a fake single build.
+Preserve the working single-player game throughout all three phases.
 
 ---
 
-# 1. DO NOT START BY CODING
+# GLOBAL RULES
 
-The first task is an audit.
+Before changing code:
 
-Run the current game and play it properly on both desktop and a phone-sized viewport.
-
-Capture screenshots while:
-
-* sitting on the starting grid,
-* accelerating,
-* cornering,
-* following another racer,
-* overtaking,
-* entering a visually dense part of the circuit,
-* finishing a race,
-* viewing menus/results/championship screens.
-
-Inspect the current source tree and determine what is already working.
+1. Read the entire repository.
+2. Read the existing `AGENTS.md` instructions and all relevant game documentation.
+3. Run the existing tests.
+4. Run the current game.
+5. Understand the existing race state machine, track system, car controller, checkpoint system, championship system and UI.
+6. Create a baseline receipt before modifying multiplayer-related code.
 
 Create:
 
-`docs/RESCUE_AUDIT.md`
-
-Document:
-
-### KEEP
-
-Existing systems that are structurally good enough to preserve.
-
-For example:
-
-* race state machine,
-* checkpoint logic,
-* lap counting,
-* input system,
-* AI navigation,
-* collision system,
-* championship data model,
-* deployment setup,
-* telemetry,
-* existing compliant assets that genuinely look good.
-
-### REWORK
-
-Things that basically work but need meaningful improvement.
-
-### REPLACE
-
-Anything causing the generic/robotic result.
-
-Pay particular attention to:
-
-* blocky vehicles,
-* box-like buildings,
-* metallic grey materials everywhere,
-* excessive emissive lighting,
-* cyan/purple sci-fi lighting,
-* neon outlines,
-* sterile environments,
-* repeated procedural boxes,
-* perfectly symmetrical scenery,
-* empty track edges,
-* generic HUD panels,
-* robotic-looking spectators,
-* unrealistic object proportions,
-* weak road material,
-* flat lighting,
-* no visual hierarchy,
-* camera that feels detached from the car,
-* scenery that does not establish a real place.
-
-Do not preserve weak work just because it already exists.
-
----
-
-# 2. CREATE A CHECKPOINT BEFORE THE OVERHAUL
-
-Before major destructive changes, make sure the repository is in a known working state.
+`docs/multiplayer/MULTIPLAYER_BASELINE.md`
 
 Record:
 
-* current commit,
-* current screenshots,
-* current gate/test status,
-* current performance,
-* current deployment status if deployed.
+- current commit SHA,
+- current single-player test status,
+- current build status,
+- important architecture,
+- existing race lifecycle,
+- relevant files/modules,
+- current multiplayer-related dependencies if any.
 
-Do not erase previous build history.
-
-The improvement from bad first version → final version is useful evidence for the jam's build-receipts criterion.
-
----
-
-# 3. NEW ART DIRECTION
-
-The existing robotic visual identity must be discarded.
-
-The new direction is:
-
-## ANALOG HILLSIDE MOTORSPORT FESTIVAL
-
-This is NOT cyberpunk.
-
-This is NOT sci-fi.
-
-This is NOT futuristic.
-
-This is NOT a world filled with robots.
-
-This is NOT neon racing.
-
-This is NOT a metallic industrial simulation.
-
-Imagine a fictional late-1970s/early-1980s grassroots hill-climb championship taking place in a warm mountainous region.
-
-The world should feel:
-
-* handcrafted,
-* sun-warmed,
-* tactile,
-* imperfect,
-* energetic,
-* colourful,
-* inhabited,
-* slightly nostalgic,
-* stylized rather than photorealistic,
-* premium rather than childish.
-
-The visual inspiration is classic analog motorsport photography, vintage hill-climb events, rally paddocks, handmade race barriers, dusty mountain roads, cloth flags, sun-faded structures, spectators sitting around improvised viewing areas and colourful compact racing coupes.
-
-DO NOT copy any real motorsport brand, logo, vehicle or trademark.
-
-Everything remains fictional.
+Do not modify existing working systems without understanding them first.
 
 ---
 
-# 4. CREATE THE STYLE LOCK BEFORE GENERATING ANY NEW ASSET
+# ARCHITECTURAL PRINCIPLES
 
-Create:
+Multiplayer MUST be an additional mode.
 
-`STYLE_LOCK.md`
+Desired top-level game modes:
 
-Every agent or sub-agent creating visual work MUST receive this exact style lock.
+- CHAMPIONSHIP
+- QUICK RACE
+- RACE TOGETHER
+- HOW TO PLAY
 
-Use this core style sentence:
+Single-player systems must continue functioning.
 
-> A warm analog hill-climb motorsport festival rendered as a premium stylized miniature world: rounded compact racing coupes, painted fiberglass and enamel bodywork, sun-faded plaster and timber architecture, dry grass, rock, cloth track furniture, dusty roadside detail, strong silhouettes and golden natural light, with believable proportions and absolutely no sci-fi, cyberpunk, robotic or neon visual language.
+Reuse shared systems where sensible:
 
-Use a tightly controlled palette.
+- track definitions,
+- car visuals,
+- lap/checkpoint logic,
+- race countdown UI,
+- race results UI,
+- controls,
+- camera,
+- audio,
+- environment.
 
-Suggested master palette:
+Do not duplicate large amounts of race logic unnecessarily.
 
-* warm cream: `#EFE1C6`
-* sun-faded orange: `#C86845`
-* ochre: `#D5A23B`
-* forest green: `#53694C`
-* dusty sage: `#849077`
-* faded blue: `#507D92`
-* asphalt charcoal: `#343537`
-* warm stone: `#A88869`
-* earth brown: `#79533F`
-* deep shadow: `#353A3B`
-
-Player-car accent:
-
-`#D74B3F`
-
-Rival accents:
-
-* Rival 1: `#D7A72F`
-* Rival 2: `#3F7390`
-* Rival 3: `#617B4E`
-
-Do not make every material saturated.
-
-Use colour intentionally.
-
-Most environment surfaces should have moderate or high roughness.
-
-Vehicle paint may have controlled gloss.
-
-Glass may reflect.
-
-Chrome should be rare and restrained.
-
-Emissive materials should NOT dominate the visual design.
-
-Brake lamps may emit subtly.
-
-No glowing vehicle outlines.
-
-No cyan holographic UI.
-
-No purple cyberpunk lighting.
-
-No futuristic transparent dashboards.
-
-No sci-fi hexagon motifs.
-
-No random metallic panels.
-
-No robot-like human characters.
+However, multiplayer-specific state must remain isolated enough that it cannot corrupt championship state.
 
 ---
 
-# 5. REAL-WORLD SCALE MUST BE CONSISTENT
+# MULTIPLAYER TERMINOLOGY
 
-Put approximate real sizes in `STYLE_LOCK.md`.
+Use these concepts consistently:
 
-Suggested scale:
+## Player
 
-Compact race coupe:
+A connected human racer.
 
-* width roughly 1.65–1.80 m
-* height roughly 1.25–1.45 m
-* length roughly 3.7–4.2 m
+## Host
 
-Safety barrier:
+The player who creates a room.
 
-* roughly 0.8–1.0 m high
+## Room
 
-Hay bale:
+A private multiplayer race session.
 
-* roughly 0.45 m high
-* roughly 0.9 m long
+## Room Code
 
-Marshal hut:
+A short human-readable code such as:
 
-* roughly 2.3–2.8 m high
+`R7K4XP`
 
-Spectator canopy:
+## Invite Link
 
-* roughly 2.4–3 m high
+A URL that automatically opens/join the corresponding room.
 
-Tree:
+Example:
 
-* roughly 5–9 m depending on variant
+`/race/R7K4XP`
 
-Track:
+## Expected Players
 
-* approximately 7–9 m usable racing width where appropriate
+The exact number of human racers selected by the host.
 
-Everything should look like it belongs to the same physical world.
+## Ready
 
----
+A lobby state explicitly selected by a player.
 
-# 6. BUILD CONCEPT FRAMES BEFORE REBUILDING THE WORLD
+## Loaded
 
-Do NOT immediately start remodelling scenery from text.
+A separate state indicating that a player's race scene has finished loading.
 
-Generate or source several visual references for the intended final look.
-
-Create/reference frames for:
-
-1. starting grid at golden hour,
-2. sweeping uphill corner,
-3. village or paddock section,
-4. rocky mountain section,
-5. close chase-camera racing frame,
-6. four cars battling into a corner.
-
-These are VISUAL TARGETS.
-
-Do not use them as textures.
-
-Use them to judge composition, lighting, density, silhouettes and colour relationships.
-
-Create:
-
-`references/scenes/`
-
-and store the permitted reference/concept material there when appropriate.
-
-If Atlas MCP is connected, it may be used for generating concept frames, visual references, sky/audio/texture material and other permitted files.
-
-If Atlas MCP is not configured, do not block development.
-
-Do not expose, print, commit or hard-code `ATLAS_API_KEY`.
+Ready and Loaded are NOT the same thing.
 
 ---
 
-# 7. TURN THE VISUAL TARGET INTO TESTABLE CLAIMS
-
-Create:
-
-`docs/VISUAL_CLAIMS.md`
-
-Include objective visual statements such as:
-
-* The player's car is immediately recognisable as the visual hero.
-* At normal chase distance, the player's vehicle occupies enough screen space to read its body shape and wheels clearly.
-* Cars must not look like boxes with wheels attached.
-* Vehicle wheel arches, cabin, bonnet/hood, body volume and rear mass must read as intentional separate forms.
-* There must always be foreground, midground and background depth during normal racing.
-* Track boundaries must remain readable at racing speed.
-* The road must not blend into the environment.
-* Every major gameplay frame should contain both warm and cool colour relationships rather than flat single-temperature lighting.
-* No major gameplay frame should read as a grey metallic environment.
-* No scene should resemble a robotics laboratory, futuristic warehouse or cyberpunk track.
-* The world should contain deliberate asymmetry.
-* Important corners should have recognisable landmark silhouettes.
-* The background must not be empty sky plus flat ground.
-* Trackside scenery must visibly respond to the road and terrain instead of being randomly scattered.
-* Cars must remain readable in shadow.
-* Racing frames must look good while moving, not only when parked.
-* AI cars must be distinguishable from one another without relying solely on HUD labels.
-* The HUD should feel like analog motorsport graphic design rather than a sci-fi interface.
-
-A critic must be able to reject a visual round if these claims fail.
-
----
-
-# 8. REBUILD HERO ASSETS USING THE ACTUAL 404 RECIPE
-
-Do not invent important assets from descriptions.
-
-For every significant asset:
-
-1. obtain/create an appropriate reference image,
-2. generate THREE genuinely independent geometry approaches,
-3. run the official asset verifier,
-4. inspect multiple views,
-5. select the strongest candidate BY EYE,
-6. reject all candidates if none are good enough,
-7. regenerate when necessary.
-
-Do not simply make version A and then slightly modify it twice.
-
-Use different construction strategies.
-
-Important assets that deserve this process include at minimum:
-
-* player race car,
-* Rival 1 car,
-* Rival 2 car,
-* Rival 3 car,
-* marshal hut,
-* track barrier system,
-* hay bale / soft barrier,
-* spectator canopy,
-* roadside tree,
-* rock formation,
-* paddock structure,
-* village/building module if used,
-* distinctive track landmark.
-
-Cars are the most important visual assets in the entire game.
-
-Spend disproportionate effort on them.
-
----
-
-# 9. VEHICLES MUST NOT LOOK LIKE ROBOTS
-
-This is a hard artistic requirement.
-
-The old version's robotic/AI aesthetic must not survive.
-
-Each vehicle needs:
-
-* coherent body volume,
-* rounded or intentionally shaped fenders,
-* convincing wheel placement,
-* clear wheel arches,
-* visible tyres,
-* a readable greenhouse/cabin,
-* windscreen and side glass,
-* front and rear visual identity,
-* believable stance,
-* body-over-wheel proportion,
-* subtle suspension/body movement,
-* appropriate material separation.
-
-Avoid:
-
-* rectangles stacked on rectangles,
-* exposed geometric joints that resemble robot limbs,
-* glowing panels,
-* mechanical face-like fronts,
-* excessive greebling,
-* floating body components,
-* tiny wheels,
-* wheels buried inside boxes,
-* unrealistic cabin height,
-* razor-thin body panels,
-* identical bodies recoloured four times.
-
-The four cars should belong to the same racing category while having recognisable silhouettes.
-
-Do not copy an existing real production car.
-
----
-
-# 10. THE PLAYER CAR
-
-The player car should be a compact, agile hill-climb racing coupe.
-
-It should visually communicate:
-
-* light weight,
-* speed,
-* grip,
-* character.
-
-Use the red player accent from the style lock.
-
-It must be the hero object of the frame.
-
-Make sure its paint responds attractively to light.
-
-Keep the body readable even in shade.
-
-Wheels should rotate correctly.
-
-Front wheels should visibly steer.
-
-If hierarchy is required for moving wheels/parts, preserve hierarchy through the asset loader.
-
-Do not merge away parts that need articulation.
-
----
-
-# 11. THREE RIVALS — NOT THREE GENERIC BOTS
-
-The championship has exactly three major AI rivals in addition to the player.
-
-They are recurring characters expressed primarily through DRIVING BEHAVIOUR.
-
-Do not turn them into humanoid characters.
-
-Do not use talking robots.
-
-Their identity comes from:
-
-* car silhouette,
-* colour,
-* driving style,
-* race behaviour,
-* championship performance.
-
-## RIVAL 1 — THE CHARGER
-
-Character:
-
-Aggressive and exciting.
-
-Behaviour:
-
-* highest willingness to attempt overtakes,
-* brakes later,
-* slightly higher peak pace,
-* accepts smaller gaps,
-* sometimes overshoots,
-* higher error probability,
-* particularly dangerous on straights and heavy braking zones.
-
-The player should learn:
-
-"Don't assume the door will stay closed when the Charger is behind me."
-
----
-
-## RIVAL 2 — THE TECHNICIAN
-
-Character:
-
-Clean and calculated.
-
-Behaviour:
-
-* strongest adherence to optimal line,
-* smooth braking,
-* excellent corner exits,
-* low variance,
-* avoids unnecessary contact,
-* very consistent lap times,
-* difficult to catch once allowed into clean air.
-
-The player should learn:
-
-"I have to disrupt the Technician's rhythm instead of simply waiting for a mistake."
-
----
-
-## RIVAL 3 — THE DEFENDER
-
-Character:
-
-Position-focused.
-
-Behaviour:
-
-* slightly lower ultimate pace,
-* strong awareness of a nearby challenger,
-* chooses defensive line when threatened,
-* makes the player work for overtakes,
-* returns toward the racing line appropriately,
-* should NOT zig-zag unrealistically.
-
-The player should learn:
-
-"I need to set up an overtake rather than dive at the first opening."
-
----
-
-# 12. THE AI DIFFERENCES MUST BE REAL
-
-Do not implement rival personalities as text labels attached to identical AI.
-
-Their behaviour parameters must actually differ.
-
-Possible parameters include:
-
-* preferred racing line,
-* corner-entry speed,
-* brake point offset,
-* acceleration confidence,
-* overtaking threshold,
-* lateral passing offset,
-* defensive line bias,
-* risk tolerance,
-* mistake probability,
-* recovery speed,
-* reaction distance,
-* tyre/grip utilisation abstraction,
-* slip tolerance.
-
-Keep AI fair.
-
-Do not teleport.
-
-Do not rubber-band visibly.
-
-Moderate catch-up assistance is acceptable only if subtle and not enough to erase player skill.
-
-AI should recover safely if stuck.
-
----
-
-# 13. THE CORE "WHAT I FOUND" MECHANIC
-
-The distinctive idea of this game is NOT simply:
-
-"I made a racing game."
-
-It is:
-
-> A championship racer built around three persistent rivals with visibly different racing personalities, where the player learns how each rival behaves across several races and adapts strategy accordingly.
-
-Everything should support this.
-
-The game should create moments where the player thinks:
-
-* "That's the aggressive one."
-* "The blue car always nails this section."
-* "I need to make the defender cover the inside and switch back."
-* "If I pressure the Charger, it may overcommit."
-
-This is how the game becomes memorable.
-
----
-
-# 14. CHAMPIONSHIP STRUCTURE
-
-Create a compact championship that is realistic for a jam game but feels complete.
-
-Target:
-
-3 races.
-
-4 racers total:
-
-* Player
-* Charger
-* Technician
-* Defender
-
-Use a simple persistent points system.
-
-For example:
-
-1st — 10 points
-2nd — 7 points
-3rd — 4 points
-4th — 2 points
-
-Or another sensible distribution.
-
-A tie should have a deterministic tiebreak.
-
-Keep the whole championship short enough that judges can experience meaningful progression within their play session.
-
----
-
-# 15. TRACK STRATEGY
-
-Do NOT build three completely unrelated giant worlds if that damages quality.
-
-Create one cohesive fictional motorsport region and use a shared art kit intelligently.
-
-Three championship races can have different layouts and local identities while sharing core materials/assets.
-
-Suggested identity:
-
-## Race 1 — ORCHARD SPRINT
-
-Opening event.
-
-Flowing.
-
-Accessible.
-
-Dry grass.
-
-Trees.
-
-Timber barriers.
-
-Spectator pockets.
-
-Introduces overtaking and basic rival behaviour.
-
----
-
-## Race 2 — QUARRY LOOP
-
-More technical.
-
-Rock formations.
-
-Elevation.
-
-Tighter braking zones.
-
-Dust.
-
-Stronger opportunities for the Technician to shine.
-
----
-
-## Race 3 — SUMMIT RUN
-
-Championship finale.
-
-Most dramatic elevation.
-
-A mix of flowing and technical sections.
-
-Stronger visual composition.
-
-Big finish-line atmosphere.
-
-Use the most impressive vista and lighting here.
-
-The tracks must remain original and must not copy the 404 Drive reference track.
-
----
-
-# 16. REUSE ASSETS WITHOUT MAKING THE WORLD REPETITIVE
-
-Reuse is good.
-
-Obvious repetition is bad.
-
-For repeated props:
-
-* vary rotation,
-* vary scale slightly,
-* create a small number of genuine variants,
-* cluster objects naturally,
-* place them according to terrain and track context,
-* avoid perfect grids,
-* avoid identical spacing.
-
-For trees, rocks and track furniture, build reusable families.
-
-Use instancing where appropriate.
-
-Be aware of the official InstancedMesh traps.
-
-Do not accidentally collapse instances through an incorrect loader path.
-
----
-
-# 17. DRIVING MUST BECOME THE NUMBER ONE PRIORITY
-
-The jam's largest judging category is whether the game is good to play.
-
-A visually beautiful car with poor handling will still lose.
-
-The game should be immediately enjoyable with arcade handling.
-
-Target:
-
-easy to understand,
-responsive,
-fast,
-forgiving enough for a first-time player,
-but with enough depth that good cornering matters.
-
----
-
-# 18. VEHICLE HANDLING
-
-Implement/refine:
-
-* acceleration curve,
-* braking,
-* reverse,
-* speed-dependent steering,
-* lateral grip,
-* controlled rear slip,
-* drag,
-* off-road slowdown,
-* collision response,
-* recovery/reset.
-
-Steering should become less twitchy at high speed.
-
-The player should be able to feel:
-
-* braking before a corner,
-* weight/load change,
-* turning in,
-* reaching grip limit,
-* accelerating out.
-
-Do not create a physics simulator.
-
-This is an arcade championship racer.
-
-But do not make it a floating cube either.
-
----
-
-# 19. DRIFT / SLIP
-
-If drift/slip already exists, make it deliberate.
-
-If it does not exist and can be implemented without destabilising the project, add a controlled form of rear slip.
-
-The player should be able to rotate the car slightly under aggressive cornering.
-
-Avoid constant uncontrolled drifting.
-
-Grip racing should remain viable.
-
-If a dedicated handbrake is used:
-
-Desktop:
-
-* Space or another intuitive key.
-
-Mobile:
-
-* dedicated reachable button.
-
-Do not let the drift mechanic destroy accessibility.
-
----
-
-# 20. COLLISION FEEL
-
-Collisions should communicate impact without feeling punitive.
-
-Use:
-
-* brief camera impulse,
-* subtle sound,
-* slight speed loss,
-* body reaction,
-* small particles when appropriate.
-
-Avoid:
-
-* cars exploding,
-* arcade pinball,
-* spinning the player 180° from a light touch,
-* AI pushing the player unrealistically,
-* cars clipping through each other.
-
----
-
-# 21. CAMERA
-
-The chase camera must be significantly improved.
-
-Requirements:
-
-* spring-based smoothing,
-* anticipatory look direction,
-* subtle FOV increase with speed,
-* slight lateral response,
-* stable horizon,
-* strong player-car visibility,
-* no nausea-inducing oscillation.
-
-Do NOT orient camera roll directly from whatever ground normal exists beneath the car.
-
-Use track banking information if banking is required.
-
-Clamp any camera roll.
-
-If the car spins, do not instantly spin the entire camera with it.
-
-Allow the camera to lag and recover smoothly.
-
----
-
-# 22. SENSE OF SPEED
-
-Create speed through:
-
-* road motion,
-* nearby trackside objects,
-* appropriate FOV response,
-* subtle camera vibration only at high speed,
-* dust,
-* tyre audio,
-* engine pitch,
-* wind audio,
-* roadside parallax,
-* particles,
-* suspension/body motion.
-
-Do not fake speed primarily with excessive motion blur.
-
----
-
-# 23. START PROCEDURE
-
-A race should feel like an event.
-
-Flow:
-
-Championship/race screen
-→ starting grid
-→ 3
-→ 2
-→ 1
-→ GO
-→ race.
-
-The countdown must be visually clear.
-
-AI cannot launch before GO.
-
-Allow a tiny dramatic pause between numbers.
-
-Audio should reinforce it if available.
-
----
-
-# 24. RACING HUD
-
-Completely eliminate the generic robot/sci-fi dashboard aesthetic.
-
-The HUD should feel inspired by vintage motorsport timing graphics.
-
-Use:
-
-* warm cream,
-* charcoal,
-* small colour accents,
-* strong numbers,
-* simple geometric plates,
-* restrained shadows,
-* clear hierarchy.
-
-During a race show only important information:
-
-* position: `2 / 4`
-* lap: `2 / 3`
-* speed
-* current race identity if useful
-* optional compact checkpoint/progress indicator
-* championship context only when necessary
-
-Avoid:
-
-* giant glass panels,
-* glowing holographic panels,
-* sci-fi corner brackets,
-* cyberpunk typography,
-* unnecessary telemetry.
-
-The game world should remain the focus.
-
----
-
-# 25. RESULTS PRESENTATION
-
-After each race show:
-
-* race finishing order,
-* earned points,
-* championship standings,
-* next race action.
-
-Make standings easy to understand immediately.
-
-At the final race:
-
-show the championship result clearly.
-
-Winning should feel rewarding.
-
-Losing should still allow replay.
-
----
-
-# 26. MAIN MENU
-
-Keep it simple and polished.
-
-Possible options:
-
-CHAMPIONSHIP
-QUICK RACE
-HOW TO PLAY
-
-Do not create ten unnecessary modes.
-
-If Quick Race is already functional, preserve it.
-
-Championship is the hero mode.
-
-The first screen must look intentionally designed.
-
-Use an attractive real-time background or hero composition from the game if performance allows.
-
----
-
-# 27. AUDIO
-
-Audio contributes strongly to perceived quality.
-
-Implement or improve:
-
-* engine loop with pitch responding to RPM/speed,
-* tyre scrub,
-* collision thump,
-* countdown,
-* UI feedback,
-* ambient crowd/wind/environment,
-* race finish cue,
-* restrained menu ambience/music if allowed.
-
-Do not let sounds clip.
-
-Do not play every effect at maximum volume.
-
-Do not make the engine sound like a robot/electric sci-fi machine unless deliberately justified, which it is not for this art direction.
-
----
-
-# 28. LIGHTING
-
-The lighting must be rebuilt if the current scene uses generic ambient + directional light.
-
-Use the official rig principles where appropriate.
-
-Target golden late-afternoon light.
-
-Create colour separation:
-
-warm direct sunlight,
-cooler ambient/sky contribution,
-strong but readable shadow,
-atmospheric depth.
-
-Cars must remain readable when shaded.
-
-Road must remain readable.
-
-Important track geometry must not disappear into black.
-
-Avoid flat exposure.
-
-Avoid uniformly lit objects.
-
-Avoid every surface having identical colour temperature.
-
----
-
-# 29. SKY & ATMOSPHERE
-
-The sky should support the world.
-
-Use:
-
-* warm horizon,
-* clearer/cooler upper sky,
-* subtle atmospheric haze,
-* distant terrain depth.
-
-Do not use giant sci-fi planets.
-
-Do not use cyberpunk skylines.
-
-Do not overload the sky with effects.
-
----
-
-# 30. ROAD
-
-The road occupies a huge percentage of every racing frame.
-
-Treat it as a hero surface.
-
-It should have:
-
-* subtle colour variation,
-* believable roughness,
-* slight procedural material variation,
-* clear edge definition,
-* occasional wear,
-* readable relationship to surrounding dirt/grass.
-
-Avoid:
-
-* perfectly uniform grey,
-* mirror-like asphalt,
-* pitch-black asphalt,
-* repeated obvious texture tiling.
-
-If procedural surfaces are used, follow the recipe's provided surface tooling where appropriate.
-
----
-
-# 31. TRACK EDGES
-
-Track boundaries must communicate racing line intuitively.
-
-Use combinations of:
-
-* edge paint/curbing,
-* timber/soft barriers,
-* hay bales,
-* stone,
-* dust transitions,
-* roadside vegetation,
-* banners/colour shapes without relying heavily on readable text.
-
-The 404 format is weak at small printed typography.
-
-Do not build the art direction around readable trackside advertising.
-
-Use shape, colour and silhouette instead.
-
----
-
-# 32. HUMAN PRESENCE WITHOUT "ROBOT VIBE"
-
-The game should feel inhabited.
-
-This does NOT require highly detailed human models everywhere.
-
-Use:
-
-* spectator groups,
-* canopies,
-* parked service vehicles if generated properly,
-* marshal stations,
-* flags,
-* folding structures,
-* viewing areas,
-* distant crowd treatment.
-
-Any close human figures must not look like robots.
-
-Do not place metallic grey humanoid primitives along the track.
-
-For distant crowds, prefer appropriate low-cost treatment rather than ugly close-up geometry.
-
----
-
-# 33. PARTICLES AND GAME FEEL
-
-Use restrained effects:
-
-* dust when leaving asphalt,
-* small tyre smoke under heavy slip,
-* tiny debris where appropriate,
-* finish celebration if lightweight.
-
-Particles must support gameplay.
-
-Do not fill the screen with effects.
-
----
-
-# 34. VISUAL HIERARCHY
-
-At any racing moment, the eye should understand:
-
-1. player car,
-2. next track direction,
-3. opponents,
-4. immediate track boundaries,
-5. environment.
-
-If scenery competes with gameplay, simplify it.
-
----
-
-# 35. PERFORMANCE BUDGET
-
-The official hard limits are not our targets.
-
-Leave safety margin.
-
-Aim approximately for:
-
-* total transferred size under 8 MB,
-* draw calls generally under 700,
-* triangles generally under 1.2M,
-* stable usable mobile performance,
-* ideally around 60 FPS where realistic.
-
-Hard jam limits must still be respected.
-
-Optimise using:
-
-* instancing,
-* shared materials,
-* sensible object density,
-* distance-based detail,
-* pooled particles,
-* avoiding excessive transparency,
-* avoiding needless material clones.
-
-Be especially careful with transparent double-sided materials.
-
----
-
-# 36. MOBILE IS A FIRST-CLASS PLATFORM
-
-The judges play on phone and laptop.
-
-The game must not merely "technically support touch."
-
-Mobile controls must be comfortable.
-
-Suggested layout:
-
-Left thumb:
-
-* steering control.
-
-Right thumb:
-
-* accelerator,
-* brake,
-* optional handbrake.
-
-Buttons should be large enough.
-
-Do not cover the racing line.
-
-Respect safe areas.
-
-Test portrait behaviour and lock/use landscape appropriately if the game requires landscape.
-
-If landscape is required, communicate it elegantly.
-
-Real touch events must start and move the game.
-
----
-
-# 37. DESKTOP CONTROLS
+# PLAYER COUNT
 
 Support:
 
-* WASD
-* Arrow keys where sensible
-* brake/reverse
-* optional handbrake
-* pause
-* restart/reset
+- minimum: 2 human racers
+- maximum: 4 human racers
 
-Make controls visible in How To Play and/or pre-race presentation.
+Do not exceed 4 players in this implementation.
+
+The existing racing game was designed around a small racing field and 2–4 participants keeps networking and voice complexity manageable.
 
 ---
 
-# 38. WRITE A CUSTOM RACING PLAYTEST/GATE
+# MULTIPLAYER STATE MACHINE
 
-The generic recipe playtest is insufficient for this game.
+The server must be the authority over the room lifecycle.
 
-Build a game-specific automated racing test inside the appropriate harness location.
+Use explicit states:
 
-The test should use REAL browser input events.
+```ts
+type RoomStatus =
+  | "waiting"
+  | "ready_check"
+  | "loading"
+  | "countdown"
+  | "racing"
+  | "finished";
+```
 
-Do not invoke internal debug movement functions.
+Expected progression:
 
-The test should verify at minimum:
+```text
+WAITING
+   ↓
+READY_CHECK
+   ↓
+LOADING
+   ↓
+COUNTDOWN
+   ↓
+RACING
+   ↓
+FINISHED
+```
 
-* game reaches ready state,
-* start button works,
-* race countdown completes,
-* forward input moves the player,
-* steering changes vehicle heading,
-* touch acceleration moves the player on mobile viewport,
-* touch steering changes direction,
-* AI cars move,
-* race position logic updates plausibly,
-* checkpoint progress works,
-* reset/recovery works,
-* no console errors,
-* no asset 404s,
-* FPS telemetry is based on real elapsed time,
-* draw calls and triangles remain healthy.
+Illegal transitions must be rejected.
 
-If practical, test braking and handbrake/slip as well.
-
-Expose/update official telemetry:
-
-`window.__READY__`
-
-`window.__START__`
-
-`window.__GAME__`
-
-with real:
-
-* position,
-* FPS,
-* speed,
-* score/state if relevant,
-* race-over state,
-* draw calls,
-* triangles.
-
-Do not fake telemetry.
+Do not let clients arbitrarily change the room state.
 
 ---
 
-# 39. FUNCTIONAL TESTS
+# SERVER AUTHORITY
 
-Test the race state machine separately.
+The multiplayer server should own:
 
-Verify:
+- room creation,
+- room code generation,
+- host identity,
+- expected player count,
+- room settings,
+- current participants,
+- connection states,
+- ready states,
+- loaded states,
+- room lifecycle,
+- synchronized start time,
+- checkpoint progression,
+- lap progression,
+- finish validation,
+- finishing order.
 
-* countdown,
-* race start,
-* checkpoint order,
-* lap completion,
-* finish detection,
-* race ranking,
-* tie handling,
-* championship points,
-* next-race transition,
-* final standings,
-* replay,
-* restart,
-* AI recovery.
-
-A player must not be able to finish laps by crossing only the start/finish line repeatedly.
-
-Use ordered checkpoints.
+Clients may control their own driving input/physics during Phase 2, but must not be trusted to freely declare race results.
 
 ---
 
-# 40. AI VALIDATION
+# REAL-TIME TRANSPORT
 
-Create repeatable AI simulation checks where possible.
+Use a real-time socket architecture suitable for browser multiplayer.
 
-Run AI races without player intervention and verify:
+Prefer the simplest robust approach compatible with the existing repository.
 
-* all cars can complete the route,
-* none remain permanently stuck,
-* differences in personality actually affect behaviour,
-* no AI routinely drives through walls,
-* no AI permanently reverses,
-* no AI circles one checkpoint forever,
-* no AI finishes impossible laps.
+Possible choices include:
 
-The personalities should create variance without breaking fairness.
+- native WebSocket,
+- Socket.IO,
+- another already-existing compatible real-time layer.
 
----
+Do not introduce unnecessary infrastructure.
 
-# 41. CRITIC ROUND 1 — COMPOSITION
-
-After the first visual rebuild:
-
-Run the game in motion.
-
-Capture representative frames.
-
-Use a fresh critic/sub-agent that did not build the scene.
-
-Give it:
-
-* target concept frames,
-* current frames,
-* `STYLE_LOCK.md`,
-* `VISUAL_CLAIMS.md`.
-
-Ask it to identify the SINGLE largest visual reason the current build still loses to the target.
-
-It must issue:
-
-PASS
-
-or
-
-FAIL.
-
-"Looks okay" is not a pass.
-
-If FAIL, fix the highest-impact issue.
-
-Record the critique under:
-
-`receipts/critics/round-1.md`
-
----
-
-# 42. CRITIC ROUND 2 — VEHICLES & MATERIALS
-
-Use a different critic.
-
-Focus especially on:
-
-* car silhouette,
-* wheels,
-* paint response,
-* glass,
-* body proportions,
-* rival differentiation,
-* robotic/generic geometry,
-* material quality.
-
-Record it.
-
-Fix the most decisive problem.
-
----
-
-# 43. CRITIC ROUND 3 — RACING IN MOTION
-
-Use another fresh critic.
-
-This round MUST judge moving race frames.
-
-Not menu screenshots.
-
-Not parked cars.
-
-Not isolated assets.
-
-Compare:
-
-* close racing,
-* overtaking,
-* fast corner,
-* shaded section,
-* finish section.
-
-Ask:
-
-Does this look like a deliberately art-directed finished racing game while moving?
-
-If not, identify the one largest reason.
-
-Fix it.
-
----
-
-# 44. OPTIONAL ROUND 4
-
-Only run a fourth major critic round if there is a clearly fixable high-impact gap.
-
-Do NOT loop forever.
-
-If critics repeatedly identify a structural limitation twice, change the approach instead of blindly rerunning the same process.
-
----
-
-# 45. SAVE THE RECEIPTS
+Document the selected transport and why.
 
 Create:
 
-`receipts/`
-
-Keep useful evidence such as:
-
-* initial screenshots,
-* style lock,
-* scene reference list,
-* visual claims,
-* rejected asset candidates,
-* verifier output,
-* critic rounds,
-* performance logs,
-* gameplay-test logs,
-* jam-gate output,
-* before/after comparisons.
-
-Do not clutter the shipped build if receipt files can be kept outside the public game payload.
-
-These receipts should show real iteration.
+`docs/multiplayer/ARCHITECTURE.md`
 
 ---
 
-# 46. MAKE MEANINGFUL COMMITS
+# ROOM DATA MODEL
 
-Do not put the entire rescue into one mega-commit if work naturally breaks into stages.
+Use an explicit typed structure similar to:
 
-Examples of meaningful phases:
+```ts
+type RaceRoom = {
+  id: string;
+  code: string;
 
-* audit and art-direction lock,
-* player-car rebuild,
-* rival-car rebuild,
-* environment asset rebuild,
-* track visual pass,
-* driving feel improvement,
-* AI personality refinement,
-* championship/results polish,
-* mobile controls,
-* audio/FX,
-* performance,
-* gate fixes.
+  hostPlayerId: string;
 
-Do not fabricate history.
+  settings: {
+    maxPlayers: number;
+    laps: number;
+    trackId: string;
+  };
 
-Use the actual work.
+  status:
+    | "waiting"
+    | "ready_check"
+    | "loading"
+    | "countdown"
+    | "racing"
+    | "finished";
 
----
+  players: MultiplayerPlayer[];
 
-# 47. DO NOT COPY 404 DRIVE
+  createdAt: number;
 
-You may inspect 404's Drive reference for general lessons about:
+  startAt?: number;
+};
 
-* camera,
-* controls,
-* performance,
-* recipe usage,
-* testing methodology.
+type MultiplayerPlayer = {
+  id: string;
 
-You MUST NOT copy:
+  nickname: string;
+  avatarUrl: string;
 
-* its code,
-* assets,
-* layout,
-* exact track,
-* vehicle design,
-* environment composition,
-* UI,
-* distinctive game mechanics.
+  connected: boolean;
+  isHost: boolean;
 
-Our game needs its own identity.
+  ready: boolean;
+  loaded: boolean;
 
----
+  micEnabled: boolean;
 
-# 48. PRIORITY ORDER
+  lap: number;
+  checkpoint: number;
 
-If time becomes constrained, work in this exact priority order:
+  finishTime?: number;
+  finishPosition?: number;
+};
+```
 
-1. Game starts and remains technically valid.
-2. Driving feels good.
-3. Player car looks excellent.
-4. AI opponents race correctly.
-5. Rival personalities are clearly different.
-6. One race looks genuinely excellent.
-7. Championship works.
-8. Remaining track layouts look cohesive.
-9. Mobile controls feel good.
-10. Lighting/environment composition.
-11. Race presentation and HUD.
-12. Audio/particles/minor polish.
-
-Do not sacrifice items 1–6 to add unnecessary breadth.
-
-One excellent environment reused intelligently is better than three ugly unrelated worlds.
+Adjust implementation details as necessary while preserving equivalent semantics.
 
 ---
 
-# 49. DEFINITION OF "DONE"
+# ROOM CODE GENERATION
 
-Do NOT mark this project complete because:
+Generate short room codes that are:
 
-* it compiles,
-* the cars move,
-* AI follows waypoints,
-* three tracks exist,
-* the menu works.
+- easy to copy,
+- case-insensitive,
+- difficult to confuse visually.
 
-The project is done only when all of the following are true:
+Avoid ambiguous characters where possible:
 
-The game has a coherent visual identity.
+- `0`
+- `O`
+- `1`
+- `I`
+- `L`
 
-The old robotic aesthetic is gone.
+Example alphabet:
 
-The player car looks intentionally designed.
+`ABCDEFGHJKMNPQRSTUVWXYZ23456789`
 
-All three rivals are visually and behaviourally recognisable.
+Target approximately 6 characters.
 
-Driving is immediately enjoyable.
-
-The camera feels good at speed.
-
-The championship works from beginning to end.
-
-The result screen works.
-
-Mobile controls work with real touch events.
-
-The game runs without console errors.
-
-The game runs without missing assets.
-
-Track boundaries are readable.
-
-The world feels inhabited.
-
-The road/environment do not look like placeholder geometry.
-
-Lighting creates depth.
-
-Motion frames still look good.
-
-At least three meaningful critic rounds have been completed.
-
-The custom racing gate passes.
-
-The official shipping checks pass.
-
-The deployed URL works.
-
-The official jam gate passes.
+Room codes must be unique among active rooms.
 
 ---
 
-# 50. FINAL OFFICIAL VALIDATION
+# ROOM EXPIRATION
 
-Before finalising:
+Rooms should not live forever.
 
-Run appropriate asset verification.
+Implement sensible cleanup.
 
-Run the custom racing gameplay test.
+For example:
 
-Run the recipe shipping check.
+- remove an empty room after a short grace period,
+- expire abandoned waiting rooms,
+- clean up completed rooms after an appropriate duration.
 
-Use stamping where instructed by the recipe.
-
-Deploy the real game.
-
-Then test THE DEPLOYED URL rather than trusting localhost.
-
-Run the official live/mobile verification.
-
-Finally run the official jam gate against the deployed URL and the actual submission commit.
-
-Do not paste an invented verdict.
-
-Use the real verdict exactly as produced.
+Do not create unbounded server memory growth.
 
 ---
 
-# 51. FINAL REPORT BACK TO ME
+# ============================================================
+# PHASE 1
+# LOBBY / LINK / CODE / PROFILE / READY SYNCHRONIZATION
+# ============================================================
 
-When everything is finished, give me a concise but complete report containing:
+# PHASE 1 GOAL
 
-### A. Audit
+Build the entire multiplayer lobby experience WITHOUT implementing real multiplayer driving yet.
 
-What was wrong with the original version.
+At the end of Phase 1, multiple browsers/devices must be able to:
 
-### B. Visual overhaul
+- create a race,
+- obtain a room code,
+- obtain an invite link,
+- join the same room,
+- see one another,
+- edit nickname/avatar,
+- see live join/leave state,
+- wait for the required number of racers,
+- perform a synchronized ready check,
+- allow only the host to proceed,
+- enter a placeholder/loading state together.
 
-Which assets/environment systems were replaced and why.
+Do NOT implement synchronized human race cars yet.
 
-### C. 404 asset process
+---
 
-Which important assets used references, three candidates, verification and final selection.
+# PHASE 1.1 — LANDING PAGE
 
-### D. Gameplay
+Add:
 
-What changed in handling, camera, collisions and racing.
+# RACE TOGETHER
 
-### E. Rivals
+to the main game menu.
 
-Explain precisely how Charger, Technician and Defender differ in code and actual behaviour.
+It should visually match the existing game.
 
-### F. Championship
+Do not redesign the whole landing page.
 
-Race structure, points and progression.
+Selecting it opens:
 
-### G. Mobile
+## CREATE RACE
 
-What was tested with real touch.
+and
 
-### H. Critic rounds
+## JOIN RACE
 
-What each critic rejected and what changed as a result.
+---
 
-### I. Performance
+# PHASE 1.2 — PLAYER PROFILE
 
-Final load size, draw calls, triangle count and FPS observations.
+Every multiplayer player needs:
 
-### J. Tests
+- nickname,
+- avatar.
 
-Every automated/manual test run and its result.
+On first entry automatically assign:
 
-### K. Jam compliance
+- a generated nickname,
+- a random default avatar.
 
-Results of ship/live/jam validation.
+Examples of generated nicknames:
 
-### L. Remaining limitations
+- DustRider42
+- ApexFox17
+- HillRunner63
+- TrackHawk28
+- RedlineBear51
 
-State anything still imperfect instead of hiding it.
+Avoid offensive or inappropriate generation.
+
+Use a deterministic or safe vocabulary-based nickname generator.
+
+---
+
+# DEFAULT AVATARS
+
+Create a small set of default avatars matching the established analog motorsport aesthetic.
+
+Target:
+
+8–12 default avatars.
+
+They should feel like:
+
+- vintage racing helmets,
+- rally goggles,
+- mechanic caps,
+- scarves,
+- racing silhouettes,
+- motorsport characters.
+
+No robot avatars.
+
+No cyberpunk avatars.
+
+No trademarked characters.
+
+Default avatars may be bundled with the application if compliant.
+
+---
+
+# EDIT PROFILE
+
+Players must be able to edit:
+
+- nickname,
+- avatar.
+
+Nickname validation:
+
+- trim whitespace,
+- reasonable max length,
+- prevent empty nicknames,
+- basic abusive/input sanitization,
+- do not accept HTML.
+
+Suggested maximum:
+
+16–20 characters.
+
+Store the player's preferred multiplayer profile locally so it survives refresh/revisit.
+
+Use:
+
+`localStorage`
+
+or the project's existing client preference mechanism.
+
+---
+
+# CLOUDINARY AVATAR UPLOAD
+
+Support custom avatar upload through Cloudinary.
+
+CRITICAL SECURITY RULE:
+
+Never expose:
+
+`CLOUDINARY_API_SECRET`
+
+to browser/client code.
+
+Never commit Cloudinary credentials.
+
+Never print secrets into logs.
+
+Never place API secret inside a public `VITE_*`, `NEXT_PUBLIC_*`, or equivalent client-side variable.
+
+Expected server environment variables:
+
+```env
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+The browser must NOT receive the API secret.
+
+Use a safe signed-upload flow or an appropriately configured upload preset.
+
+The backend should provide only the minimum required signed upload data.
+
+Store/propagate the resulting secure Cloudinary URL.
+
+Validate avatar uploads:
+
+- images only,
+- reasonable file-size limit,
+- crop/transform to square,
+- reasonable dimensions,
+- do not allow arbitrary executable content.
+
+If Cloudinary credentials are unavailable during development:
+
+DO NOT block Phase 1.
+
+Use default avatars and implement the upload integration behind a graceful configuration check.
+
+---
+
+# PHASE 1.3 — CREATE RACE
+
+Host clicks:
+
+CREATE RACE
+
+Show configuration screen.
+
+Required settings:
+
+## Number of racers
+
+Options:
+
+- 2
+- 3
+- 4
+
+This includes the host.
+
+## Number of laps
+
+Use reasonable options such as:
+
+- 1
+- 2
+- 3
+- 5
+
+Do not allow absurd lap counts.
+
+## Track
+
+Allow selection from the existing tracks:
+
+- Orchard Sprint
+- Quarry Loop
+- Summit Run
+
+Do not create new tracks.
+
+---
+
+# CREATE ROOM
+
+When submitted:
+
+1. create room server-side,
+2. assign host identity,
+3. generate unique room code,
+4. generate shareable invitation URL,
+5. navigate host into room lobby.
+
+Example:
+
+```text
+ROOM CODE
+R7K4XP
+```
+
+Example link:
+
+```text
+https://game-domain/race/R7K4XP
+```
+
+Do not hard-code production domain.
+
+Generate the URL from runtime location/configuration.
+
+---
+
+# PHASE 1.4 — SHARE UI
+
+Lobby should offer:
+
+COPY CODE
+
+COPY INVITE LINK
+
+INVITE RACERS
+
+Where supported, use the browser Web Share API:
+
+```ts
+navigator.share(...)
+```
+
+Provide fallback copying behavior when unavailable.
+
+Suggested share content:
+
+```text
+Join my Road Zero race 🏁
+Room code: R7K4XP
+[invite URL]
+```
+
+---
+
+# PHASE 1.5 — JOIN RACE
+
+JOIN RACE should provide:
+
+- room-code input,
+- JOIN button.
+
+Normalize:
+
+- whitespace,
+- lowercase/uppercase.
+
+If room does not exist:
+
+show useful error.
+
+If room is full:
+
+show useful error.
+
+If race already started:
+
+do not allow a new racer to join as a participant.
+
+Do not silently fail.
+
+---
+
+# DIRECT INVITE LINKS
+
+Opening:
+
+`/race/:code`
+
+must automatically resolve the room.
+
+If the player's profile has not been set, allow quick nickname/avatar confirmation before joining.
+
+Then enter the correct lobby directly.
+
+---
+
+# PHASE 1.6 — WAITING ROOM
+
+Until the selected number of players has joined, display an animated waiting experience.
+
+Example:
+
+# WAITING ON THE GRID
+
+`2 / 4 RACERS JOINED`
+
+Supporting copy:
+
+`Engines warming up…`
+
+Use subtle animation:
+
+- idling cars,
+- flag movement,
+- pulsing dots,
+- track ambience,
+- participant cards appearing.
+
+Do not make this look like a generic SaaS waiting room.
+
+It should look part of the racing game.
+
+---
+
+# PLAYER CARDS
+
+Every connected participant should have a card showing:
+
+- avatar,
+- nickname,
+- host badge if relevant,
+- connection state,
+- readiness state,
+- microphone state placeholder for future Phase 3.
+
+Example:
+
+```text
+[Avatar]
+DustRider42
+HOST
+NOT READY
+```
+
+Update live when participants join/leave.
+
+---
+
+# WAITING RULE
+
+The ready check must NOT begin until:
+
+```text
+connected players === room.settings.maxPlayers
+```
+
+If host selected 4 racers:
+
+2/4 = wait.
+
+3/4 = wait.
+
+4/4 = ready check becomes available.
+
+Do not start early.
+
+---
+
+# PHASE 1.7 — READY CHECK
+
+Once required player count is reached:
+
+Change presentation to:
+
+# THE GRID IS COMPLETE
+
+Show all players.
+
+Every player receives:
+
+READY
+
+button.
+
+When pressed:
+
+- server updates readiness,
+- all clients immediately see the change.
+
+Example:
+
+```text
+DustRider42       READY ✓
+ApexFox17         READY ✓
+HillRunner63      NOT READY
+TrackHawk28       READY ✓
+```
+
+Players must be able to unready before loading begins.
+
+---
+
+# HOST START RULE
+
+The host must NOT receive an enabled start/proceed button until:
+
+```text
+all expected players connected
+AND
+all players ready
+```
+
+Only host sees:
+
+# PROCEED TO RACE
+
+once conditions are satisfied.
+
+Non-host players see:
+
+`Waiting for host to start the race…`
+
+---
+
+# HOST DISCONNECT BEFORE RACE
+
+Do not destroy the room immediately.
+
+If host disconnects before racing begins:
+
+promote the longest-connected active player to host.
+
+Broadcast new host identity.
+
+Show notification:
+
+`ApexFox17 is now the host.`
+
+Do not silently transfer host role.
+
+---
+
+# PLAYER DISCONNECT BEFORE START
+
+If player count falls below expected count:
+
+- return to waiting state,
+- clear or appropriately reset ready states,
+- disable host proceed button.
+
+Do not begin without the configured number of racers.
+
+---
+
+# PHASE 1.8 — LOADING STATE
+
+When host presses PROCEED TO RACE:
+
+server transitions room:
+
+```text
+ready_check → loading
+```
+
+Every client begins loading the selected track/race assets.
+
+Each client reports:
+
+```text
+PLAYER_LOADED
+```
+
+only after it is genuinely ready.
+
+Display:
+
+# PREPARING THE GRID
+
+Examples:
+
+```text
+DustRider42       READY TO RACE
+ApexFox17         LOADING…
+HillRunner63      READY TO RACE
+TrackHawk28       LOADING…
+```
+
+Do NOT begin countdown in Phase 1.
+
+For Phase 1, stop at a successful synchronized loading/placeholder state.
+
+Phase 2 will connect this to actual racing.
+
+---
+
+# PHASE 1 NETWORK EVENTS
+
+Define typed events.
+
+Examples:
+
+Client → server:
+
+```text
+ROOM_CREATE
+ROOM_JOIN
+ROOM_LEAVE
+PROFILE_UPDATE
+PLAYER_READY
+PLAYER_UNREADY
+HOST_START_REQUEST
+PLAYER_LOADED
+```
+
+Server → clients:
+
+```text
+ROOM_CREATED
+ROOM_JOINED
+ROOM_STATE_UPDATED
+PLAYER_JOINED
+PLAYER_LEFT
+PROFILE_UPDATED
+HOST_CHANGED
+READY_STATE_UPDATED
+ROOM_FULL
+LOADING_STARTED
+ERROR
+```
+
+Do not scatter anonymous magic strings throughout code.
+
+Use shared typed contracts.
+
+---
+
+# PHASE 1 RECONNECTION
+
+Handle temporary socket loss.
+
+Assign a stable session/player token locally.
+
+Allow reasonable reconnection to the same room.
+
+Do not accidentally create duplicate players after refresh/reconnect.
+
+If reconnection fails after grace period, remove player normally.
+
+---
+
+# PHASE 1 TESTS
+
+Automate as much as reasonable.
+
+Must test:
+
+1. create 2-player room,
+2. create 3-player room,
+3. create 4-player room,
+4. unique room code,
+5. join via room code,
+6. join via invite URL,
+7. room full rejection,
+8. invalid code rejection,
+9. profile edit propagation,
+10. readiness synchronization,
+11. cannot proceed before room full,
+12. cannot proceed before everybody ready,
+13. non-host cannot proceed,
+14. host can proceed when all ready,
+15. player leaving returns room to waiting,
+16. host migration,
+17. reconnect without duplicate player,
+18. loading state broadcast,
+19. custom avatar failure does not break lobby,
+20. single-player game remains functional.
+
+Use multiple browser contexts where possible.
+
+---
+
+# PHASE 1 ACCEPTANCE GATE
+
+DO NOT BEGIN PHASE 2 until all of these work:
+
+- 2–4 browser clients can join the same room,
+- invite URL works,
+- room code works,
+- nickname/avatar works,
+- player list updates live,
+- required player count is enforced,
+- ready states synchronize,
+- only host can proceed,
+- host migration works,
+- loading state synchronizes,
+- single player still works,
+- no secrets are exposed,
+- tests pass,
+- no console errors.
+
+Create:
+
+`receipts/multiplayer/PHASE_1_VALIDATION.md`
+
+Document exact test results.
+
+Commit Phase 1 separately.
+
+---
+
+# ============================================================
+# PHASE 2
+# REAL HUMAN MULTIPLAYER RACING
+# ============================================================
+
+# PHASE 2 GOAL
+
+Replace the Phase-1 loading placeholder with a real networked race.
+
+Players must control their own cars from different browser instances/devices.
+
+All clients must see:
+
+- same track,
+- same racers,
+- smoothly moving remote cars,
+- shared countdown,
+- synchronized race start,
+- valid laps,
+- valid checkpoints,
+- accurate finishing order.
+
+Do not add voice yet.
+
+---
+
+# PHASE 2.1 — HUMAN PLAYER SLOTS
+
+For Race Together:
+
+all race slots are human players.
+
+Do not automatically include Charger/Technician/Defender unless explicitly designed later.
+
+Current multiplayer target:
+
+2–4 humans.
+
+The existing AI championship remains unchanged outside Race Together.
+
+---
+
+# PLAYER VEHICLE ASSIGNMENT
+
+Assign each human a distinguishable vehicle colour/appearance.
+
+Use the established visual language.
+
+Avoid duplicate visual identity within the same room.
+
+Player identity above/near remote cars may show a restrained:
+
+- nickname,
+- avatar/indicator,
+
+only if it does not clutter racing visibility.
+
+---
+
+# PHASE 2.2 — LOCAL AUTHORITY MODEL
+
+For this private jam multiplayer mode:
+
+Each client may simulate its own local car.
+
+The server remains authoritative over:
+
+- legal room state,
+- checkpoint ordering,
+- lap progression,
+- race start,
+- finish validation,
+- final standings.
+
+Do NOT attempt to build a full rollback/netcode esports architecture.
+
+Do NOT let clients simply report:
+
+`I finished.`
+
+---
+
+# NETWORK UPDATE FORMAT
+
+Transmit compact snapshots.
+
+Equivalent structure:
+
+```ts
+type PlayerRaceSnapshot = {
+  playerId: string;
+
+  sequence: number;
+  timestamp: number;
+
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
+
+  rotationY: number;
+
+  speed: number;
+  steering: number;
+
+  lap: number;
+  checkpoint: number;
+};
+```
+
+Send only required information.
+
+Do not stream entire game objects.
+
+---
+
+# UPDATE RATE
+
+Start around:
+
+15–20 updates per second.
+
+Tune based on testing.
+
+Do not send at render-frame rate.
+
+Rendering can remain 60 FPS while networking runs at lower frequency.
+
+---
+
+# REMOTE PLAYER INTERPOLATION
+
+Never directly snap remote car transforms to every received packet.
+
+Maintain snapshot buffers.
+
+Render remote cars slightly behind real time and interpolate between snapshots.
+
+Handle:
+
+- jitter,
+- uneven packet timing,
+- temporary packet loss.
+
+Use short extrapolation only when necessary.
+
+Clamp it.
+
+When updates resume, reconcile smoothly.
+
+Remote cars should not:
+
+- teleport,
+- vibrate,
+- rotate wildly,
+- jump between lanes.
+
+---
+
+# PHASE 2.3 — SYNCHRONIZED LOADING
+
+After all players report LOADED:
+
+server creates a future start timestamp.
+
+Example:
+
+```ts
+startAt = serverNow + 4000;
+```
+
+Broadcast:
+
+```text
+RACE_START_SCHEDULED
+```
+
+containing synchronized start data.
+
+Each client must use server clock synchronization/offset logic.
+
+Do not rely on message-arrival time alone.
+
+---
+
+# COUNTDOWN
+
+Every player should see effectively the same:
+
+```text
+3
+2
+1
+GO
+```
+
+Cars remain input-locked until the synchronized race start.
+
+Do not let fastest device begin earlier.
+
+Do not let host's local countdown control everybody independently.
+
+---
+
+# CLOCK SYNCHRONIZATION
+
+Implement lightweight client/server time-offset estimation.
+
+Use ping/pong samples.
+
+Estimate server clock offset.
+
+Use server timestamp for:
+
+- countdown,
+- race start,
+- finish timing.
+
+Do not use clients' unrelated local wall clocks directly.
+
+---
+
+# PHASE 2.4 — CHECKPOINT AUTHORITY
+
+Reuse the existing ordered checkpoint system.
+
+Server must validate progression.
+
+A valid lap requires:
+
+all required checkpoints in correct order  
+→ start/finish crossing.
+
+Reject impossible jumps.
+
+Do not trust client lap number alone.
+
+---
+
+# POSITION / RANKING
+
+Race ranking should consider:
+
+1. finished racers by finish time,
+2. current lap,
+3. current checkpoint,
+4. progress between checkpoints where practical.
+
+Avoid constant position flicker.
+
+---
+
+# FINISHING
+
+When player completes required laps legitimately:
+
+server records authoritative finish time.
+
+Broadcast:
+
+```text
+PLAYER_FINISHED
+```
+
+with position.
+
+Example:
+
+```text
+1. DustRider42
+2. ApexFox17
+3. TrackHawk28
+4. HillRunner63
+```
+
+The race should not necessarily freeze immediately when first player finishes.
+
+Allow remaining players to finish, within a reasonable timeout.
+
+---
+
+# POST-RACE TIMEOUT
+
+After first finisher:
+
+allow remaining racers a reasonable completion window.
+
+If necessary, finalize remaining positions based on progress after timeout.
+
+Do not let one disconnected player hold the result screen forever.
+
+---
+
+# PHASE 2.5 — COLLISIONS
+
+Networked player collision is difficult.
+
+Prefer stability over realism.
+
+First implementation may use:
+
+- soft local collision,
+- reduced physical impulse,
+- ghosting under severe desynchronization,
+- collision avoidance.
+
+Do not allow multiplayer collisions to turn into:
+
+- pinball,
+- teleportation,
+- infinite spinning,
+- griefing.
+
+If physically synchronized collisions cannot be made reliable quickly, use a restrained/soft collision model rather than destabilizing the whole race.
+
+Document the choice.
+
+---
+
+# DISCONNECT DURING RACE
+
+If a player disconnects:
+
+- mark them disconnected,
+- do not crash race,
+- allow short reconnection grace period.
+
+If they reconnect quickly:
+
+restore their racer where reasonably possible.
+
+If they fail to reconnect:
+
+mark DNF after grace period.
+
+Remaining players continue.
+
+Host disconnect during active race must NOT cancel race.
+
+Once racing begins, host privileges should no longer determine race continuity.
+
+---
+
+# ANTI-CHEAT / VALIDATION
+
+This is a private invite game, not competitive esports.
+
+Still implement basic sanity validation:
+
+- impossible teleport distance,
+- impossible velocity,
+- invalid checkpoint sequence,
+- invalid lap completion,
+- race input before start,
+- impossible finish.
+
+Do not spend disproportionate development time building sophisticated anti-cheat.
+
+---
+
+# MULTIPLAYER RESULTS
+
+Reuse existing result presentation where possible.
+
+Show:
+
+- finishing position,
+- avatar,
+- nickname,
+- finish time/gap,
+- DNF when appropriate.
+
+Options:
+
+REMATCH  
+RETURN TO LOBBY  
+MAIN MENU
+
+For rematch:
+
+reuse same room and settings where practical.
+
+Reset:
+
+- ready,
+- loaded,
+- race progression,
+- finish states.
+
+---
+
+# PHASE 2 NETWORK EVENTS
+
+Examples:
+
+Client → server:
+
+```text
+PLAYER_LOADED
+CLOCK_PING
+RACE_SNAPSHOT
+CHECKPOINT_CROSSED
+RECONNECT_RACE
+```
+
+Server → clients:
+
+```text
+CLOCK_PONG
+RACE_START_SCHEDULED
+RACE_SNAPSHOT_BATCH
+CHECKPOINT_CONFIRMED
+LAP_CONFIRMED
+PLAYER_FINISHED
+PLAYER_DNF
+RACE_RESULTS
+```
+
+Use typed schemas.
+
+Validate payloads.
+
+---
+
+# PHASE 2 BANDWIDTH
+
+Monitor bandwidth.
+
+Do not send:
+
+- full scene state,
+- environment state,
+- static track geometry,
+- unnecessary UI data.
+
+Static game assets already exist on every client.
+
+Transmit only changing multiplayer state.
+
+---
+
+# PHASE 2 MULTI-BROWSER TEST MATRIX
+
+Test at least:
+
+## 2 players
+
+desktop + desktop.
+
+## 3 players
+
+multiple browser contexts.
+
+## 4 players
+
+full target room.
+
+## Mixed device viewport
+
+desktop + mobile-sized contexts.
+
+Where possible, test actual separate devices/local network as well.
+
+---
+
+# PHASE 2 TESTS
+
+Verify:
+
+1. synchronized countdown,
+2. no movement before GO,
+3. all clients see every racer,
+4. remote movement interpolates smoothly,
+5. steering orientation syncs,
+6. checkpoints validate,
+7. skipped checkpoints rejected,
+8. laps validate,
+9. finish order consistent across clients,
+10. disconnect does not crash room,
+11. reconnect behaves safely,
+12. host disconnect during race doesn't end race,
+13. DNF timeout works,
+14. rematch reset works,
+15. bandwidth remains reasonable,
+16. mobile controls work,
+17. single-player championship still works,
+18. quick race still works.
+
+---
+
+# PHASE 2 ACCEPTANCE GATE
+
+Do NOT BEGIN PHASE 3 until:
+
+- 2–4 players can race simultaneously,
+- all clients see the same opponents,
+- remote cars move smoothly,
+- countdown is synchronized,
+- start cannot be cheated trivially,
+- checkpoint/lap validation works,
+- finish order is server-controlled,
+- reconnect/disconnect is handled,
+- results work,
+- no major race desynchronization exists,
+- single-player remains unaffected,
+- tests pass.
+
+Create:
+
+`receipts/multiplayer/PHASE_2_VALIDATION.md`
+
+Commit Phase 2 separately.
+
+---
+
+# ============================================================
+# PHASE 3
+# LIVE VOICE CHAT
+# ============================================================
+
+# PHASE 3 GOAL
+
+Allow players in the same Race Together room to hear one another regardless of physical location.
+
+Voice chat must be OPTIONAL.
+
+A player who denies microphone access must still be able to:
+
+- join,
+- ready,
+- race,
+- finish.
+
+Voice failure must NEVER block gameplay.
+
+---
+
+# PHASE 3 TECHNOLOGY
+
+Use:
+
+# WebRTC
+
+for live audio.
+
+Do NOT route continuous audio through the ordinary game WebSocket.
+
+The existing real-time server should handle:
+
+# WebRTC signaling
+
+including:
+
+- offers,
+- answers,
+- ICE candidates.
+
+---
+
+# VOICE TOPOLOGY
+
+Because rooms are limited to a maximum of four players, use a peer-to-peer mesh initially unless the existing infrastructure strongly favours another solution.
+
+Maximum peer relationships remain manageable at four users.
+
+Document architecture.
+
+---
+
+# WEBRTC SIGNALING EVENTS
+
+Examples:
+
+```text
+VOICE_JOIN
+VOICE_LEAVE
+WEBRTC_OFFER
+WEBRTC_ANSWER
+WEBRTC_ICE_CANDIDATE
+VOICE_STATE
+```
+
+Do not mix signaling logic unpredictably with race-state messages.
+
+Use a dedicated voice module.
+
+---
+
+# STUN / TURN
+
+Do NOT assume STUN alone guarantees connectivity.
+
+Players may be:
+
+- on different mobile carriers,
+- behind NAT,
+- behind restrictive routers,
+- in different countries.
+
+Support TURN configuration.
+
+Credentials must remain appropriately protected/configured.
+
+Do not hard-code secret TURN credentials in public frontend source if using static secrets.
+
+Prefer time-limited TURN credentials if supported by the selected provider.
+
+Create configuration documentation:
+
+`docs/multiplayer/VOICE_INFRASTRUCTURE.md`
+
+Clearly explain:
+
+- STUN,
+- TURN,
+- required environment variables,
+- local-dev behaviour,
+- production behaviour.
+
+---
+
+# MICROPHONE PERMISSION
+
+Never request microphone permission on initial page load.
+
+Request it only after an explicit user action.
+
+Example:
+
+# ENABLE VOICE CHAT
+
+Browser permission appears after that click.
+
+If denied:
+
+show:
+
+`Microphone unavailable — you can still race.`
+
+Do not repeatedly spam permission requests.
+
+---
+
+# VOICE CONTROLS
+
+Each player should have:
+
+## MUTE
+
+Stops sending microphone audio.
+
+## DEAFEN
+
+Stops local playback of other racers.
+
+Optional:
+
+## PUSH TO TALK
+
+Only if implementation remains simple and reliable.
+
+Do not delay completion for push-to-talk.
+
+---
+
+# PLAYER VOICE STATE
+
+Player cards should display:
+
+- microphone enabled,
+- muted,
+- speaking,
+- unavailable.
+
+Examples:
+
+🎙  
+🔇  
+speaking indicator.
+
+Do not show microphone active when no audio is actually connected.
+
+---
+
+# SPEAKING INDICATOR
+
+Use Web Audio API analysis or equivalent to estimate local/remote voice activity.
+
+Animate:
+
+- small avatar ring,
+- subtle waveform,
+- restrained glow compatible with current art style.
+
+Do not use cyberpunk neon.
+
+---
+
+# VOICE DURING RACING
+
+Voice remains connected through:
+
+- lobby,
+- loading,
+- countdown,
+- race,
+- results.
+
+Do NOT rebuild peer connections every time screen/UI state changes.
+
+Voice lifecycle should correspond to room membership.
+
+---
+
+# AUDIO MIXING
+
+Existing game audio includes:
+
+- engine,
+- tyres,
+- ambience,
+- effects.
+
+Voice must remain understandable.
+
+Implement sensible ducking:
+
+When voice activity occurs, slightly lower non-critical game audio.
+
+Do NOT completely mute the engine.
+
+Allow user-level voice volume if simple.
+
+Example:
+
+VOICE VOLUME slider.
+
+---
+
+# ECHO / NOISE PROCESSING
+
+Request browser audio constraints such as:
+
+```ts
+{
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true
+}
+```
+
+where supported.
+
+Gracefully tolerate unsupported constraints.
+
+---
+
+# MOBILE VOICE
+
+Test:
+
+- iOS/Safari where practical,
+- Android/Chrome where practical,
+- browser autoplay restrictions,
+- suspended AudioContext,
+- microphone permission states.
+
+Voice must unlock through a user gesture.
+
+Do not assume desktop browser behaviour applies to phones.
+
+---
+
+# VOICE PEER FAILURE
+
+If voice connection to one player fails:
+
+race continues.
+
+Show:
+
+`Voice unavailable for ApexFox17`
+
+Do not disconnect that racer from the room.
+
+---
+
+# LATE VOICE ENABLE
+
+A player should be able to join room with voice disabled and enable it later.
+
+Do not require page reload.
+
+---
+
+# PLAYER LEAVES
+
+When a racer leaves:
+
+- close their peer connections,
+- stop their remote audio,
+- release relevant media resources.
+
+Avoid memory leaks.
+
+---
+
+# PRIVACY
+
+Do not record voice.
+
+Do not persist audio.
+
+Do not upload microphone data to Cloudinary or other unrelated services.
+
+Do not create recordings unless explicitly requested in a future task.
+
+Make the UI clear that voice is live.
+
+---
+
+# PHASE 3 TESTS
+
+Test:
+
+1. 2-player voice,
+2. 3-player voice,
+3. 4-player voice,
+4. mute,
+5. unmute,
+6. deafen,
+7. undeafen,
+8. microphone denied,
+9. microphone unavailable,
+10. one peer voice failure,
+11. player leaves,
+12. player reconnects,
+13. voice survives lobby → race transition,
+14. voice survives race → results transition,
+15. speaking indicator,
+16. mobile-sized viewport,
+17. game audio + voice mixing,
+18. race works perfectly with voice disabled.
+
+---
+
+# PHASE 3 ACCEPTANCE GATE
+
+Phase 3 is complete only when:
+
+- voice works between remote players,
+- voice is optional,
+- microphone denial never blocks racing,
+- mute works,
+- deafen works,
+- speaking state is visible,
+- player disconnect cleans up audio,
+- TURN configuration is documented,
+- game audio remains usable,
+- no secrets are exposed,
+- multiplayer racing remains stable,
+- single-player remains stable.
+
+Create:
+
+`receipts/multiplayer/PHASE_3_VALIDATION.md`
+
+Commit Phase 3 separately.
+
+---
+
+# ============================================================
+# UX DETAILS
+# ============================================================
+
+The multiplayer experience should feel like part of Road Zero rather than an external dashboard.
+
+Suggested sequence:
+
+```text
+MAIN MENU
+
+        ↓
+
+RACE TOGETHER
+
+        ↓
+
+CREATE RACE
+or
+JOIN RACE
+
+        ↓
+
+ROOM
+
+R7K4XP
+
+Waiting on the grid...
+2 / 4 racers
+
+        ↓
+
+Grid complete
+
+Player A    READY
+Player B    READY
+Player C    READY
+Player D    READY
+
+        ↓
+
+HOST:
+PROCEED TO RACE
+
+        ↓
+
+Preparing the grid...
+
+Player A    LOADED
+Player B    LOADED
+Player C    LOADED
+Player D    LOADED
+
+        ↓
+
+3
+2
+1
+GO
+
+        ↓
+
+LIVE MULTIPLAYER RACE
+
+        ↓
+
+RESULTS
+```
+
+---
+
+# ERROR UX
+
+Never show raw server errors to users.
+
+Handle meaningful states:
+
+- room not found,
+- room full,
+- room expired,
+- race already started,
+- disconnected,
+- reconnecting,
+- host changed,
+- microphone denied,
+- voice unavailable.
+
+Messages should fit the game's tone.
+
+---
+
+# SECURITY REQUIREMENTS
+
+Validate all network payloads.
+
+Never trust:
+
+- nicknames,
+- avatar URLs,
+- room codes,
+- claimed lap values,
+- claimed checkpoints,
+- client finish results.
+
+Sanitize strings.
+
+Enforce server-side room capacity.
+
+Rate-limit room creation if necessary.
+
+Rate-limit or throttle race updates appropriately.
+
+Do not expose environment secrets.
+
+---
+
+# CLOUDINARY SECURITY — NON-NEGOTIABLE
+
+When Cloudinary credentials are later provided:
+
+DO NOT put the API secret in client code.
+
+DO NOT commit `.env`.
+
+DO NOT echo secrets in terminal output.
+
+DO NOT place secret values in generated documentation.
+
+Use environment variables.
+
+If `.env.example` is needed, include only names:
+
+```env
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+not real values.
+
+---
+
+# DEVELOPMENT PRACTICE
+
+For every phase:
+
+1. inspect existing implementation,
+2. design minimal architecture,
+3. implement incrementally,
+4. test with multiple clients,
+5. run existing single-player regression suite,
+6. document results,
+7. commit meaningful checkpoint.
+
+Do not wait until Phase 3 to discover that Phase 1 broke.
+
+---
+
+# LOGGING
+
+Use structured development logs for useful events:
+
+- room created,
+- player joined,
+- player disconnected,
+- host migrated,
+- race scheduled,
+- player finished,
+- WebRTC peer connected/disconnected.
+
+Do not log:
+
+- secrets,
+- API credentials,
+- raw microphone audio,
+- sensitive tokens.
+
+Production logging should not be noisy.
+
+---
+
+# OBSERVABILITY
+
+In development, provide a simple multiplayer debug overlay or debug mode capable of displaying:
+
+- room code,
+- player ID,
+- room state,
+- socket state,
+- ping,
+- server-clock offset,
+- snapshot rate,
+- remote interpolation delay,
+- current lap/checkpoint.
+
+This must be removable/disabled for normal players.
+
+Do not clutter production UI.
+
+---
+
+# PERFORMANCE
+
+Multiplayer must not destroy the game's existing performance.
+
+Monitor:
+
+- draw calls,
+- triangles,
+- CPU usage,
+- network update rate,
+- bandwidth,
+- FPS.
+
+Remote car interpolation should be lightweight.
+
+Voice processing should not cause major rendering degradation.
+
+---
+
+# TEST SINGLE-PLAYER AFTER EVERY PHASE
+
+After Phase 1:
+
+test Championship and Quick Race.
+
+After Phase 2:
+
+test Championship and Quick Race again.
+
+After Phase 3:
+
+test Championship and Quick Race again.
+
+Race Together must never become an excuse to regress the original game.
+
+---
+
+# DO NOT WORK ON DEPLOYMENT YET
+
+Unless explicitly instructed separately:
+
+Do not:
+
+- configure production deployment,
+- modify DNS,
+- configure Kite Passport,
+- ask for OTP,
+- request passkeys,
+- request funding,
+- publish production secrets.
+
+Local/network testing is enough for this implementation task.
+
+---
+
+# FINAL DOCUMENTATION
+
+When all three phases are complete create:
+
+`docs/multiplayer/RACE_TOGETHER.md`
+
+Explain:
+
+- architecture,
+- lobby lifecycle,
+- room codes,
+- invite links,
+- player profiles,
+- Cloudinary avatar flow,
+- room state machine,
+- race networking,
+- interpolation,
+- checkpoint authority,
+- reconnection,
+- results,
+- WebRTC signaling,
+- STUN/TURN,
+- environment variables,
+- local development,
+- known limitations.
+
+---
+
+# FINAL REPORT
+
+At the very end provide a structured report.
+
+## Phase 1
+
+Report:
+
+- lobby implementation,
+- room codes,
+- invite links,
+- profile/avatar system,
+- Cloudinary integration state,
+- ready system,
+- host logic,
+- loading synchronization,
+- tests.
+
+## Phase 2
+
+Report:
+
+- networking architecture,
+- update frequency,
+- interpolation,
+- server validation,
+- synchronized countdown,
+- checkpoints/laps,
+- results,
+- disconnect/reconnect,
+- tests.
+
+## Phase 3
+
+Report:
+
+- WebRTC architecture,
+- signaling,
+- STUN/TURN state,
+- mute/deafen,
+- speaking indicators,
+- mobile behaviour,
+- failure handling,
+- tests.
+
+## Regression
+
+Report whether:
+
+- Championship passes,
+- Quick Race passes,
+- Race Together passes.
+
+## Security
+
+Confirm:
+
+- no Cloudinary API secret in client,
+- no committed credentials,
+- network payloads validated,
+- voice not recorded.
+
+## Known limitations
+
+Be explicit.
+
+Do not hide unfinished items.
+
+---
+
+# IMPLEMENTATION ORDER — NON-NEGOTIABLE
+
+Execute exactly in this sequence:
+
+# PHASE 1
+
+Lobby  
+→ Room creation  
+→ Room code  
+→ Invite link  
+→ Join flow  
+→ Profiles  
+→ Default avatars  
+→ Cloudinary-safe avatar architecture  
+→ Waiting screen  
+→ Player list  
+→ Ready synchronization  
+→ Host permissions  
+→ Host migration  
+→ Loading synchronization  
+→ Phase 1 tests  
+→ Phase 1 receipt
+
+STOP AND VERIFY.
+
+Then:
+
+# PHASE 2
+
+Human car slots  
+→ Network snapshots  
+→ Remote interpolation  
+→ Clock synchronization  
+→ All-loaded synchronization  
+→ Shared countdown  
+→ Race start  
+→ Checkpoint authority  
+→ Lap authority  
+→ Finish authority  
+→ Results  
+→ Disconnect/reconnect  
+→ Rematch  
+→ Phase 2 tests  
+→ Phase 2 receipt
+
+STOP AND VERIFY.
+
+Then:
+
+# PHASE 3
+
+Microphone opt-in  
+→ WebRTC signaling  
+→ Peer connections  
+→ STUN  
+→ TURN configuration  
+→ Mute  
+→ Deafen  
+→ Speaking detection  
+→ Game-audio mixing  
+→ Disconnect cleanup  
+→ Mobile voice testing  
+→ Phase 3 tests  
+→ Phase 3 receipt
+
+Do not combine these phases.
 
 ---
 
 # FINAL DIRECTIVE
 
-Do not make another generic AI racing demo.
+The existing game is already finished as a strong single-player racing game.
 
-Make a small but convincing finished racing game.
+Do not destroy it trying to make multiplayer impressive.
 
-Quality beats quantity.
+Build multiplayer as a reliable extension.
 
-Gameplay comes first.
+The core experience should feel this simple:
 
-Cars come second.
+> Create a room.  
+> Choose racers, laps and track.  
+> Send the code or link.  
+> Watch friends join.  
+> Everyone gets ready.  
+> Host starts.  
+> Everyone loads.  
+> 3…2…1…GO.  
+> Race real people.  
+> Talk while racing if voice is enabled.
 
-Visual composition comes third.
+Reliability beats complexity.
 
-Then polish everything around them.
+Phase 1 must work before cars are networked.
 
-The player's first reaction should NOT be:
+Phase 2 must work before microphones are introduced.
 
-"This looks AI-generated."
+Voice must never be required for gameplay.
 
-It should be:
+Cloudinary secrets must never reach the browser.
 
-"This actually feels like a little racing game."
+Preserve the original championship.
 
-The strongest identity of the project is the persistent-rival championship:
-
-four cars,
-three recurring opponents,
-three recognisable racing personalities,
-three races,
-one championship.
-
-The player should finish the game knowing how each opponent drives.
-
-Preserve anything from the existing build that genuinely helps achieve that.
-
-Replace everything that does not.
-
-https://github.com/404-Repo/404-game-recipe
-
-Now read the existing repository, read the official 404 recipe documents, audit the current game, write `RESCUE_AUDIT.md` and `STYLE_LOCK.md`, and then execute the overhaul end-to-end without stopping after the first acceptable-looking pass.
+Begin by auditing the repository and writing `docs/multiplayer/MULTIPLAYER_BASELINE.md`, then implement Phase 1 only.

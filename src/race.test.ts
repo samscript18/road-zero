@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { awardRace, createProgress, crossCheckpoint, nearestTrackXZ, rankedStandings, RIVAL_TUNING, stepCar, type Standing } from './race';
+import { awardRace, createProgress, crossCheckpoint, mapAnalogControl, nearestTrackXZ, rankedStandings, RIVAL_TUNING, stepCar, type Standing } from './race';
 
 describe('ordered checkpoint and lap state', () => {
   it('rejects skipped and repeated checkpoints', () => {
@@ -27,6 +27,15 @@ describe('championship', () => {
 });
 
 describe('handling and personalities', () => {
+  it('maps analog down to reverse, up to acceleration, and center to neutral', () => {
+    expect(mapAnalogControl(0, 40, 40).drive).toBe(-1);
+    expect(mapAnalogControl(0, -40, 40).drive).toBe(1);
+    expect(mapAnalogControl(0, 3, 40).drive).toBe(0);
+    let reversed={speed:0,heading:0,slip:0,steerAngle:0,x:0,z:0,offroad:false};
+    for(let i=0;i<60;i++)reversed=stepCar(reversed,{throttle:0,brake:1,steer:0,handbrake:false},1/60);
+    expect(reversed.speed).toBeLessThan(-3);
+    expect(reversed.z).toBeLessThan(0);
+  });
   it('keeps an elevated car on the racing surface instead of penalizing vertical height', () => {
     const samples = [{ x: 10, y: 7, z: 20 }, { x: 20, y: 9, z: 20 }];
     expect(nearestTrackXZ({ x: 10.5, z: 20 }, samples)).toEqual({ idx: 0, distance: 0.5 });

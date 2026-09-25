@@ -10,7 +10,8 @@ ROAD//ZERO is a high-speed Three.js arcade racer built for 404 Game Jam 001. Tra
 - A/Left and D/Right: steer
 - Space: handbrake slip
 - Escape: pause
-- Touch: drag the left analog control, or tap USE ARROWS beneath it for a four-way pad. On the pad, ▲ accelerates, ▼ brakes, and ◀/▶ steer. The GO, BRAKE, and SLIP pedals remain available on the right.
+- Touch: move the left analog control up to accelerate, down to brake or reverse, and sideways to steer. Or tap USE ARROWS beneath it for a four-way pad: ▲ accelerates, ▼ brakes or reverses, and ◀/▶ steer. The GO, BRAKE, and SLIP pedals remain available on the right.
+- On supported mobile and tablet browsers, landscape play enters full screen from a player tap. Use the FULL SCREEN button if the browser asks for another tap.
 
 RUN is a finite escalating journey through Neon District, Redline Canyon, Skyline, and Orbital. Survive, drift, and choose REDLINE to multiply score. CHAMPIONSHIP races NOVA, VEX, and KAI through four races with a 10/7/5/3 points table.
 
