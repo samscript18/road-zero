@@ -39,6 +39,7 @@ app.innerHTML = `
     <p class="keys">WASD / ARROWS <em>DRIVE</em><span>·</span> SPACE <em>SLIP</em><span>·</span> R <em>RESET</em></p>
   </section>
   <div class="menu-broadcast" aria-hidden="true"><span class="live-mark"></span><span>LIVE FROM THE HILLSIDE</span><b>01 / 03</b></div>
+  <div class="menu-swipe-hint" aria-hidden="true">↑ SWIPE UP ON THE SCENE FOR MORE ROOM</div>
   <div class="menu-scene-caption" aria-hidden="true"><span>ORCHARD SPRINT</span><i></i><span>THE GRID IS MOVING</span></div>
 </main>
 <section id="brief" class="screen hidden">
@@ -91,6 +92,11 @@ app.innerHTML = `
   </div>
 </div>
 <button type="button" id="fullscreenButton" class="hidden" aria-label="Enter full screen">FULL SCREEN</button>
+<aside id="displayGuide" class="hidden" role="status" aria-live="polite">
+  <button type="button" id="closeDisplayGuide" aria-label="Close display tip">×</button>
+  <strong>MORE ROOM TO RACE</strong>
+  <p>Swipe up on the menu scene to condense Safari’s bars. For the most room, tap Share → Add to Home Screen and open Road Zero from its icon.</p>
+</aside>
 <section id="results" class="screen hidden">
   <div class="card results-card">
     <p id="resultKicker" class="kicker"></p>
@@ -104,7 +110,9 @@ app.innerHTML = `
 </section>`;
 
 const fullscreenButton = $<HTMLButtonElement>('#fullscreenButton');
+const displayGuide = $<HTMLElement>('#displayGuide');
 let fullscreenRequestPending = false;
+let fullscreenRejected = false;
 
 function isTouchDevice() {
   return matchMedia('(any-pointer:coarse)').matches || navigator.maxTouchPoints > 0;
@@ -114,40 +122,69 @@ function isLandscapeTouch() {
   return innerWidth > innerHeight && isTouchDevice();
 }
 
-function fullscreenAvailable() {
-  const standalone = matchMedia('(display-mode: standalone)').matches ||
+function isStandalone() {
+  return matchMedia('(display-mode: standalone)').matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return !standalone && document.fullscreenEnabled !== false &&
+}
+
+function fullscreenAvailable() {
+  return !isStandalone() && !fullscreenRejected && document.fullscreenEnabled !== false &&
     typeof document.documentElement.requestFullscreen === 'function';
 }
 
 function syncFullscreenButton() {
-  fullscreenButton.classList.toggle('hidden', !isLandscapeTouch() || !fullscreenAvailable() || !!document.fullscreenElement);
+  const show = isLandscapeTouch() && !isStandalone() && !document.fullscreenElement;
+  fullscreenButton.classList.toggle('hidden', !show);
+  fullscreenButton.textContent = fullscreenAvailable() ? 'FULL SCREEN' : 'FULL VIEW TIP';
+  fullscreenButton.setAttribute('aria-label', fullscreenAvailable() ? 'Enter full screen' : 'How to hide Safari browser bars');
+  if (!show) displayGuide.classList.add('hidden');
 }
 
-function requestLandscapeFullscreen() {
+function requestLandscapeFullscreen(showGuideOnFailure = false) {
   if (!isLandscapeTouch() || !fullscreenAvailable() || document.fullscreenElement || fullscreenRequestPending) return;
   fullscreenRequestPending = true;
   try {
     void Promise.resolve(document.documentElement.requestFullscreen())
-      .catch(() => {})
+      .catch(() => {
+        fullscreenRejected = true;
+        if (showGuideOnFailure) displayGuide.classList.remove('hidden');
+      })
       .finally(() => {
         fullscreenRequestPending = false;
         syncFullscreenButton();
       });
   } catch {
+    fullscreenRejected = true;
     fullscreenRequestPending = false;
+    if (showGuideOnFailure) displayGuide.classList.remove('hidden');
     syncFullscreenButton();
   }
 }
 
-fullscreenButton.addEventListener('click', requestLandscapeFullscreen);
+fullscreenButton.addEventListener('click', () => {
+  if (fullscreenAvailable()) {
+    requestLandscapeFullscreen(true);
+  } else {
+    displayGuide.classList.remove('hidden');
+  }
+});
+$<HTMLButtonElement>('#closeDisplayGuide').addEventListener('click', () => displayGuide.classList.add('hidden'));
 app.classList.toggle('touch-device', isTouchDevice());
 document.addEventListener('fullscreenchange', syncFullscreenButton);
 addEventListener('resize', syncFullscreenButton);
 addEventListener('orientationchange', syncFullscreenButton);
 addEventListener('pointerdown', () => {
-  if (racing) requestLandscapeFullscreen();
+  if (racing || multiplayerRace.isActive) requestLandscapeFullscreen();
+});
+// WebKit can still turn a two-finger steering/throttle gesture into page zoom.
+// Cancel only browser zoom gestures; ordinary simultaneous control touches remain intact.
+for (const eventName of ['gesturestart', 'gesturechange']) {
+  document.addEventListener(eventName, event => {
+    if (racing || multiplayerRace.isActive) event.preventDefault();
+  }, { passive: false });
+}
+document.addEventListener('dblclick', event => {
+  if (racing || multiplayerRace.isActive) event.preventDefault();
 });
 syncFullscreenButton();
 

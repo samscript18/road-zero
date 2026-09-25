@@ -1,6 +1,7 @@
 :root{font-family:Arial Narrow,Impact,system-ui,sans-serif;color:#353a3b;background:#849077;font-synthesis:none}
 *{box-sizing:border-box}
 html,body,#app{width:100%;height:100%;margin:0;overflow:hidden;touch-action:none}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:none}
 html,body,#app,#app *{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 canvas{display:block;width:100%;height:100%}
 
@@ -45,6 +46,7 @@ button:hover,button:focus-visible{translate:2px 2px;box-shadow:2px 2px 0 #79533f
 .live-mark{width:7px;height:7px;border-radius:50%;background:#d74b3f;box-shadow:0 0 0 3px rgba(215,75,63,.25);animation:live-pulse 1.8s ease-in-out infinite}
 .menu-scene-caption{right:max(29px,env(safe-area-inset-right));bottom:max(30px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px}
 .menu-scene-caption i{width:45px;height:2px;background:#c86845;transform:skew(-25deg)}
+.menu-swipe-hint{display:none;position:absolute;right:max(28px,env(safe-area-inset-right));bottom:74px;color:#efe1c6;background:rgba(35,38,35,.72);border-left:3px solid #c86845;padding:9px 11px;font:800 9px/1.2 system-ui,sans-serif;letter-spacing:.12em;text-shadow:0 1px 3px #353a3b;pointer-events:none}
 @keyframes menu-card-in{from{opacity:0;transform:translateX(-28px) rotate(-.25deg)}to{opacity:1;transform:translateX(0) rotate(-.25deg)}}
 @keyframes title-enter{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes button-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -100,6 +102,11 @@ h3{font:800 11px system-ui,sans-serif;letter-spacing:.2em;margin:24px 0 8px;colo
 #touch .pedals button:active{translate:2px 2px;box-shadow:1px 1px 0 #79533f}
 #fullscreenButton{position:fixed;z-index:12;left:50%;bottom:max(15px,env(safe-area-inset-bottom));translate:-50% 0;min-height:36px;padding:8px 14px;background:rgba(53,58,59,.9);border:1px solid #efe1c6;border-bottom:3px solid #c86845;box-shadow:2px 2px 0 #79533f;color:#efe1c6;text-align:center;font:900 10px/1 system-ui,sans-serif;letter-spacing:.14em;white-space:nowrap}
 #fullscreenButton:active{translate:calc(-50% + 2px) 2px;box-shadow:none}
+#displayGuide{position:fixed;z-index:13;left:50%;bottom:calc(max(15px,env(safe-area-inset-bottom)) + 49px);translate:-50% 0;width:min(390px,calc(100vw - 32px));padding:14px 42px 14px 17px;background:#efe1c6;border-top:4px solid #c86845;box-shadow:5px 5px 0 rgba(53,58,59,.7);font:700 12px/1.4 system-ui,sans-serif;color:#353a3b}
+#displayGuide strong{font-size:10px;letter-spacing:.14em}
+#displayGuide p{margin:6px 0 0}
+#closeDisplayGuide{position:absolute;top:4px;right:5px;padding:5px 9px;background:transparent;color:#353a3b;box-shadow:none;font-size:21px;line-height:1}
+#closeDisplayGuide:hover,#closeDisplayGuide:focus-visible{box-shadow:none;translate:none;outline:2px solid #c86845}
 
 .results-card{max-height:88vh;overflow:auto}
 #raceOrder>div,#standings>div{display:grid;grid-template-columns:32px 1fr auto;align-items:center;border-top:1px solid #b8a98e;padding:8px 4px;font-family:system-ui,sans-serif}
@@ -136,6 +143,14 @@ h3{font:800 11px system-ui,sans-serif;letter-spacing:.2em;margin:24px 0 8px;colo
 }
 @media(pointer:coarse){
   #raceLabel{bottom:calc(202px + env(safe-area-inset-bottom))}
+}
+@media(orientation:landscape) and (pointer:coarse){
+  html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;touch-action:pan-y}
+  body::after{content:'';display:block;height:65dvh;pointer-events:none}
+  #app{position:sticky;top:0;height:100dvh;touch-action:pan-y}
+  #app canvas,#hud,#touch,#touch *{touch-action:none}
+  #menu{touch-action:pan-y}
+  .menu-swipe-hint{display:block}
 }
 @media(max-height:520px) and (min-width:701px){
   #menu .hero{width:min(390px,46vw);max-height:calc(100dvh - 28px);padding:15px 20px}
