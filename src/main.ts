@@ -619,6 +619,7 @@ function updateHud() {
 function finishRace() {
   if (!racing) return;
   racing = false;
+  raceAudio.silence();
   raceAudio.cue('finish');
   const order = [...racers]
     .sort((a, b) =>

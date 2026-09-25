@@ -1,5 +1,8 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
+import { loadEnv } from '../server/load-env.mjs';
+
+loadEnv();
 
 const children = [
   spawn(process.execPath, [resolve('server/index.mjs')], { stdio: 'inherit', env: process.env }),

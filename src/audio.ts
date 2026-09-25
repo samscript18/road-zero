@@ -73,6 +73,16 @@ export class RaceAudio {
     this.crowdGain?.gain.setTargetAtTime([0.016, 0.01, 0.026][track] ?? 0.012, now, 0.35);
   }
 
+  silence() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.engineGain?.gain.setTargetAtTime(0.0001, now, 0.08);
+    this.tyreGain?.gain.setTargetAtTime(0.0001, now, 0.08);
+    this.dirtGain?.gain.setTargetAtTime(0.0001, now, 0.08);
+    this.windGain?.gain.setTargetAtTime(0.0001, now, 0.12);
+    this.crowdGain?.gain.setTargetAtTime(0.0001, now, 0.2);
+  }
+
   cue(kind: 'count' | 'go' | 'lap' | 'finish') {
     if (!this.ctx || !this.master) return;
     const ctx = this.ctx, now = ctx.currentTime, osc = ctx.createOscillator(), gain = ctx.createGain();

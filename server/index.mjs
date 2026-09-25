@@ -5,7 +5,10 @@ import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { RoomManager } from './rooms.mjs';
+import { loadEnv } from './load-env.mjs';
 import { normalizeRoomCode } from '../shared/multiplayer-protocol.js';
+
+loadEnv();
 
 const mime = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

@@ -55,7 +55,7 @@ npm run build
 npm run multiplayer:serve
 ```
 
-The lobby server listens on `MULTIPLAYER_PORT` (or `PORT`, default `8787`). Optional custom portraits use server-only `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Without them, all eight bundled original portraits work; do not put the secret in a `VITE_` variable. See [Phase 1 architecture](docs/multiplayer/ARCHITECTURE.md).
+The lobby server listens on `MULTIPLAYER_PORT` (or `PORT`, default `8787`). Optional custom portraits use server-only `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Copy `.env.example` to `.env` and fill those in; `npm run dev` and `npm run multiplayer:serve` load `.env` automatically. Already-set shell variables win over the file. Without them, all eight bundled original portraits work; do not put the secret in a `VITE_` variable. See [Phase 1 architecture](docs/multiplayer/ARCHITECTURE.md).
 
 Production:
 
