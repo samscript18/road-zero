@@ -20,6 +20,7 @@ button:hover,button:focus-visible{translate:2px 2px;box-shadow:2px 2px 0 #79533f
 #menu .hero{position:relative;width:min(470px,43vw);max-height:calc(100dvh - 58px);overflow:auto;padding:29px 31px 24px;border-top:6px solid #c86845;background:linear-gradient(145deg,#f5e8cd,#e4cfa8);box-shadow:11px 11px 0 rgba(39,39,35,.67),0 24px 65px rgba(28,25,20,.34);transform:rotate(-.25deg);animation:menu-card-in .75s cubic-bezier(.19,1,.22,1) both}
 #menu .hero::after{content:'';position:absolute;inset:6px;pointer-events:none;border:1px solid rgba(121,83,63,.2)}
 #menu .menu-masthead{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(121,83,63,.45);padding-bottom:12px}
+#menu .menu-logo{width:42px;height:42px;object-fit:contain;flex:none;margin:-7px 0}
 #menu .kicker{margin:0;font-size:9px;letter-spacing:.19em}
 #menu .menu-masthead>span{font:800 8px/1.2 system-ui,sans-serif;letter-spacing:.1em;color:#79533f;white-space:nowrap}
 #menu h1{display:grid;gap:1px;font-size:clamp(70px,8vw,110px);line-height:.74;letter-spacing:-.055em;margin:22px 0 19px;transform:skew(-2deg)}

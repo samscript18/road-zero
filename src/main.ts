@@ -22,7 +22,7 @@ for (const eventName of ['selectstart', 'copy', 'contextmenu']) {
 app.innerHTML = `
 <main id="menu" class="screen">
   <section class="card hero">
-    <div class="menu-masthead"><p class="kicker">THE CANTERA HILL-CLIMB · 1982</p><span>03 ROUNDS · 04 DRIVERS</span></div>
+    <div class="menu-masthead"><img class="menu-logo" src="/road-zero-logo.png" alt="" /><p class="kicker">THE CANTERA HILL-CLIMB · 1982</p><span>03 ROUNDS · 04 DRIVERS</span></div>
     <h1><span>ROAD</span><i>ZERO</i></h1>
     <p class="lede">Three mountain roads. Three rivals to read. One title to win.</p>
     <div class="rival-strip" aria-label="Your three championship rivals">
